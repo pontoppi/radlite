@@ -1,0 +1,13 @@
+#/bin/tcsh
+
+echo "Compiling imaging RADLite...."
+cp configure_image.h configure.h
+make
+mv RADlite RADlite_imcir
+
+echo "Compiling spectral RADLite...."
+cp configure_spectrum.h configure.h
+make
+
+
+

@@ -1,0 +1,13 @@
+!MOLECULE
+CO
+!MOLECULAR WEIGHT
+28.0
+!NUMBER OF ENERGY LEVELS
+     2
+!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q
+    1   107.6424  15.0              0           P  7
+    2  2223.2714  13.0              1               
+!NUMBER OF RADIATIVE TRANSITIONS
+     1
+!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm-1) + E_u(cm-1) + v_u + v_l + Q_p + Q_pp
+    1    2    1   1.801e+01    2115.6290000   2223.27              1              0                          P  7

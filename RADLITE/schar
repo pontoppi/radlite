@@ -1,0 +1,2 @@
+#!/usr/bin/perl
+system("/Users/pontoppi/WORK/RADTRANS_LINE_22_11_08/RADLITE/radical @ARGV");

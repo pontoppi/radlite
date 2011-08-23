@@ -1,0 +1,40 @@
+104             Input format version
+================================================================
+     200        Maximum number iterations                                    
+2               Iteration method          (0=LI,1=ALI,2=ALI+Ng,-1=IS)        
+0.d0            Flux conservation trick   (0.d0=disable)
+1.000e-06       Convergence tolerance                    
+0               Convergence crit type     (0=J_nu,1=j_nu) 
+1               Initial guess type        (0=triv)         
+============================================================================
+41              Nr of mu-angle points
+16              Nr of phi-angle points
+2               Type of mu gridding       (0=regular,1=dr/r,2=dr/rspecial)
+0.1             Largest allowed error     
+1.0d0           Dmu wrt dR                (1.0=tangent ray method)
+3               Extra mus around mu=0
+================================================================
+0               Type of outer boundary    (0=empty,2=microwavebg)
+2               Type of inner boundary    (0=solid,1=empty?,2=central star,3=mirror)
+0               Type of equator boundary  (0=no,1=disk)                      
+================================================================
+57.3            Default inclination angle                        
+150              Nr Phi-points circular CCD                        
+1               The number of b_i of the image per r_i of the grid 
+-60             The number of extra b_i inside the inner radius     
+============================================================================
+1               Save NLTE                                                    
+0               Save intensity at inu                                        
+-1              Save source at inu                                           
+0               Save moments             (-1=save,2=append,3=onlylast) 
+-1              Save dusttemp/etc        (-1=save,2=append,3=onlylast)
+0               Save ALI operator
+1               Save phys vars of medium
+0               Save flux conservation data
+============================================================================
+-551            Type of setup
+0               Do dust?
+1               Do lines?
+1               Include dust in lines?
+1               Include star pumping?
+============================================================================
