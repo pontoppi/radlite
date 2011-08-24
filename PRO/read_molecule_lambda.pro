@@ -82,17 +82,19 @@ FOR i=0,nline-1 DO BEGIN
    lin_rot[i] = rotdum
 ENDFOR
 
+;
+;
 IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
    readf, lunm, str,format='(a100)'
    readf, lunm, nr_coll_partners
    partner_name = STRARR(nr_coll_partners)
+   ntrans       = INTARR(nr_coll_partners)
+   ntemps       = INTARR(nr_coll_partners)
+   temps        = FLTARR(nr_coll_partners,MAXTEMPS)
+   collrates    = FLTARR(10000,MAXTEMPS,nr_coll_partners)
    namedum = ' '
    ntrandum = 0
    ntempdum = 0
-   ntrans   = INTARR(nr_coll_partners)
-   ntemps   = INTARR(nr_coll_partners)
-   temps    = FLTARR(nr_coll_partners,MAXTEMPS)
-   collrates = FLTARR(10000,MAXTEMPS,nr_coll_partners)
    FOR k=0,nr_coll_partners-1 DO BEGIN
       readf, lunm, str, format='(a100)'
       readf, lunm, namedum,format='(a100)'
@@ -110,17 +112,25 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
       readf, lunm, str,format='(a100)'
       ratedum = FLTARR(ntemps[k])
       FOR h=0,ntrans[k]-1 DO BEGIN
-         readf, lunm, indexdum, iupdum, udowndum, ratedum;,format='(3i,'+STRTRIM(STRING(ntemps[k]),2)+'f)'
+         readf, lunm, indexdum, iupdum, udowndum, ratedum
          collrates[h,0:ntemps[k]-1,k] = ratedum 
       ENDFOR
    ENDFOR
-ENDIF
+ENDIF ELSE BEGIN
+   ;
+   ;These definitions for compatibility when coll=0
+   nr_coll_partners = 1
+   partner_name     = STRARR(nr_coll_partners)
+   ntrans           = INTARR(nr_coll_partners)
+   ntemps           = INTARR(nr_coll_partners)
+   temps            = FLTARR(nr_coll_partners,MAXTEMPS)
+   collrates        = FLTARR(10000,MAXTEMPS,nr_coll_partners)
+ENDELSE
 
 close,lunm
 free_lun, lunm
 energy = e * hh * cc ;energy in K * k (formerly used by RADLite, but now changed to energy_in_K, as below)
 energy_in_K = e * hh * cc / kk ;energy in Kelvin
-
 
 
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$

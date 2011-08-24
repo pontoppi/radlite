@@ -1,9 +1,18 @@
+
+;
+;Main procedure for the RADLite NLTE module. 
+;
+;
+;
+
+
 @analyze_v2
 PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens
 COMMON coll,  Cul, TCul
 COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g
 COMMON grid, np, z_col, tgas_col, abun_col, rhogas_col, J_col, JSED_col, nu_cont
 @natconst
+@line_params.ini
 ;
 ; Read the continuum mean intensity
 ;
@@ -11,8 +20,13 @@ mint   =  read_meanint()
 np      = ddens.ntheta/2
 nu_cont = ddens.nu
 
+CASE isot OF
+   51: lamda_isotop='12CO_lamda.dat'
+ENDCASE
+
 ;HITRAN_EXTRACT, isotop = 51, lambdarange=[800,4000.74], max_energy = 400., vmax=1
-mol    = READ_MOLECULE_LAMBDA('moldata.dat',/coll)
+mol    = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll)
+mol    = EXTRACT_LAMDA(mol,vmax=1,emax=400)
 nlines = N_ELEMENTS(mol.freq)
 Cul    = FLTARR(nlines,10)
 TCul   = [2.,5.,10.,50.,200,400,800,1500,3000.,10000.]
