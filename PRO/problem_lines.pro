@@ -2,25 +2,28 @@ PRO problem_lines, molfile
 @line_params.ini
 @natconst.pro
 
-;
+;====================================
 ; Messages
-;
+;====================================
 print,' - Taking dust density x ', STRTRIM(STRING(gtd),2)
-;
+
+;====================================
 ; Make new radlite.inp
-;
+;====================================
 write_radlite_line,niterline,/noisrf,cir_np=cir_np,b_per_r=b_per_r,$
                    b_extra=b_extra
-;
+
+;====================================
 ; Read the dust density and temperature
-;
+;====================================
 ddens  = read_dustdens()
 dtemp  = read_dusttemp()
 nr     = n_elements(ddens.r)
 nt     = n_elements(ddens.theta)/2
 
-;
+;====================================
 ;The gas temperature
+;====================================
 IF gas_decoup EQ 0 THEN BEGIN
    tgas   = dtemp.temp[*,*,0,0] ; gas temp = dust temp
    openw,lunt,'temperature.inp',/get_lun
@@ -48,23 +51,26 @@ ENDIF ELSE BEGIN
    
 ENDELSE
    
-;
+;======================================
 ;Now create the gas velocity file.
 ;Some velocity fields will return an additional density component to
 ;satisfy the continuum equation.
+;======================================
 ;
+;Initialize add_dens
 add_dens = 0.
 make_velocity,ddens,vtype,add_dens=add_dens
 
-;
-; Now create the gas density and temperature
-;
+;=======================================
+; Create the gas density and temperature
+;=======================================
 rhogas = ddens.rho[*,*,0]*gtd;
 gsubs = WHERE(add_dens NE 0)
 IF gsubs[0] NE -1 THEN rhogas[gsubs] = add_dens[gsubs]
 
-;
+;======================================
 ; Now create a gas density out of this
+;======================================
 
 ; Take only isize=1 and ispec=1
 ;
@@ -79,8 +85,9 @@ close,lund
 free_lun, lund
 
 
-;
+;======================================
 ;And abundance
+;======================================
 IF gas_decoup NE 0 THEN BEGIN
    IF isot NE 11 THEN BEGIN
       PRINT, 'WARNING: You are attempting to use Rowins phenomenological abundance + gas temperature model. This'
@@ -97,65 +104,33 @@ IF gas_decoup NE 0 THEN BEGIN
 ENDIF ELSE BEGIN
    make_abundance,abun_str,fr_temp=fr_temp,PT_rel=PT_rel,abun=abun
 ENDELSE
-;
-;Test the velocity and plot for inspection
-;
+
+;====================================
+;Test the velocity
+;====================================
 read_vel, 'velocity.inp',vel
 
-;
+;====================================
 ; Check passband width
-;
+;====================================
 vmax = max(abs(vel.vphi))
 print,'Maximum velocity = ',vmax/1d5,' km/s'
 mol = read_molecule_lambda(molfile)
 
-;====================================================================
-;READING PARTITION SUMS
-;====================================================================
-dat = dblarr(3000,2)
-openr, lunps, psumfile,/get_lun
-str0 = '' & str1 = ''  & str2 = ''  & str3 = ''  & str4 = ''  & str5 = ''  & str6 = ''  & str7 = ''  & str8 = ''  
-str9 = '' & str10 = ''  & str11 = ''  & str12 = ''  & str13 = ''  & str14 = ''  & str15 = ''  & str16 = ''  & str17 = ''  & str18 = ''
-strdum = ''
-i1 = '' & i2 = '' & i3 = '' & i4 = '' & i5 = '' & i6 = '' & i7 = '' & i8 = '' & i9 = ''
-i10 = '' & i11 = '' & i12 = '' & i13 = '' & i14 = '' & i15 = '' & i16 = '' & i17 = '' & i18 = ''
+;====================================
+;Read the partition functions
+;====================================
+psum = read_psum(psumfile, mol)
 
-readf,lunps,str0,str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11,str12,str13,str14,str15,str16,str17,str18,$ ;skip first line
-  format='(a19,a28,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27)'
-readf,lunps,str0,str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11,str12,str13,str14,str15,str16,str17,str18,$ 
-  format='(a19,a24,a23,a24,a15,a25,a25,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27)'
-psum_mols = STRTRIM([str0,str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11,str12,str13,str14,str15,str16,str17,str18],2)
-readf,lunps,strdum,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,$ 
-  format='(a19,a24,a23,a24,a15,a25,a25,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27,a27)'
-molmasses = STRTRIM([strdum,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18])
-
-col_sub = WHERE(psum_mols eq mol.species)
-molmass = float(molmasses[col_sub])
-
-IF col_sub[0] EQ -1 THEN BEGIN
-    print, 'No partition sum table found for the requested molecule: ', mol.species
-    stop
-ENDIF
-
-i=0
-
-WHILE NOT EOF(lunps) DO BEGIN
-    readf, lunps, d0,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18
-    psums = [d0,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18]
-    dat[i,*] = [psums[0],psums[col_sub]]
-    i=i+1
-ENDWHILE
-dat = dat[0:i-1,*]
-close, lunps
-free_lun, lunps
-psum = dat
-
-;
-;Now that we have the molecular mass, we can calculate the intrinsic
+;====================================
+;Now that we have the molecular mass, 
+;we can calculate the intrinsic
 ;line widths
+;====================================
 
-;
+;====================================
 ;Check for user error
+;====================================
 IF turb_kep NE 0 and turb_sou NE 0 THEN BEGIN
    PRINT, 'Ambiguous turbulence description! Please set turb_kep or turb_sou to 0'
    STOP
@@ -165,16 +140,15 @@ IF turb_kep EQ 0 and turb_sou EQ 0 THEN BEGIN
    STOP
 ENDIF
 IF turb_kep NE 0 THEN BEGIN
-   make_turbulence,ddens,2,alpha=0.0,kepler_frac=turb_kep,molmass=molmass
+   make_turbulence,ddens,2,alpha=0.0,kepler_frac=turb_kep,molmass=mol.mumol
 ENDIF
 IF turb_sou NE 0 THEN BEGIN
-   make_turbulence,ddens,1,alpha=turb_sou,kepler_frac=0.0,molmass=molmass
+   make_turbulence,ddens,1,alpha=turb_sou,kepler_frac=0.0,molmass=mol.mumol
 ENDIF
 
-;====================================================================
-;
+;====================================
 ; Put the populations to LTE, if requested
-;
+;====================================
 IF lte EQ 1 THEN BEGIN
 
    npop = dblarr(nr,nt,mol.nlevels)
@@ -197,7 +171,7 @@ IF lte EQ 1 THEN BEGIN
    ;
    ;get partition sum:
    
-   part = interpol(psum[*,1],psum[*,0],tgas[*,0:nt-1])
+   part = interpol(psum.psum,psum.temp,tgas[*,0:nt-1])
    FOR i=0,mol.nlevels-1 DO BEGIN
       npop[*,*,i] = npop[*,*,i] / part
    ENDFOR

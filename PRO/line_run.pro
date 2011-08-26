@@ -31,9 +31,6 @@ ENDELSE
 
 IF NOT KEYWORD_SET(run_name) THEN run_name='run'
 
-runflag1 = 0
-runflag2 = 0
-
 ;First make a test run with hitran_extract to determine the total
 ;number of lines in the requested wavelength range. 
 hitran_extract,cutoff=cutoff,lambdarange=[min_mu,max_mu],freq=freq,$

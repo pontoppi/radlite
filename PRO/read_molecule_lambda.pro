@@ -72,7 +72,8 @@ lin_vib = strarr(nline)   ;The vibrational quantum number(s) of the line (upper 
 lin_rot = strarr(nline)   ;The rotational quantum number(s) of the line (upper to lower). Can be used as a redundant sanity check with the level numbers
 
 FOR i=0,nline-1 DO BEGIN
-   readf,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum,vibdum,rotdum,format='(i5,i5,i5,e12.3,f16.7,f12.5,a30,a30)'
+;   readf,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum,vibdum,rotdum,format='(i5,i5,i5,e12.3,f16.7,f12.5,a30,a30)'
+   readf,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum,format='(i5,i5,i5,e12.3,f16.7,f12.5)'
    iup[i]   = iupdum
    idown[i] = idowndum
    aud[i]   = auddum
@@ -144,7 +145,6 @@ close,lunm
 free_lun, lunm
 energy = e * hh * cc ;energy in K * k (formerly used by RADLite, but now changed to energy_in_K, as below)
 energy_in_K = e * hh * cc / kk ;energy in Kelvin
-
 
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$
         aud:aud,freq:freq,species:species,mumol:mumol,nlevels:nlev,lev_vib:lev_vib,lev_rot:lev_rot,$

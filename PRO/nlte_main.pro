@@ -25,8 +25,9 @@ CASE isot OF
 ENDCASE
 
 ;HITRAN_EXTRACT, isotop = 51, lambdarange=[800,4000.74], max_energy = 400., vmax=1
-mol    = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll)
-mol    = EXTRACT_LAMDA(mol,vmax=1,emax=400)
+molall    = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll)
+mol    = EXTRACT_LAMDA(molall,vmax=1,emax=400)
+
 nlines = N_ELEMENTS(mol.freq)
 Cul    = FLTARR(nlines,10)
 TCul   = [2.,5.,10.,50.,200,400,800,1500,3000.,10000.]
@@ -46,7 +47,6 @@ Aul         = mol.Aud
 Bul         = (1d0/(2d0*hh*cc*freq^3d0))*Aul
 Blu         = gugl*Bul
 nlevels     = mol.nlevels
-
 
 npop_all = DBLARR(nlevels, np, ddens.nr)
 

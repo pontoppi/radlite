@@ -54,13 +54,11 @@ collrates    = collrates[0:MAX(nctrans)-1,*,*]
 coll_iup     = coll_iup[0:MAX(nctrans)-1,*]
 coll_idown   = coll_idown[0:MAX(nctrans)-1,*]
 
-stop
-
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$
-        aud:aud,freq:freq,species:species,mumol:mumol,nlevels:nlev,lev_vib:lev_vib,lev_rot:lev_rot,$
-        lin_vib:lin_vib,lin_rot:lin_rot,eupper:eupper,ntemps:ntemps,temps:temps,collrates:collrates,$
-        coll_iup:coll_iup,coll_idown:coll_idown,nr_coll_partners:nr_coll_partners,$
-        partner_name:partner_name,nctrans:nctrans}
+        aud:aud,freq:freq,species:mol.species,mumol:mol.mumol,nlevels:nlevels,lev_vib:lev_vib,lev_rot:lev_rot,$
+        lin_vib:lin_vib,lin_rot:lin_rot,eupper:eupper,ntemps:mol.ntemps,temps:mol.temps,collrates:collrates,$
+        coll_iup:coll_iup,coll_idown:coll_idown,nr_coll_partners:mol.nr_coll_partners,$
+        partner_name:mol.partner_name,nctrans:nctrans}
 
 
 
