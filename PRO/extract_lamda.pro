@@ -5,47 +5,67 @@
 
 FUNCTION extract_lamda, mol, vmax=vmax, emax=emax, lambdarange=lambdarange
 
-glines  = WHERE(mol.eupper*1.4387973 LT emax) ;emax in Kelvin
+glines  = WHERE(mol.eupper LT emax,nlines) ;emax in Kelvin
 giup    = mol.iup[glines]
 gidown  = mol.idown[glines]
 all_levels = [giup,gidown]
 all_levels_sorted = all_levels(SORT(all_levels))
-unique_lev = all_levels_sorted[UNIQ(all_levels_sorted)]
 
-nlevels = N_ELEMENTS(unique_lev)
+lind_nonconsec = all_levels_sorted[UNIQ(all_levels_sorted)] ;This is no longer necessarily a consecutive index
+nlevels = N_ELEMENTS(lind_nonconsec)
 
-lind        = mol.lind[unique_lev]
-energy      = mol.energy[unique_lev]
-energy_in_k = mol.energy_in_k[unique_lev]
-e           = mol.e[unique_lev]
-g           = mol.g[unique_lev]
-iup         = mol.iup[glines]
-idown       = mol.idown[glines]
+energy      = FLTARR(nlevels)
+energy_in_k = FLTARR(nlevels)
+e           = FLTARR(nlevels)
+g           = FLTARR(nlevels)
+lev_vib     = STRARR(nlevels)
+lev_rot     = STRARR(nlevels)
+
+;Extract level information
+FOR i=0,nlevels-1 DO BEGIN
+   gsub = WHERE(lind_nonconsec[i] EQ mol.lind)
+   energy[i]      = mol.energy[gsub]
+   energy_in_k[i] = mol.energy_in_k[gsub]
+   e[i]           = mol.e[gsub]
+   g[i]           = mol.g[gsub]
+   lev_vib[i]     = mol.lev_vib[gsub]
+   lev_rot[i]     = mol.lev_rot[gsub]
+ENDFOR
+
 aud         = mol.aud[glines]
 freq        = mol.freq[glines]
-lev_vib     = mol.lev_vib[unique_lev]
-lev_rot     = mol.lev_rot[unique_lev]
 lin_vib     = mol.lin_vib[glines]
 lin_rot     = mol.lin_rot[glines]
 eupper      = mol.eupper[glines]
 nctrans     = mol.nctrans
+
+;Now we need to calculate a new set of iup and idown to match a
+;consecutive level index, 1,2,3,4,...
+lind  = INDGEN(nlevels)+1
+iup   = INTARR(nlines)
+idown = INTARR(nlines)
+FOR i=0,nlines-1 DO BEGIN
+   iup[i]   = WHERE(mol.iup[glines[i]] EQ lind_nonconsec)+1 ;+1 to match the 1-indexed lamda table
+   idown[i] = WHERE(mol.idown[glines[i]] EQ lind_nonconsec)+1
+ENDFOR
 
 collrates   = FLTARR(MAX(mol.nctrans),MAX(mol.ntemps),mol.nr_coll_partners)
 coll_iup    = FLTARR(MAX(mol.nctrans),mol.nr_coll_partners)
 coll_idown  = FLTARR(MAX(mol.nctrans),mol.nr_coll_partners)
 
 FOR k=0,mol.nr_coll_partners-1 DO BEGIN
-   gcoll = INTARR(nctrans[k])
+   gcount = 0
    FOR h=0,nctrans[k]-1 DO BEGIN
-      dum = WHERE(mol.coll_iup[h] EQ lind,nup)
-      dum = WHERE(mol.coll_idown[h] EQ lind,ndown)
-      IF nup GT 0 AND ndown GT 0 THEN gcoll[h] = 1
+      iupdum   = WHERE(mol.coll_iup[h,k] EQ lind_nonconsec,nup)
+      idowndum = WHERE(mol.coll_idown[h,k] EQ lind_nonconsec,ndown)
+      IF nup GT 0 AND ndown GT 0 THEN BEGIN
+         coll_iup[gcount,k]    = iupdum+1   ;+1 to match the 1-indexed lamda table
+         coll_idown[gcount,k]  = idowndum+1
+         collrates[gcount,0:mol.ntemps[k]-1,k] = mol.collrates[h,0:mol.ntemps[k]-1,k]
+         gcount++
+      ENDIF
    ENDFOR
-   gsubs = WHERE(gcoll,gcount)
-   nctrans[k] = gcount
-   coll_iup[0:nctrans[k]-1,k]    = mol.coll_iup[gsubs,k]
-   coll_idown[0:nctrans[k]-1,k]  = mol.coll_idown[gsubs,k]
-   collrates[0:nctrans[k]-1,0:mol.ntemps[k]-1,k] = mol.collrates[gsubs,0:mol.ntemps[k]-1,k]
+   nctrans[k] = gcount ;Update to new number of collisional transitions
 ENDFOR
 
 ;Free unused rate entries

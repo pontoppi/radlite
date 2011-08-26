@@ -91,7 +91,7 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
    partner_name = STRARR(nr_coll_partners)
    nctrans      = INTARR(nr_coll_partners)
    ntemps       = INTARR(nr_coll_partners)
-   temps        = FLTARR(nr_coll_partners,MAXTEMPS)
+   temps        = FLTARR(MAXTEMPS,nr_coll_partners)
    collrates    = FLTARR(MAXCOLL,MAXTEMPS,nr_coll_partners)
    coll_iup     = FLTARR(MAXCOLL,nr_coll_partners)
    coll_idown   = FLTARR(MAXCOLL,nr_coll_partners)
@@ -127,7 +127,6 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
    collrates    = collrates[0:true_maxcoll-1,*,*]
    coll_iup     = coll_iup[0:true_maxcoll-1,*]
    coll_idown   = coll_idown[0:true_maxcoll-1,*]
-
 ENDIF ELSE BEGIN
    ;
    ;These definitions for compatibility when coll=0

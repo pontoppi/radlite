@@ -7,15 +7,16 @@
 
 
 @analyze_v2
-PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens
+PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens, partner_name=partner_name
 COMMON coll,  Cul, TCul
-COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g
+COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner
 COMMON grid, np, z_col, tgas_col, abun_col, rhogas_col, J_col, JSED_col, nu_cont
 @natconst
 @line_params.ini
 ;
 ; Read the continuum mean intensity
 ;
+
 mint   =  read_meanint()
 np      = ddens.ntheta/2
 nu_cont = ddens.nu
@@ -24,18 +25,22 @@ CASE isot OF
    51: lamda_isotop='12CO_lamda.dat'
 ENDCASE
 
+CASE partner_name OF
+   'H2': partner = 0
+ENDCASE
+
 ;HITRAN_EXTRACT, isotop = 51, lambdarange=[800,4000.74], max_energy = 400., vmax=1
-molall    = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll)
-mol    = EXTRACT_LAMDA(molall,vmax=1,emax=400)
+molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll)
+mol    = EXTRACT_LAMDA(molall,vmax=1,emax=4000)
 
 nlines = N_ELEMENTS(mol.freq)
-Cul    = FLTARR(nlines,10)
-TCul   = [2.,5.,10.,50.,200,400,800,1500,3000.,10000.]
+;Cul    = FLTARR(nlines,10)
+;TCul   = [2.,5.,10.,50.,200,400,800,1500,3000.,10000.]
 
-PureRot = WHERE(mol.freq LT 1000.)
-RoVib   = WHERE(mol.freq GE 1000.)
-Cul[PureRot,*] = 3d-11
-Cul[RoVib,*]   = 1d-15
+;PureRot = WHERE(mol.freq LT 1000.)
+;RoVib   = WHERE(mol.freq GE 1000.)
+;Cul[PureRot,*] = 3d-11
+;Cul[RoVib,*]   = 1d-15
 
 idown       = mol.idown
 iup         = mol.iup
@@ -47,6 +52,13 @@ Aul         = mol.Aud
 Bul         = (1d0/(2d0*hh*cc*freq^3d0))*Aul
 Blu         = gugl*Bul
 nlevels     = mol.nlevels
+
+collrates   = mol.collrates
+coll_iup    = mol.coll_iup
+coll_idown  = mol.coll_idown
+coll_temps  = mol.temps
+nctrans     = mol.nctrans[partner]
+ntemps      = mol.ntemps
 
 npop_all = DBLARR(nlevels, np, ddens.nr)
 

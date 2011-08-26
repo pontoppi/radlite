@@ -200,8 +200,8 @@ ENDIF ELSE BEGIN
 
    PRINT, 'You have selected non-LTE!'
    PRINT, '...starting detailed balance calculation...'
-   
-   nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens
+   partner_name = 'H2'
+   nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name
 ENDELSE
 
 openw,lun,'levelpop.info',/get_lun
