@@ -20,8 +20,9 @@ P           = DBLARR(nlevels,np)
 ;Add radiative terms to the rate matrix
 ;======================================
 FOR i=0,nlines-1 DO BEGIN 
-   int = INT_SIMPLE(z_col,npop[idown[i]-1,*]*gugl[i]-npop[iup[i]-1,*])
+   int = INT_SIMPLE(z_col,npop[iup[i]-1,*] - npop[idown[i]-1,*]*gugl[i])  ;int(z->zmax)
    tau_arr[i,*] = Aul[i]/(8d0*!pi*freq[i]^3d0*dv) * int
+
    ;
    ;Now calculate the escape probabilities
    FOR h=0,np-1 DO BEGIN
@@ -41,13 +42,13 @@ ENDFOR
 ;Add collisional terms to the rate matrix
 ;======================================
 FOR i=0,nctrans-1 DO BEGIN
-   Cul_arr[i,*] = INTERPOL(REFORM(collrates[i,0:ntemps[partner]-1,partner]),REFORM(coll_temps[partner,0:ntemps[partner]-1]),tgas_col)
+   Cul_arr[i,*] = INTERPOL(REFORM(collrates[i,0:ntemps[partner]-1,partner]),REFORM(coll_temps[0:ntemps[partner]-1,partner]),tgas_col)
    Clu_arr[i,*] = Cul_arr[i,*] * g[coll_iup[i,partner]-1]/g[coll_idown[i,partner]-1] * $
                   EXP(-(energy_in_k[coll_iup[i,partner]-1]-energy_in_k[coll_idown[i,partner]-1])/tgas_col)
    R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] = R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] + Cul_arr[i,*]*rhogas_col  ;Rul
-   R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] =  R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] + Clu_arr[i,*]*rhogas_col  ;Rlu
+   R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] = R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] + Clu_arr[i,*]*rhogas_col  ;Rlu
 ENDFOR
-
+stop
 FOR h=0,np-1 DO BEGIN
    ;
    ;1st term: rate into level j; 2nd term: rate out of level j

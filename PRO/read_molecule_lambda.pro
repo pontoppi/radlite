@@ -2,7 +2,7 @@
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
 
-FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax
+FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax,ghz=ghz
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -83,6 +83,7 @@ FOR i=0,nline-1 DO BEGIN
    lin_rot[i] = rotdum
 ENDFOR
 
+IF KEYWORD_SET(ghz) THEN freq = freq*1d9/cc ;->cm-1 if originally in GHz (the standard radio LAMDA format).
 ;
 ;
 IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
@@ -111,7 +112,7 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
       readf, lunm, str,format='(a100)'
       dumtemps = fltarr(ntemps[k])
       readf, lunm, dumtemps
-      temps[k,0:ntemps[k]-1]=dumtemps
+      temps[0:ntemps[k]-1,k]=dumtemps
       readf, lunm, str,format='(a100)'
       ratedum = FLTARR(ntemps[k])
 

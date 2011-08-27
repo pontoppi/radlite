@@ -48,20 +48,31 @@ FOR k=0,niter-1 DO BEGIN
          Jac[j,*,h] = (Pndn[*,h]-Pn[*,h])/dn[j,h]
       ENDFOR
    ENDFOR
-   
+   print, npop[*,1]
    FOR h=0,np-1 DO BEGIN
-      npop_new[*,h] = npop[*,h] - LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE, STATUS=STATUS)##REFORM(Pn[*,h]) 
+      npop_new[*,h] = npop[*,h] - LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
    ENDFOR
    bsubs = WHERE(FINITE(npop_new) NE 1)
    IF bsubs[0] NE -1 THEN BEGIN
       npop_new[bsubs] = npop[bsubs]*1.02
    ENDIF
-;   print, (npop_new[*,1]-npop[*,1])/npop[*,1]
-;   print, npop_new[*,1]
+
+   bsubs = WHERE(npop_new EQ 0)
+   npop_new[bsubs] = 1d-30
+   conv = ABS(MAX((npop_new-npop)/npop))
+   print, conv
    npop = npop_new
-   IF MEAN((npop_new[*,1]-npop[*,1])/npop[*,1]) LT 0.001 OR STATUS GT 0 THEN BREAK
+   IF conv LT 1d-6 THEN BEGIN
+      PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
+      BREAK
+   ENDIF
+   IF STATUS GT 0 THEN BEGIN
+      PRINT, 'Warning: singular matrix detected!', STATUS
+;      BREAK
+   ENDIF
+  
 ENDFOR 
- print, MEAN((npop_new[*,1]-npop[*,1])/npop[*,1])
+;print, MAX((npop_new-npop)/npop[*,1])
    
 END
 
