@@ -31,7 +31,7 @@ ENDCASE
 
 ;HITRAN_EXTRACT, isotop = 51, lambdarange=[800,4000.74], max_energy = 400., vmax=1
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,emax=4000)
+mol    = EXTRACT_LAMDA(molall,vmax=1,emax=6000)
 
 nlines = N_ELEMENTS(mol.freq)
 ;Cul    = FLTARR(nlines,10)

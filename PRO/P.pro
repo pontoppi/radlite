@@ -48,7 +48,7 @@ FOR i=0,nctrans-1 DO BEGIN
    R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] = R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] + Cul_arr[i,*]*rhogas_col  ;Rul
    R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] = R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] + Clu_arr[i,*]*rhogas_col  ;Rlu
 ENDFOR
-stop
+
 FOR h=0,np-1 DO BEGIN
    ;
    ;1st term: rate into level j; 2nd term: rate out of level j

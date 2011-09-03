@@ -6,7 +6,7 @@ COMMON grid, np, z_col, tgas_col, abun_col, rhogas_col, J_col, JSED_col, nu_cont
 @natconst
 
 
-niter  = 20
+niter  = 8
 dV     = 1d5  ;cm/s
 frac    = 0.01
 
@@ -62,14 +62,14 @@ FOR k=0,niter-1 DO BEGIN
    conv = ABS(MAX((npop_new-npop)/npop))
    print, conv
    npop = npop_new
-   IF conv LT 1d-6 THEN BEGIN
+   IF conv LT 1d-12 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF
-   IF STATUS GT 0 THEN BEGIN
-      PRINT, 'Warning: singular matrix detected!', STATUS
+;   IF STATUS GT 0 THEN BEGIN      
+;      PRINT, 'Warning: singular matrix detected!', STATUS
 ;      BREAK
-   ENDIF
+;   ENDIF
   
 ENDFOR 
 ;print, MAX((npop_new-npop)/npop[*,1])
