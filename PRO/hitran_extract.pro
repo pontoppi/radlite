@@ -179,7 +179,11 @@ CASE isotop OF
       molecule='HD'
       hitran_file=hitran_path+'HD.par'
    END
-   
+   500:BEGIN
+      molweight=2.
+      molecule='H2'
+      hitran_file=hitran_path+'H2.par'
+   END
 ENDCASE
 ;
 ;HITRAN08 file format
