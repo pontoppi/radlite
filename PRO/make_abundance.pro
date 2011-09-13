@@ -36,19 +36,19 @@ nt      = n_elements(Dstruct.theta)
 
 CASE atype OF
     1: BEGIN                    ;Constant abundance
-        PRINT, 'Setting constant abundance'
+        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting constant abundance'
         abun = fltarr(nr,nt) + max_abun
         abun_collpartner = 0.d0
      END        
     3: BEGIN                    ;Step abundance at AV=3 (as seen from the star).
-        PRINT, 'Setting abundance to 0 below AV=1...'
+        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to 0 below AV=1...'
         abun = fltarr(nr,nt)
         make_tau, cc*1d4/0.12, tau=tau
         abun = (1-exp(-tau)) * max_abun * (1-(Dstruct.rr/Dstruct.r[0])^(-2))
         abun_collpartner = 0.d0
     END
     2: BEGIN                    ;Freeze-out at some temperature
-        PRINT, 'Setting abundance to ~0 below T='+STRTRIM(STRING(fr_temp),2)+' K'
+        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to ~0 below T='+STRTRIM(STRING(fr_temp),2)+' K'
         abun = fltarr(nr,nt)
         abun[*] = max_abun
         fsubs = WHERE(T lt fr_temp)
@@ -56,14 +56,16 @@ CASE atype OF
         abun_collpartner = 0.d0
     END
     4: BEGIN                    ;Density-dependent freeze-out temperature
-       PRINT, 'Using density-dependent freeze-out'
+       IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Using density-dependent freeze-out'
        IF NOT KEYWORD_SET(PT_rel) THEN BEGIN
           PT_rel_file = 'h2oabun_g2d_1280.sav'
        ENDIF ELSE BEGIN
           PT_rel_file = PT_rel
        ENDELSE
-       PRINT, 'Setting up density dependent abundance'
-       PRINT, 'Using: ', PT_rel_file
+       IF N_ELEMENTS(VERBOSE) THEN BEGIN
+          PRINT, 'Setting up density dependent abundance'
+          PRINT, 'Using: ', PT_rel_file
+       ENDIF
 
        restore, PT_rel_file
        logdens = alog10(dens)
@@ -92,7 +94,7 @@ CASE atype OF
        IF subs[0] NE -1 THEN abun[subs] = min_abun
        abun_collpartner = 0.d0
        IF KEYWORD_SET(coldfinger) THEN BEGIN
-          PRINT, 'Vertical cold finger effect activated!'
+          IF VERBOSE THEN PRINT, 'Vertical cold finger effect activated!'
 
           mp_snowline = MAX(WHERE(a_h2o_freeze[*,nt/2] EQ 0))+1
           IF mp_snowline[0] EQ -1 THEN BEGIN
@@ -125,11 +127,6 @@ for ir=0,nr-1 do begin
     endfor
 endfor
 close,1
-
-
-END
-
-PRO test_velocity
 
 
 END

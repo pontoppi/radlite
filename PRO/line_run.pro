@@ -5,7 +5,6 @@
 @problem_files.pro
 @problem_subroutines.pro
 @problem_makeshu.pro
-;@read_line.pro
 @make_velocity.pro
 @make_turbulence.pro
 @make_tau.pro
@@ -17,11 +16,24 @@
 @P.pro
 @nlte.pro
 @nlte_main.pro
+@interpol
+@read_molecule_lambda
+@read_psum
 
-PRO line_run, run_name=run_name
+PRO line_run, run_name=run_name, v=v
 @natconst.pro
 @line_params.ini
 
+
+;
+;Welcome message
+print, '------------------------------------------'
+print, 'Welcome to RADLite Version 1.2 (2007-2011)'
+print, '                                          '
+print, 'Written by:                               '
+print, 'Klaus Pontoppidan (pontoppi@stsci.edu)    '
+print, 'Kees Dullemond                            '
+print, '------------------------------------------'
 
 IF image EQ 2 THEN BEGIN
    executable = 'time '+exe_path+'RADlite_imcir'
@@ -90,15 +102,13 @@ FOR iii=0,ncores-1 DO BEGIN
 
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
-       spawn, executable+'&'
+       spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log&'
+       wait, 3.
        
     ENDIF ELSE BEGIN
-       ;Were processes run in the background
-       ;on some of the cores? if so, free the processes.
        print, 'spawning foreground process for core: ',iii+1
-       spawn, executable,exit_status=exit3
+       spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3
     ENDELSE
-    wait, 5.
 ENDFOR
 ;
 ;Now save the result
@@ -117,6 +127,7 @@ FOR iii=0,ncores-1 DO BEGIN
    ;Save the molecular file to a unique name
    spawn, 'mv moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
    spawn, 'mv levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
+   spawn, 'mv RADLite_core*.log '+rundir+'/.'
    ;
    ;And save the lines to a unique name
    IF image eq 0 or image EQ 2 THEN BEGIN

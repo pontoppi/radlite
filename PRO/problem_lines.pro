@@ -5,7 +5,7 @@ PRO problem_lines, molfile
 ;====================================
 ; Messages
 ;====================================
-print,' - Taking dust density x ', STRTRIM(STRING(gtd),2)
+IF N_ELEMENTS(VERBOSE) THEN print,' - Taking dust density x ', STRTRIM(STRING(gtd),2)
 
 ;====================================
 ; Make new radlite.inp
@@ -114,7 +114,7 @@ read_vel, 'velocity.inp',vel
 ; Check passband width
 ;====================================
 vmax = max(abs(vel.vphi))
-print,'Maximum velocity = ',vmax/1d5,' km/s'
+IF N_ELEMENTS(VERBOSE) THEN PRINT,'Maximum velocity = ',vmax/1d5,' km/s'
 mol = read_molecule_lambda(molfile)
 
 ;====================================

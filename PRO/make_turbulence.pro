@@ -27,13 +27,13 @@ nt = n_elements(a.theta)/2
 Tstruct = read_temperature()
 T = Tstruct.t
 
-print, 'Using first dust component temperature to determine the turbulent velocities'
+IF N_ELEMENTS(VERBOSE) THEN print, 'Using first dust component temperature to determine the turbulent velocities'
 
 CASE ttype OF
     1: BEGIN                    ;Alpha viscosity
         IF NOT KEYWORD_SET(alpha) THEN BEGIN 
             alpha = 0.01
-            print, 'No alpha set - assuming alpha = 0.01'
+            IF N_ELEMENTS(VERBOSE) THEN print, 'No alpha set - assuming alpha = 0.01'
         ENDIF
         ;Calculating sound speed:
         cs = SQRT(gamma*kk*T/(Mu*mp))
@@ -42,7 +42,7 @@ CASE ttype OF
     2: BEGIN                    ;fraction of kepler velocity
         IF NOT KEYWORD_SET(kepler_frac) THEN BEGIN 
             kepler_frac = 0.01
-            print, 'No Kepler velocity fraction set, assuming 0.01'
+            IF N_ELEMENTS(VERBOSE) THEN print, 'No Kepler velocity fraction set, assuming 0.01'
         ENDIF
         ;Calculating sound speed:Kepler velocity:
         openr,1,'starinfo.inp'

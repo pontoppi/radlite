@@ -42,7 +42,7 @@ c     Welcome banner
 c
       write(*,*) '=============================================='
       write(*,*) '                 RADLite                      '
-      write(*,*) '             (C) 2008    V. 1.0               '
+      write(*,*) '         (C) 2007-2011    V. 1.2              '
       write(*,*) '     K. M. Pontoppidan &  C.P. Dullemond      '
       write(*,*) '=============================================='
 c
@@ -1050,10 +1050,10 @@ c
 c
 c             Display line-center optical depths
 c
-              do iline=linespec_ilinestart,linespec_nlines
-                  write(*,*) 'Line ',iline,'  tau = ',
-     %                 char_tau_linecenter(iline)
-              enddo
+c              do iline=linespec_ilinestart,linespec_nlines
+c                  write(*,*) 'Line ',iline,'  tau = ',
+c     %                 char_tau_linecenter(iline)
+c              enddo
 #             else
               write(*,*) 'Line transfer is not active'
               stop 13

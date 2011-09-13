@@ -1287,7 +1287,7 @@ fr_units=0
 z=findfile('dustopac.inp',count=count)
 dust=count
 if dust gt 0 then begin
-    print,"Found dustopac.inp, so assuming dust spectrum"
+;    print,"Found dustopac.inp, so assuming dust spectrum"
     fr_units = -1
 endif
 

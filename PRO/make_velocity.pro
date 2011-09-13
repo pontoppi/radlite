@@ -45,7 +45,7 @@ CASE vtype OF
         readf,1,rstar
         readf,1,mstar
         close,1
-        print, 'Used starinfo.inp for Keplerian velocity'
+        IF N_ELEMENTS(VERBOSE) THEN print, 'Used starinfo.inp for Keplerian velocity'
         vphi = sqrt(GG*mstar/a.rr);*(a.rr le 50*1.5d13)
         IF KEYWORD_SET(env) THEN BEGIN
            IF n_elements(time) NE 1 OR n_elements(csenv) NE 1 OR $
@@ -76,7 +76,7 @@ CASE vtype OF
        readf,1,rstar
        readf,1,mstar
        close,1
-       print, 'Used starinfo.inp for Funnel flow/Keplerian velocity'
+       IF N_ELEMENTS(VERBOSE) THEN print, 'Used starinfo.inp for Funnel flow/Keplerian velocity'
  
        th = a.tt
        
@@ -126,7 +126,7 @@ CASE vtype OF
        readf,1,rstar
        readf,1,mstar
        close,1
-       print, 'Used starinfo.inp for Keplerian velocity'
+       IF N_ELEMENTS(VERBOSE) THEN print, 'Used starinfo.inp for Keplerian velocity'
        vphi = sqrt(GG*mstar/a.rr)
        vth  = fltarr(nr,nt)
        vr   = fltarr(nr,nt)
@@ -241,7 +241,9 @@ CASE vtype OF
              ENDELSE
           ENDFOR
        ENDFOR
-       print, 2d0*INT_TABULATED(a.r, 2.*!pi*a.r  *  mdot_sc*(a.r/a.r[0])^p,/sort,/double) * 3600.*24.*365./ms, ' Msol/yr, mass loss'  ;multiplied by 2 because the disk has two surfaces
+       ;multiplied by 2 because the disk has two surfaces
+       IF N_ELEMENTS(VERBOSE) THEN $
+          print, 2d0*INT_TABULATED(a.r, 2.*!pi*a.r  *  mdot_sc*(a.r/a.r[0])^p,/sort,/double) * 3600.*24.*365./ms, ' Msol/yr, mass loss' 
        add_dens[*,0:nt-1] = rhowind
        add_dens[*,nt:*]   = ROTATE(rhowind,7)
        IF KEYWORD_SET(lefthand) THEN vphi = -vphi

@@ -9,7 +9,7 @@ IF NOT KEYWORD_SET(opacfile) THEN BEGIN
 ENDIF ELSE BEGIN
     filename=opacfile
 ENDELSE
-print,"Reading ",filename
+;print,"Reading ",filename
 openr,1,filename
 nf=0
 ns=0
