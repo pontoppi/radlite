@@ -11,7 +11,7 @@ PRO hitran_extract, isotop=isotop,lambdarange=lambdarange,$
                     vmax=vmax
 
 IF NOT KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
-IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = '/Users/pontoppi/WORK/RADLITE/HITRAN/'
+IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = '.'
 IF NOT KEYWORD_SET(max_energy) THEN max_energy = 1d33
 IF NOT KEYWORD_SET(vmax) THEN vmax = 100
 
@@ -63,10 +63,6 @@ ENDIF
 IF NOT KEYWORD_SET(isotop) THEN isotop=11
 IF NOT KEYWORD_SET(cutoff) THEN cutoff = 0
 IF NOT KEYWORD_SET(lambdarange) THEN lambdarange=[12,13]
-;IF NOT KEYWORD_SET(hitran_file) THEN hitran_file='/Users/pontoppi/WORK/PAPERS/c2d_H2O_gas/hitran_h2o_2-200um.out'
-;IF NOT KEYWORD_SET(species) THEN species='H2O'
-;
-;
 ;
 CASE isotop OF
    51:BEGIN
