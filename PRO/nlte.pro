@@ -8,7 +8,7 @@ COMMON grid, np, z_col, tgas_col, abun_col, rhogas_col, J_col, JSED_col, nu_cont
 
 niter  = 8
 dV     = 1d5  ;cm/s
-frac    = 0.01
+frac    = 0.001
 
 npop        = DBLARR(nlevels,np)
 Jac         = DBLARR(nlevels,nlevels,np)
@@ -48,7 +48,7 @@ FOR k=0,niter-1 DO BEGIN
          Jac[j,*,h] = (Pndn[*,h]-Pn[*,h])/dn[j,h]
       ENDFOR
    ENDFOR
-   print, npop[*,1]
+;   print, npop[*,1]
    FOR h=0,np-1 DO BEGIN
       npop_new[*,h] = npop[*,h] - LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
    ENDFOR
@@ -57,9 +57,10 @@ FOR k=0,niter-1 DO BEGIN
       npop_new[bsubs] = npop[bsubs]*1.02
    ENDIF
 
-   bsubs = WHERE(npop_new EQ 0)
-   npop_new[bsubs] = 1d-30
-   conv = ABS(MAX((npop_new-npop)/npop))
+;   bsubs = WHERE(npop_new EQ 0)
+;   npop_new[bsubs] = 1d-30
+   highsubs = WHERE(npop GT 1.)
+   conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
    IF conv LT 1d-12 THEN BEGIN

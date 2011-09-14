@@ -29,7 +29,7 @@ CASE vtype OF
         readf,1,rstar
         readf,1,mstar
         close,1
-        print, 'Used starinfo.inp for Keplerian velocity'
+        IF N_ELEMENTS(VERBOSE) THEN print, 'Used starinfo.inp for Keplerian velocity'
         vphi = sqrt(GG*mstar/a.rr)
         vr   = fltarr(nr,nt)
         vth  = fltarr(nr,nt)

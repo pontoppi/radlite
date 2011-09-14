@@ -62,6 +62,7 @@ subN   = CEIL(nlines/FLOAT(ncores))
 ;
 ;Setting up the results directory
 time = systime(0)
+
 rundir = run_name+'_'+strmid(time,4,3)+'_'+STRTRIM(strmid(time,8,2),2)+'_'+strmid(systime(),11,5)
 spawn, 'mkdir '+ rundir
 

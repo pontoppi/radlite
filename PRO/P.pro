@@ -22,7 +22,7 @@ P           = DBLARR(nlevels,np)
 FOR i=0,nlines-1 DO BEGIN 
    int = INT_SIMPLE(z_col,npop[iup[i]-1,*] - npop[idown[i]-1,*]*gugl[i])  ;int(z->zmax)
    tau_arr[i,*] = Aul[i]/(8d0*!pi*freq[i]^3d0*dv) * int
-
+   
    ;
    ;Now calculate the escape probabilities
    FOR h=0,np-1 DO BEGIN
