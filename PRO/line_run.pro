@@ -79,8 +79,8 @@ FOR iii=0,ncores-1 DO BEGIN
     molfile = 'moldata_'+STRTRIM(STRING(iii),2)+'.dat'
     ;
     ;Find the boundaries of the subrun
-    min_mu_run = min(wave[iii*subN:MIN([(iii+1)*subN-1,nlines-1])])
-    max_mu_run = max(wave[iii*subN:MIN([(iii+1)*subN-1,nlines-1])])
+    min_mu_run = MIN(wave[MIN([iii*subN,nlines-1]):MIN([(iii+1)*subN-1,nlines-1])])
+    max_mu_run = MAX(wave[MIN([iii*subN,nlines-1]):MIN([(iii+1)*subN-1,nlines-1])])
     ;
     ;shift a little bit to make sure the
     ;lines on the edges are included.
@@ -107,8 +107,7 @@ FOR iii=0,ncores-1 DO BEGIN
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log&'
-       wait, 3.
-       
+       wait, 10.
     ENDIF ELSE BEGIN
        print, 'spawning foreground process for core: ',iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3
