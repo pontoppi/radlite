@@ -89,18 +89,18 @@ free_lun, lund
 ;And abundance
 ;======================================
 IF gas_decoup NE 0 THEN BEGIN
-   IF isot NE 11 THEN BEGIN
-      PRINT, 'WARNING: You are attempting to use Rowins phenomenological abundance + gas temperature model. This'
-      PRINT, 'is intended for H2O only, but you are running some other molecule. '
+;   IF isot NE 11 THEN BEGIN
+;      PRINT, 'WARNING: You are attempting to use Rowins phenomenological abundance + gas temperature model. This'
+;      PRINT, 'is intended for H2O only, but you are running some other molecule. '
 ;      stop
-   ENDIF
-   IF abun_str NE 5 THEN BEGIN
-      PRINT, 'WARNING: We are using Rowins phenomenological gas temperature structure. This also includes'
-      PRINT, 'an H2O abundance that is density dependent and is destroyed in the upper layers of the disk.'
-      PRINT, 'This usually overrides any other abundance structure!'
-      PRINT, 'Are you sure you want to use gas temp NE dust temp, but with some other abundance structure?'
+;   ENDIF
+;   IF abun_str NE 5 THEN BEGIN
+;      PRINT, 'WARNING: We are using Rowins phenomenological gas temperature structure. This also includes'
+;      PRINT, 'an H2O abundance that is density dependent and is destroyed in the upper layers of the disk.'
+;      PRINT, 'This usually overrides any other abundance structure!'
+;      PRINT, 'Are you sure you want to use gas temp NE dust temp, but with some other abundance structure?'
 ;      stop
-   ENDIF
+;   ENDIF
 ENDIF ELSE BEGIN
    make_abundance,abun_str,fr_temp=fr_temp,PT_rel=PT_rel,abun=abun
 ENDELSE
