@@ -13,7 +13,7 @@ PRO hitran_extract, isotop=isotop,lambdarange=lambdarange,$
 IF NOT KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
 IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = '.'
 IF NOT KEYWORD_SET(max_energy) THEN max_energy = 1d33
-IF NOT KEYWORD_SET(vmax) THEN vmax = 100
+;IF NOT KEYWORD_SET(vmax) THEN vmax = 100
 
 c = 2.9979246d14 ;micron/s
 MAX_LINES = 3000000L
@@ -282,8 +282,12 @@ IF KEYWORD_SET(H2O_OP) AND isotop EQ 11 THEN BEGIN
       END
    ENDCASE
 ENDIF ELSE BEGIN
-   outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy $
-                  AND vu LE vmax)
+   IF NOT KEYWORD_SET(vmax) THEN BEGIN
+      outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy)      
+   ENDIF ELSE BEGIN
+      outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy $
+                      AND vu LE vmax)
+   ENDELSE
 ENDELSE
 
 
