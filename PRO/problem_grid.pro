@@ -88,3 +88,24 @@ endif
 return,theta
 end
 
+
+;------------------------------------------------------------------------
+;                     REFINE THE RADIAL GRID
+;------------------------------------------------------------------------
+pro refine,r,irstart,nlevr=nlevr,nspanr=nspanr,nstepr=nstepr
+if irstart gt 0 then begin
+   rold=r[0:irstart-1]
+   r=r[irstart:*]
+endif
+for ilev=1,nlevr do begin
+   for ispan=nspanr,1,-1 do begin
+      rins=fltarr(2^nstepr-1)
+      fr=(r(ispan)/r(ispan-1))^(0.5^nstepr)
+      for i=1,2^nstepr-1 do rins(i-1)=r(ispan-1)*fr^i
+      r=[r(0:ispan-1),rins,r(ispan:*)]
+   endfor
+endfor
+if irstart gt 0 then begin
+   r=[rold,r]
+endif
+end
