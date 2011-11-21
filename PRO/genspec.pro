@@ -197,5 +197,5 @@ set_plot, 'x'
 
 mwrfits, dum, 'model.fits',/create
 mwrfits, {wave:x_all,spec:y_all,lines:l_only},'model.fits'
-stop
+
 END

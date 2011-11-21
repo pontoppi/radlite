@@ -84,7 +84,7 @@ simpledisk_vertstruct,rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
          idxchop=idxchop,rhofloor=rhofloor,pnc=pnc,pnh=pnh,pz=pz,$
          imakedisk=imakedisk,run=run,hrstore=hrstore,$
          thintin=thintin,tt=tt,radius=r,theta=theta,bindir=bindir,$
-         dostr=dostr,csenv=csenv,time=time,env=env,gap=gap,gdrop=gdrop
+         dostr=dostr,ref2=ref2
 ;
 ; Write a data file with the names simser,simnr,simweb
 ;

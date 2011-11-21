@@ -43,8 +43,7 @@
 ;
 ;------------------------------------------------------------------------
 function disk_model_1,r,theta,rdisk,sigmadust0,p1,p2,hr0,plh,hrmin=hrmin,$
-                      hrstore=hrstore,hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdust,$
-                      gap=gap,gdrop=gdrop
+                  hrstore=hrstore,hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdust
 ;
 ; Some preparations
 ;
@@ -99,16 +98,6 @@ for ir=0,nr-1 do begin
    rhodust[ir,*] = 3.98942280401d-1 * sigdust[ir] * $
                  exp(-0.5*((thmax-theta[*])/hr)^2 ) / (hr*r[ir])
 endfor
-
-IF KEYWORD_SET(gap) THEN BEGIN
-   IF NOT KEYWORD_SET(gdrop) THEN BEGIN
-      PRINT, 'If the gap keyword is set in problem_params.pro, you must also set the gdrop keyword'
-      stop
-   ENDIF
-   gapsubs = WHERE(r LT gap)
-   rhodust[gapsubs,*] = rhodust[gapsubs,*]*gdrop
-ENDIF
-
 return,rhodust
 end
 
