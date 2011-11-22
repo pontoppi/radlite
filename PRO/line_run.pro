@@ -15,6 +15,8 @@
 @Pesc.pro
 @P.pro
 @nlte.pro
+@PC.pro
+@nlteC.pro
 @nlte_main.pro
 @interpol
 @read_molecule_lambda

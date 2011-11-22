@@ -30,7 +30,7 @@ CASE partner_name OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=0,emax=2000)
+mol    = EXTRACT_LAMDA(molall,vmax=0,emax=20)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -52,6 +52,8 @@ coll_temps   = mol.temps
 nctrans      = mol.nctrans[partner]
 ntemps       = mol.ntemps
 
+J_col        = DBLARR(nlines,np)
+
 npop_all     = DBLARR(nlevels, np, ddens.nr)
 npop_ini_all = DBLARR(nlevels, np, ddens.nr)
 
@@ -64,8 +66,12 @@ FOR i=0,ddens.nr-1 DO BEGIN
    rhogas_col[minsub] = 100.
    abun_col   = REFORM(abun[i,0:np-1])
    JSED_col   = MEDIAN(REFORM(mint.meanint[i,0:np-1,*]),5)
-   
-   nlte, species=species, npop=npop, ini_npop=ini_npop
+
+   FOR h=0,np-1 DO BEGIN
+      J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
+   ENDFOR
+
+   nlteC, species=species, npop=npop, ini_npop=ini_npop
    npop_all[*,*, i]    = npop
    npop_ini_all[*,*,i] = ini_npop
    print, i
