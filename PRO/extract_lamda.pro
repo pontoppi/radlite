@@ -3,12 +3,12 @@
 ;INPUT: A lamda structure
 ;OUTPUT: Also a lamda structure, edited to match the constraints
 
-FUNCTION extract_lamda, mol, vmax=vmax, emax=emax, lambdarange=lambdarange
+FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, emax=emax, lambdarange=lambdarange
 
-glines  = WHERE(mol.eupper LT emax,nlines) ;emax in Kelvin
-giup    = mol.iup[glines]
-gidown  = mol.idown[glines]
-all_levels = [giup,gidown]
+glines            = WHERE(mol.eupper LT emax,nlines) ;emax in Kelvin
+giup              = mol.iup[glines]
+gidown            = mol.idown[glines]
+all_levels        = [giup,gidown]
 all_levels_sorted = all_levels(SORT(all_levels))
 
 lind_nonconsec = all_levels_sorted[UNIQ(all_levels_sorted)] ;This is no longer necessarily a consecutive index

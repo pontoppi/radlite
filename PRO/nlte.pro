@@ -1,4 +1,4 @@
-PRO nlte, species=species, npop=npop
+PRO nlte, species=species, npop=npop, ini_npop=ini_npop
 COMMON coll,  Cul, TCul
 COMMON const, dv
 COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner
@@ -29,6 +29,9 @@ FOR h=0,np-1 DO BEGIN
    Ntot = TOTAL(npop[*,h])
    npop[*,h] = npop[*,h]/Ntot * abun_col[h] * rhogas_col[h] ;in cm^-3
 ENDFOR
+;
+;Save the initial level pops
+ini_npop = npop
 
 ;
 ;Main iteration
