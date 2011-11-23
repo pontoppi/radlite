@@ -16,7 +16,7 @@
 @P.pro
 @nlte.pro
 @PC.pro
-@nlteC.pro
+@nltec.pro
 @nlte_main.pro
 @interpol
 @read_molecule_lambda

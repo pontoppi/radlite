@@ -53,7 +53,11 @@ FOR k=0,niter-1 DO BEGIN
    ENDFOR
    
    npop_new = npop - LA_INVERT(REFORM(Jac),/DOUBLE,STATUS=STATUS)##REFORM(Pn) 
+<<<<<<< local
+   
+=======
   
+>>>>>>> other
    bsubs = WHERE(FINITE(npop_new) NE 1)
    IF bsubs[0] NE -1 THEN BEGIN
       npop_new[bsubs] = npop[bsubs]*1.02
@@ -63,7 +67,8 @@ FOR k=0,niter-1 DO BEGIN
 ;   npop_new[bsubs] = 1d-30
    highsubs = WHERE(npop GT 1.)
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
-   print, conv
+;   print, conv
+   print, npop_new[highsubs]-npop[highsubs])/npop[highsubs]
    npop = npop_new
    IF conv LT 1d-12 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
