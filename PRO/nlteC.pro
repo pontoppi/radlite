@@ -53,7 +53,7 @@ FOR k=0,niter-1 DO BEGIN
    ENDFOR
    
    npop_new = npop - LA_INVERT(REFORM(Jac),/DOUBLE,STATUS=STATUS)##REFORM(Pn) 
-stop   
+  
    bsubs = WHERE(FINITE(npop_new) NE 1)
    IF bsubs[0] NE -1 THEN BEGIN
       npop_new[bsubs] = npop[bsubs]*1.02

@@ -47,8 +47,8 @@ FOR i=0,nctrans-1 DO BEGIN
    Cul_arr[i,*] = INTERPOL(REFORM(collrates[i,0:ntemps[partner]-1,partner]),REFORM(coll_temps[0:ntemps[partner]-1,partner]),tgas_col)
    Clu_arr[i,*] = Cul_arr[i,*] * g[coll_iup[i,partner]-1]/g[coll_idown[i,partner]-1] * $
                   EXP(-(energy_in_k[coll_iup[i,partner]-1]-energy_in_k[coll_idown[i,partner]-1])/tgas_col)
-   R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] = R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] + Cul_arr[i,*]*rhogas_col  ;Rul
-   R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] = R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] + Clu_arr[i,*]*rhogas_col  ;Rlu
+   R_arr[coll_idown[i,partner]-1,coll_iup[i,partner]-1,*] += Cul_arr[i,*]*rhogas_col  ;Rul
+   R_arr[coll_iup[i,partner]-1,coll_idown[i,partner]-1,*] += Clu_arr[i,*]*rhogas_col  ;Rlu
 ENDFOR
 
 FOR h=0,np-1 DO BEGIN

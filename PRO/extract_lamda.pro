@@ -5,7 +5,7 @@
 
 FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, emax=emax, lambdarange=lambdarange
 
-glines            = WHERE(mol.eupper LT emax,nlines) ;emax in Kelvin
+glines            = WHERE(mol.eupper LT emax ,nlines) ;emax in Kelvin
 giup              = mol.iup[glines]
 gidown            = mol.idown[glines]
 all_levels        = [giup,gidown]
