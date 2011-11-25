@@ -7,7 +7,7 @@ PRO nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 niter  = 8
 frac   = 0.001
-stop
+
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
 m   = {Cul:Cul,TCul:TCul,dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
        idown:idown,Aul:Aul,Bul:Bul,Blu:Blu,energy_in_k:energy_in_k,g:g,collrates:collrates,$

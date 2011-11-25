@@ -64,7 +64,7 @@ p_npop_all     = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
 p_npop_ini_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
 
 npop           = DBLARR(nlevels*np)
-npop_ini       = DBLARR(nlevels*np)
+ini_npop       = DBLARR(nlevels*np)
 
 FOR i=0,ncores-1 DO BEGIN
    (bridges[i])->execute, '.c nltec.pro'
@@ -88,8 +88,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
 
    ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}
 
-bridge = bridges[0]
-;   bridge = get_idle_bridge(bridges)
+   bridge = get_idle_bridge(bridges)
 
    bridge->setproperty, userdata=ud
    bridge->setvar, 'z_col', z_col
@@ -119,11 +118,13 @@ bridge = bridges[0]
    bridge->setvar, 'partner',partner
    bridge->setvar, 'np',np
    bridge->setvar, 'nu_cont',nu_cont
+   bridge->setvar, 'npop',npop
+   bridge->setvar, 'ini_npop',ini_npop
 
-   bridge->execute, '.compile nltec.pro'
-   bridge->execute, '.compile PC.pro'
+;   bridge->execute, '.compile nltec.pro'
+;   bridge->execute, '.compile PC.pro'
 
-   bridge->execute, /nowait, 'nltec, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
+   bridge->execute, nowait=0, 'nltec, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
                     'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
                     'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,'+$
                     'np, nu_cont, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
@@ -131,7 +132,7 @@ bridge = bridges[0]
 ;   npop_all[*,*, i]    = npop
 ;   npop_ini_all[*,*,i] = ini_npop
 ;   print, i
-;stop
+stop
 ENDFOR
 barrier_bridges, bridges
 npop_all     = (*p_npop_all)
