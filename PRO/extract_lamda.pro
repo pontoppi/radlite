@@ -5,7 +5,8 @@
 
 FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, emax=emax, lambdarange=lambdarange
 
-;glines            = WHERE(mol.eupper LT emax ,nlines) ;emax in Kelvin
+OPR=2.0 ;ortho-to-para ratio
+
 glines            = WHERE(mol.lev_vib LE vmax AND mol.lev_rot LE jmax, nlines)
 giup              = mol.iup[glines]
 gidown            = mol.idown[glines]
@@ -74,6 +75,41 @@ true_maxcoll = MAX(nctrans)
 collrates    = collrates[0:MAX(nctrans)-1,*,*]
 coll_iup     = coll_iup[0:MAX(nctrans)-1,*]
 coll_idown   = coll_idown[0:MAX(nctrans)-1,*]
+master_collrates  = FLTARR(TOTAL(nctrans),MAX(mol.ntemps))
+master_coll_iup   = FLTARR(TOTAL(nctrans))
+master_coll_idown = FLTARR(TOTAL(nctrans))
+
+count=0
+FOR p=0,mol.nr_coll_partners-1 DO BEGIN
+;Identify collisional rates by partner
+;for now we consider H2,H, and He
+   IF (STRPOS(partner_name[p],'H') NE -1) THEN BEGIN
+      IF (STRPOS(partner_name[p],'H2') NE -1) THEN BEGIN
+         IF (STRPOS(partner_name[p],'p-H2') NE -1) THEN BEGIN
+            collrates[*,*,p] *= (1d0/(OPR+1d0)) ;weighted para-H2 rates
+         ENDIF ELSE BEGIN
+            IF (STRPOS(partner_name[p],'o-H2') NE -1) THEN BEGIN
+               collrates[*,*,p] *= (OPR/(OPR+1d0)) ;weighted ortho-H2 rates
+            ENDIF
+         ENDELSE
+      ENDIF ELSE BEGIN
+         IF (STRPOS(partner_name[p],'He') NE -1) THEN BEGIN
+            collrates[*,*,p] *= 0.2 ;cosmic abundance relative to number of H2 molecules
+         ENDIF ELSE BEGIN
+            collrates[*,*,p] *= 2d0 ;collisions with H, assuming density is number of H2 molecules
+         ENDELSE
+      ENDELSE
+   ENDIF
+;Make master list of collisional transitions
+master_collrates[count:count+nctrans[p]-1,*] = collrates[0:nctrans[p],*,p]
+master_coll_iup[count:count+nctrans[p]-1]    = coll_iup[0:nctrans[p]]
+master_coll_idown[count:count+nctrans[p]-1]  = coll_idown[0:nctrans[p]]
+count=nctrans[p]
+ENDFOR
+ 
+collrates  = master_collrates
+coll_iup   = master_coll_iup
+coll_idown = master_coll_idown
 
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$
         aud:aud,freq:freq,species:mol.species,mumol:mol.mumol,nlevels:nlevels,lev_vib:lev_vib,lev_rot:lev_rot,$
