@@ -5,7 +5,8 @@
 
 FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, emax=emax, lambdarange=lambdarange
 
-glines            = WHERE(mol.eupper LT emax ,nlines) ;emax in Kelvin
+;glines            = WHERE(mol.eupper LT emax ,nlines) ;emax in Kelvin
+glines            = WHERE(mol.lev_vib LE vmax AND mol.lev_rot LE jmax, nlines)
 giup              = mol.iup[glines]
 gidown            = mol.idown[glines]
 all_levels        = [giup,gidown]
@@ -18,8 +19,8 @@ energy      = FLTARR(nlevels)
 energy_in_k = FLTARR(nlevels)
 e           = FLTARR(nlevels)
 g           = FLTARR(nlevels)
-lev_vib     = STRARR(nlevels)
-lev_rot     = STRARR(nlevels)
+lev_vib     = INTARR(nlevels)
+lev_rot     = INTARR(nlevels)
 
 ;Extract level information
 FOR i=0,nlevels-1 DO BEGIN
