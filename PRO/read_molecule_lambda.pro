@@ -100,9 +100,10 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
    namedum = ' '
    ntrandum = 0
    ntempdum = 0
+   pindex   = 0
    FOR k=0,nr_coll_partners-1 DO BEGIN
       readf, lunm, str, format='(a100)'
-      readf, lunm, namedum,format='(a100)'
+      readf, lunm, pindex, namedum,format='(i2,a100)'
       partner_name[k] = namedum
       readf, lunm, str,format='(a100)'
       readf, lunm, ntrandum,format='(i4)'

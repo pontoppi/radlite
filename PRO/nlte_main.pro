@@ -5,20 +5,16 @@
 ;
 ;
 
-
-;@analyze_v2
 PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens, partner_name=partner_name
-;COMMON coll,  Cul, TCul
-;COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner
-;COMMON grid, np, nu_cont
+
 @natconst
 @line_params.ini
 
-dV     = 1d5  ;cm/s
+IF ~KEYWORD_SET(dV)       THEN dV     = 1d5  ;cm/s
+IF ~KEYWORD_SET(parallel) THEN ncore  = 1
 ;
 ; Read the continuum mean intensity
 ;
-
 mint   =  read_meanint()
 np      = ddens.ntheta/2
 nu_cont = ddens.nu
@@ -32,8 +28,8 @@ CASE partner_name OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=0,jmax=20)
-
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=20)
+stop
 nlines = N_ELEMENTS(mol.freq)
 
 idown        = mol.idown
@@ -87,60 +83,64 @@ FOR i=0,ddens.nr-1 DO BEGIN
       J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
    ENDFOR
 
-   ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}
 
-   bridge = get_idle_bridge(bridges)
+   IF KEYWORD_SET(parallel) THEN BEGIN
+      ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}
+      
+      bridge = get_idle_bridge(bridges)
+      
+      bridge->setproperty, userdata=ud
+      bridge->setvar, 'z_col', z_col
+      bridge->setvar, 'tgas_col', tgas_col
+      bridge->setvar, 'rhogas_col', rhogas_col
+      bridge->setvar, 'abun_col', abun_col
+      bridge->setvar, 'JSED_col', JSED_col
+      bridge->setvar, 'J_col', J_col
+      bridge->setvar, 'dv',dv
+      bridge->setvar, 'nlines',nlines
+      bridge->setvar, 'nlevels',nlevels
+      bridge->setvar, 'gugl',gugl
+      bridge->setvar, 'freq', freq
+      bridge->setvar, 'iup',iup
+      bridge->setvar, 'idown',idown
+      bridge->setvar, 'Aul',Aul
+      bridge->setvar, 'Bul',Bul
+      bridge->setvar, 'Blu',Blu
+      bridge->setvar, 'energy_in_k',energy_in_k
+      bridge->setvar, 'g',g
+      bridge->setvar, 'collrates',collrates
+      bridge->setvar, 'coll_iup',coll_iup
+      bridge->setvar, 'coll_idown',coll_idown
+      bridge->setvar, 'coll_temps',coll_temps
+      bridge->setvar, 'ntemps',ntemps
+      bridge->setvar, 'nctrans',nctrans
+      bridge->setvar, 'partner',partner
+      bridge->setvar, 'np',np
+      bridge->setvar, 'npop',npop
+      bridge->setvar, 'ini_npop',ini_npop
+      
+      bridge->execute, nowait=0, 'nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
+                       'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
+                       'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,'+$
+                       'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
 
-   bridge->setproperty, userdata=ud
-   bridge->setvar, 'z_col', z_col
-   bridge->setvar, 'tgas_col', tgas_col
-   bridge->setvar, 'rhogas_col', rhogas_col
-   bridge->setvar, 'abun_col', abun_col
-   bridge->setvar, 'JSED_col', JSED_col
-   bridge->setvar, 'J_col', J_col
-   bridge->setvar, 'dv',dv
-   bridge->setvar, 'nlines',nlines
-   bridge->setvar, 'nlevels',nlevels
-   bridge->setvar, 'gugl',gugl
-   bridge->setvar, 'freq', freq
-   bridge->setvar, 'iup',iup
-   bridge->setvar, 'idown',idown
-   bridge->setvar, 'Aul',Aul
-   bridge->setvar, 'Bul',Bul
-   bridge->setvar, 'Blu',Blu
-   bridge->setvar, 'energy_in_k',energy_in_k
-   bridge->setvar, 'g',g
-   bridge->setvar, 'collrates',collrates
-   bridge->setvar, 'coll_iup',coll_iup
-   bridge->setvar, 'coll_idown',coll_idown
-   bridge->setvar, 'coll_temps',coll_temps
-   bridge->setvar, 'ntemps',ntemps
-   bridge->setvar, 'nctrans',nctrans
-   bridge->setvar, 'partner',partner
-   bridge->setvar, 'np',np
-   bridge->setvar, 'npop',npop
-   bridge->setvar, 'ini_npop',ini_npop
+   ENDIF ELSE BEGIN 
+      nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
+             dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
+             collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,$
+             np, npop, ini_npop
+      
+      npop_all[*,*, i]    = npop
+      npop_ini_all[*,*,i] = ini_npop
+   ENDELSE
 
-;   bridge->execute, '.compile nlteC.pro'
-;   bridge->execute, '.compile PC.pro'
-stop
-   print, i
-   bridge->execute, nowait=0, 'nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
-                    'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
-                    'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,'+$
-                    'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
-;nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
-;       dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
-;       collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,$
-;       np, npop, ini_npop
-;   npop_all[*,*, i]    = npop
-;   npop_ini_all[*,*,i] = ini_npop
-
-;stop
 ENDFOR
-barrier_bridges, bridges
-npop_all     = (*p_npop_all)
-npop_ini_all = (*p_npop_ini_all)
+
+IF KEYWORD_SET(parallel) THEN BEGIN
+   barrier_bridges, bridges
+   npop_all     = (*p_npop_all)
+   npop_ini_all = (*p_npop_ini_all)
+ENDIF
 
 MWRFITS, dum, 'levelpop_nlte.fits', /CREATE
 MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, idown:idown, iup:iup, g:g, gugl:gugl, energy_in_K:energy_in_K, $
