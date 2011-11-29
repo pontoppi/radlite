@@ -32,7 +32,7 @@ CASE partner_name OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,emax=100)
+mol    = EXTRACT_LAMDA(molall,emax=2000)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -67,9 +67,10 @@ npop           = DBLARR(nlevels*np)
 ini_npop       = DBLARR(nlevels*np)
 
 FOR i=0,ncores-1 DO BEGIN
-   (bridges[i])->execute, '.c nltec.pro'
-   (bridges[i])->execute, '.c callback.pro'
-   (bridges[i])->setproperty, callback='callback'
+   (bridges[i])->execute, '.compile nlteC.pro'
+   (bridges[i])->execute, 'resolve_all'   
+   (bridges[i])->execute, '.compile callback.pro'
+  (bridges[i])->setproperty, callback='callback'
 ENDFOR
 
 FOR i=0,ddens.nr-1 DO BEGIN
@@ -117,22 +118,25 @@ FOR i=0,ddens.nr-1 DO BEGIN
    bridge->setvar, 'nctrans',nctrans
    bridge->setvar, 'partner',partner
    bridge->setvar, 'np',np
-   bridge->setvar, 'nu_cont',nu_cont
    bridge->setvar, 'npop',npop
    bridge->setvar, 'ini_npop',ini_npop
 
-;   bridge->execute, '.compile nltec.pro'
+;   bridge->execute, '.compile nlteC.pro'
 ;   bridge->execute, '.compile PC.pro'
-
-   bridge->execute, nowait=0, 'nltec, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
+stop
+   print, i
+   bridge->execute, nowait=0, 'nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
                     'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
                     'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,'+$
-                    'np, nu_cont, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
-
+                    'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
+;nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
+;       dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
+;       collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,$
+;       np, npop, ini_npop
 ;   npop_all[*,*, i]    = npop
 ;   npop_ini_all[*,*,i] = ini_npop
-;   print, i
-stop
+
+;stop
 ENDFOR
 barrier_bridges, bridges
 npop_all     = (*p_npop_all)

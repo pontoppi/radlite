@@ -1,7 +1,7 @@
 PRO nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
            dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, $
            collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,$
-           np, nu_cont, npop, ini_npop
+           np, npop, ini_npop
 
 @natconst
 
@@ -9,9 +9,9 @@ niter  = 8
 frac   = 0.001
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
-m   = {Cul:Cul,TCul:TCul,dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
+m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
        idown:idown,Aul:Aul,Bul:Bul,Blu:Blu,energy_in_k:energy_in_k,g:g,collrates:collrates,$
-       coll_iup:coll_iup,coll_temps:coll_temps,ntemps:ntemps,nctrans:nctrans,partner:partner}
+       coll_iup:coll_iup,coll_idown:coll_idown,coll_temps:coll_temps,ntemps:ntemps,nctrans:nctrans,partner:partner,np:np}
 
 npop        = DBLARR(nlevels*np)
 Jac         = DBLARR(nlevels*np,nlevels*np)
@@ -38,10 +38,10 @@ FOR k=0,niter-1 DO BEGIN
    dn = npop*frac
 
    FOR j=0,np*nlevels-1 DO BEGIN
-      Pn         = PC(npop,col=col,m=m)
+      Pn         = PC(npop,col,m)
       npopdn     = npop
       npopdn[j] += dn[j]
-      Pndn       = PC(npopdn,col=col,m=m)      
+      Pndn       = PC(npopdn,col,m)      
       Jac[j,*]   = (Pndn-Pn)/dn[j]
    ENDFOR
    

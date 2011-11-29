@@ -1,4 +1,5 @@
 PRO callback, status, error, bridge, ud
+  stop
 	npop     = bridge->getvar('npop')
         ini_npop = bridge->getvar('ini_npop')
 	(*(ud.p_npop_all))[*,*, ud.i]     = npop

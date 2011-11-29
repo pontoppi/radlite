@@ -1,4 +1,4 @@
-FUNCTION PC, npop_in, col=col,m=m
+FUNCTION PC, npop_in, col,m
 ;COMMON coll,  Cul, TCul
 ;COMMON const, dv
 ;COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner
@@ -36,7 +36,7 @@ FOR i=0,m.nlines-1 DO BEGIN
    ;coefficients - note that the
    ;subscripts follow the
    ;IDL column/row matrix indexing
-   R_arr[m.idown[i]-1,m.iup[i]-1,*] = m.Aul[i]*Pesc_arr[i,*] + Bul[i]*Ppump_arr[i,*]*col.J      ;Rul
+   R_arr[m.idown[i]-1,m.iup[i]-1,*] = m.Aul[i]*Pesc_arr[i,*] + m.Bul[i]*Ppump_arr[i,*]*col.J      ;Rul
    R_arr[m.iup[i]-1,m.idown[i]-1,*] = m.Blu[i]*Ppump_arr[i,*]*col.J                             ;Rlu   
 ENDFOR
 
@@ -44,7 +44,7 @@ ENDFOR
 ;Add collisional terms to the rate matrix
 ;======================================
 FOR i=0,m.nctrans-1 DO BEGIN
-   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:m.ntemps[m.partner]-1,m.partner]),REFORM(m.coll_temps[0:m.ntemps[partner]-1,partner]),col.tgas)
+   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:m.ntemps[m.partner]-1,m.partner]),REFORM(m.coll_temps[0:m.ntemps[m.partner]-1,m.partner]),col.tgas)
    Clu_arr[i,*] = Cul_arr[i,*] * m.g[m.coll_iup[i,m.partner]-1]/m.g[m.coll_idown[i,m.partner]-1] * $
                   EXP(-(m.energy_in_k[m.coll_iup[i,m.partner]-1]-m.energy_in_k[m.coll_idown[i,m.partner]-1])/col.tgas)
    R_arr[m.coll_idown[i,m.partner]-1,m.coll_iup[i,m.partner]-1,*] += Cul_arr[i,*]*col.rhogas  ;Rul
@@ -55,7 +55,7 @@ FOR h=0,m.np-1 DO BEGIN
    ;
    ;1st term: rate into level j; 2nd term: rate out of level j
    ;Pj = Sj (Rji x nj) - ni x Sj(Rij)
-   P[h*nlevels:(h+1)*m.nlevels-1] = TRANSPOSE(R_arr[*,*,h])##REFORM(npop[*,h]) - TOTAL(R_arr[*,*,h],1)*npop[*,h]                   
+   P[h*m.nlevels:(h+1)*m.nlevels-1] = TRANSPOSE(R_arr[*,*,h])##REFORM(npop[*,h]) - TOTAL(R_arr[*,*,h],1)*npop[*,h]                   
    ;
    ;Replacing the last equilibrium
    ;equation with mass conservation to
