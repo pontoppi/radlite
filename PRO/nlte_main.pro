@@ -32,7 +32,7 @@ CASE partner_name OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,emax=2000)
+mol    = EXTRACT_LAMDA(molall,vmax=0,jmax=20)
 
 nlines = N_ELEMENTS(mol.freq)
 

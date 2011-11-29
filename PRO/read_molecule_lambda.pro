@@ -2,7 +2,7 @@
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
 
-FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax,ghz=ghz
+FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,jmax=jmax,emax=emax,ghz=ghz
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -14,6 +14,7 @@ hh     = 6.62620755d-27
 kk     = 1.380658d-16   
 
 IF NOT KEYWORD_SET(vmax) THEN vmax = 10
+IF NOT KEYWORD_SET(jmax) THEN jmax = 40
 IF NOT KEYWORD_SET(emax) THEN emax = 1d6
 ;
 ;Declarations
@@ -48,10 +49,10 @@ readf,lunm,str
 e     = dblarr(nlev)
 g     = dblarr(nlev)
 lind  = intarr(nlev)
-lev_vib = strarr(nlev)   ;The vibrational quantum number(s) of the level
-lev_rot = strarr(nlev)   ;The rotational quantum number(s)
+lev_vib = intarr(nlev)   ;The vibrational quantum number(s) of the level
+lev_rot = intarr(nlev)   ;The rotational quantum number(s)
 FOR i=0,nlev-1 DO BEGIN
-    readf,lunm,linddum,edum,gdum,vibdum,rotdum,format='(i5,f12.4,f7.1,a15,a15)'
+    readf,lunm,linddum,edum,gdum,vibdum,rotdum,format='(i5,f12.4,f7.1,i15,i15)'
     e[i]       = edum
     g[i]       = gdum
     lind[i]    = linddum
