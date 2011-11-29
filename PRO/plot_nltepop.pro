@@ -26,11 +26,7 @@ log_ratio = ALOG10(ROTATE(lte_ratio,1))
 cgloadct,4
 cgcontour, log_ratio, x/AU, y/AU, /fill, nlevels=255,xrange=xrange,yrange=yrange,/xs,/ys, $
            title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
-<<<<<<< local
-cgcolorbar, range=[Min(log_ratio,/nan), MAX(log_ratio, /nan)],format='(f5.2)', /VERTICAL, $
-=======
 cgcolorbar, range=[MIN(log_ratio,/nan), MAX(log_ratio,/nan)],format='(f5.2)', /VERTICAL, $
->>>>>>> other
             POSITION=[0.95, 0.10, 0.98, 0.90]
 stop
 END

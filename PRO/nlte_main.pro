@@ -28,8 +28,8 @@ CASE partner_name OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=20)
-stop
+mol    = EXTRACT_LAMDA(molall,vmax=0,jmax=6)
+
 nlines = N_ELEMENTS(mol.freq)
 
 idown        = mol.idown
@@ -52,8 +52,8 @@ ntemps       = mol.ntemps
 
 J_col        = DBLARR(nlines,np)
 
-;npop_all     = DBLARR(nlevels, np, ddens.nr)
-;npop_ini_all = DBLARR(nlevels, np, ddens.nr)
+npop_all     = DBLARR(nlevels, np, ddens.nr)
+npop_ini_all = DBLARR(nlevels, np, ddens.nr)
 
 bridges        = build_bridges(ncores)
 p_npop_all     = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)

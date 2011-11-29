@@ -108,18 +108,20 @@ FOR p=0,mol.nr_coll_partners-1 DO BEGIN
       ENDELSE
    ENDIF
 ;Make master list of collisional transitions
-master_collrates[count:count+nctrans_new[p]-1,*] = collrates[0:nctrans_new[p]-1,*,p]
-master_coll_iup[count:count+nctrans_new[p]-1]    = coll_iup[0:nctrans_new[p]-1]
-master_coll_idown[count:count+nctrans_new[p]-1]  = coll_idown[0:nctrans_new[p]-1]
-count += nctrans_new[p]
+IF nctrans_new[p] NE 0 THEN BEGIN
+   master_collrates[count:count+nctrans_new[p]-1,*] = collrates[0:nctrans_new[p]-1,*,p]
+   master_coll_iup[count:count+nctrans_new[p]-1]    = coll_iup[0:nctrans_new[p]-1]
+   master_coll_idown[count:count+nctrans_new[p]-1]  = coll_idown[0:nctrans_new[p]-1]
+   count += nctrans_new[p]
+ENDIF
 ENDFOR
  
 collrates  = master_collrates
 coll_iup   = master_coll_iup
 coll_idown = master_coll_idown
-stop
+
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$
-        aud:aud,freq:freq,species:mol.species,mumol:mol.mumol,nlevels:nlevels,lev_vib:lev_vib,lev_rot:lev_rot,$
+        aud:aud,freq:freq,species:mol.species,mumol:mol.mumol,nlevels:nlevels_new,lev_vib:lev_vib,lev_rot:lev_rot,$
         lin_vib:lin_vib,lin_rot:lin_rot,eupper:eupper,ntemps:mol.ntemps,temps:mol.temps,collrates:collrates,$
         coll_iup:coll_iup,coll_idown:coll_idown,nr_coll_partners:mol.nr_coll_partners,$
         partner_name:mol.partner_name,nctrans:nctrans_new}
