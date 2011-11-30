@@ -2,7 +2,8 @@
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
 
-FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,jmax=jmax,emax=emax,ghz=ghz
+FUNCTION read_molecule_lambda,file,coll=coll,ghz=ghz
+print,'in'
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -13,9 +14,6 @@ cc     = 2.99792458d10
 hh     = 6.62620755d-27
 kk     = 1.380658d-16   
 
-IF NOT KEYWORD_SET(vmax) THEN vmax = 10
-IF NOT KEYWORD_SET(jmax) THEN jmax = 40
-IF NOT KEYWORD_SET(emax) THEN emax = 1d6
 ;
 ;Declarations
 

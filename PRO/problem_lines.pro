@@ -195,7 +195,6 @@ ENDIF ELSE BEGIN
    IF it_is_there THEN BEGIN
       PRINT, 'Existing level population file found - do you want to use it?'
       read, answer, prompt='[y/n]'
-      
    ENDIF
 
    PRINT, 'You have selected non-LTE!'

@@ -6,6 +6,8 @@ FUNCTION PC, npop_in, col,m
 
 @natconst
 
+ntemps      = size(m.temps,/N_ELEMENTS)
+
 Cul_arr     = DBLARR(m.nctrans,m.np)
 Clu_arr     = DBLARR(m.nctrans,m.np)
 
@@ -44,7 +46,7 @@ ENDFOR
 ;Add collisional terms to the rate matrix
 ;======================================
 FOR i=0,m.nctrans-1 DO BEGIN
-   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:m.ntemps[m.partner]-1,m.partner]),REFORM(m.coll_temps[0:m.ntemps[m.partner]-1,m.partner]),col.tgas)
+   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:ntemps-1,m.partner]),REFORM(m.coll_temps[0:m.ntemps-1,m.partner]),col.tgas)
    Clu_arr[i,*] = Cul_arr[i,*] * m.g[m.coll_iup[i,m.partner]-1]/m.g[m.coll_idown[i,m.partner]-1] * $
                   EXP(-(m.energy_in_k[m.coll_iup[i,m.partner]-1]-m.energy_in_k[m.coll_idown[i,m.partner]-1])/col.tgas)
    R_arr[m.coll_idown[i,m.partner]-1,m.coll_iup[i,m.partner]-1,*] += Cul_arr[i,*]*col.rhogas  ;Rul

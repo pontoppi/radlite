@@ -5,7 +5,13 @@
 
 FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, lambdarange=lambdarange
 
-OPR     = 2.0 ;H2 ortho-to-para ratio
+IF ~KEYWORD_SET(OPR) THEN OPR             = 2.0
+IF ~KEYWORD_SET(temp_num) THEN temp_num   = 1
+
+CASE temp_grid OF
+   1: temp_grid = mol.temps(UNIQ(mol.temps, SORT(mol.temps)))
+ENDCASE
+print,temp_grid
 
 nlines  = N_ELEMENTS(mol.iup)
 glevels = WHERE(mol.lev_vib LE vmax AND mol.lev_rot LE jmax, nlevels_new)
@@ -80,40 +86,70 @@ true_maxcoll = MAX(nctrans_new)
 collrates    = collrates[0:true_maxcoll-1,*,*]
 coll_iup     = coll_iup[0:true_maxcoll-1,*]
 coll_idown   = coll_idown[0:true_maxcoll-1,*]
-master_collrates  = FLTARR(TOTAL(nctrans_new),MAX(mol.ntemps))
+
+master_collrates  = FLTARR(TOTAL(nctrans_new),size(temp_grid,/N_ELEMENTS),mol.nr_coll_partners)
 master_coll_iup   = FLTARR(TOTAL(nctrans_new))
 master_coll_idown = FLTARR(TOTAL(nctrans_new))
+count             = INTARR(mol.nr_coll_partners)
 
-count = 0
 
 FOR p=0,mol.nr_coll_partners-1 DO BEGIN
+;Interpolate all rates onto same temperature grid
+   FOR i=0,nctrans_new[p]-1 DO BEGIN
+      tmp_collrates[i,*]=INTERPOL(collrates[i,*,p],mol.temps[p,0:ntemps[p]],temp_grid)
+   ENDFOR
+   pid = 0
 ;Identify collisional rates by partner
-;for now we consider H2,H, and He
-
+;for now we consider H2=0,H=1, and He=2
    IF (STRPOS(mol.partner_name[p],'H') NE -1) THEN BEGIN
       IF (STRPOS(mol.partner_name[p],'H2') NE -1) THEN BEGIN
+         pid = 0       ;partner is H2
          IF (STRPOS(mol.partner_name[p],'p-H2') NE -1) THEN BEGIN
-            collrates[*,*,p] *= (1d0/(OPR+1d0)) ;weighted para-H2 rates
+            tmp_collrates[*,*] *= (1d0/(OPR+1d0)) ;weighted para-H2 rates
          ENDIF ELSE BEGIN
             IF (STRPOS(mol.partner_name[p],'o-H2') NE -1) THEN BEGIN
-               collrates[*,*,p] *= (OPR/(OPR+1d0)) ;weighted ortho-H2 rates
+               tmp_collrates[*,*] *= (OPR/(OPR+1d0)) ;weighted ortho-H2 rates
             ENDIF
          ENDELSE
       ENDIF ELSE BEGIN
          IF (STRPOS(mol.partner_name[p],'He') NE -1) THEN BEGIN
-            collrates[*,*,p] *= 0.2 ;cosmic abundance relative to number of H2 molecules
+            pid = 2    ;partner is He
+            tmp collrates[*,*] *= 0.2 ;cosmic abundance relative to number of H2 molecules
          ENDIF ELSE BEGIN
-            collrates[*,*,p] *= 2d0 ;collisions with H, assuming density is number of H2 molecules
+            pid = 1    ;partner is H
+            tmp_collrates[*,*] *= 2d0 ;collisions with H, assuming density is number of H2 molecules
          ENDELSE
       ENDELSE
    ENDIF
+   subs = where((coll_iup[*,p] EQ master_coll_iup[*,pid]) AND (coll_idown[*,p] EQ master_coll_idown[*,pid]) AND (coll_iup[*,p] NE 0))
+   IF (subs NE -1) DO BEGIN
+      master_collrates[subs,*,pid] += tmp_collrates[subs,*]
+      extras = nctrans_new[p]-size(subs,/N_ELEMENTS)
+      subs   = where(tmp_collrates[*,*] NE tmp_collrates[sub,*])
+      master_collrates[count[pid]:count[pid]+extras-1,*,pid] = tmp_collrates[subs,*]
+      master_coll_iup[count[pid]:count[pid]+extras-1,pid]    = coll_iup[subs,pid]
+      master_coll_idown[count[pid]:count[pid]+extras-1,pid]  = coll_idown[subs,pid]
+      count[pid] += extras
+   ENDIF ELSE BEGIN
+      master_collrates[count[pid]:count[pid]+nctrans_new[p]-1,*,pid] = tmp_collrates[0:nctrans_new[p],*]
+      master_coll_iup[count[pid]:count[pid]+nctrans_new[p]-1,pid]    = coll_iup[0:nctrans_new[p],pid]
+      master_coll_idown[count[pid]:count[pid]+nctrans_new[p]-1,pid]  = coll_idown[0:nctrans_new[p],pid]
+      count[pid] += nctrans_new[p]
+   ENDELSE
 ;Make master list of collisional transitions
-IF nctrans_new[p] NE 0 THEN BEGIN
-   master_collrates[count:count+nctrans_new[p]-1,*] = collrates[0:nctrans_new[p]-1,*,p]
-   master_coll_iup[count:count+nctrans_new[p]-1]    = coll_iup[0:nctrans_new[p]-1]
-   master_coll_idown[count:count+nctrans_new[p]-1]  = coll_idown[0:nctrans_new[p]-1]
-   count += nctrans_new[p]
-ENDIF
+;<<<<<<< local
+;master_collrates[count:count+nctrans[p]-1,*] = collrates[0:nctrans[p],*,p]
+;master_coll_iup[count:count+nctrans[p]-1]    = coll_iup[0:nctrans[p]]
+;master_coll_idown[count:count+nctrans[p]-1]  = coll_idown[0:nctrans[p]]
+;count += nctrans[p]
+;=======
+;IF nctrans_new[p] NE 0 THEN BEGIN
+;   master_collrates[count:count+nctrans_new[p]-1,*] = collrates[0:nctrans_new[p]-1,*,p]
+;   master_coll_iup[count:count+nctrans_new[p]-1]    = coll_iup[0:nctrans_new[p]-1]
+;   master_coll_idown[count:count+nctrans_new[p]-1]  = coll_idown[0:nctrans_new[p]-1]
+;   count += nctrans_new[p]
+;ENDIF
+;>>>>>>> other
 ENDFOR
  
 collrates  = master_collrates
@@ -122,10 +158,9 @@ coll_idown = master_coll_idown
 
 return,{lind:lind,energy:energy,energy_in_K:energy_in_K,e:e,g:g,iup:iup,idown:idown,$
         aud:aud,freq:freq,species:mol.species,mumol:mol.mumol,nlevels:nlevels_new,lev_vib:lev_vib,lev_rot:lev_rot,$
-        lin_vib:lin_vib,lin_rot:lin_rot,eupper:eupper,ntemps:mol.ntemps,temps:mol.temps,collrates:collrates,$
+        lin_vib:lin_vib,lin_rot:lin_rot,eupper:eupper,temps:temp_grid,collrates:collrates,$
         coll_iup:coll_iup,coll_idown:coll_idown,nr_coll_partners:mol.nr_coll_partners,$
         partner_name:mol.partner_name,nctrans:nctrans_new}
-
 
 
 END
