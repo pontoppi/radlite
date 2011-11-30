@@ -2,7 +2,11 @@
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
 
+<<<<<<< local
+FUNCTION read_molecule_lambda,file,coll=coll,ghz=ghz
+=======
 FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax,ghz=ghz
+>>>>>>> other
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -35,6 +39,7 @@ idowndum = 0
 auddum   = 0d0
 freqdum  = 0d0
 
+print,file
 openr,lunm,file, /get_lun
 readf,lunm,str
 readf,lunm,str
