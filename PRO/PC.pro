@@ -1,12 +1,6 @@
 FUNCTION PC, npop_in, col,m
-;COMMON coll,  Cul, TCul
-;COMMON const, dv
-;COMMON mol,  nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner
-;COMMON grid, np, nu_cont
 
 @natconst
-
-ntemps      = size(m.temps,/N_ELEMENTS)
 
 Cul_arr     = DBLARR(m.nctrans,m.np)
 Clu_arr     = DBLARR(m.nctrans,m.np)
@@ -46,11 +40,11 @@ ENDFOR
 ;Add collisional terms to the rate matrix
 ;======================================
 FOR i=0,m.nctrans-1 DO BEGIN
-   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:ntemps-1,m.partner]),REFORM(m.coll_temps[0:m.ntemps-1,m.partner]),col.tgas)
-   Clu_arr[i,*] = Cul_arr[i,*] * m.g[m.coll_iup[i,m.partner]-1]/m.g[m.coll_idown[i,m.partner]-1] * $
-                  EXP(-(m.energy_in_k[m.coll_iup[i,m.partner]-1]-m.energy_in_k[m.coll_idown[i,m.partner]-1])/col.tgas)
-   R_arr[m.coll_idown[i,m.partner]-1,m.coll_iup[i,m.partner]-1,*] += Cul_arr[i,*]*col.rhogas  ;Rul
-   R_arr[m.coll_iup[i,m.partner]-1,m.coll_idown[i,m.partner]-1,*] += Clu_arr[i,*]*col.rhogas  ;Rlu
+   Cul_arr[i,*] = INTERPOL(REFORM(m.collrates[i,0:m.ntemps-1]),REFORM(m.coll_temps[0:m.ntemps-1]),col.tgas)
+   Clu_arr[i,*] = Cul_arr[i,*] * m.g[m.coll_iup[i]-1]/m.g[m.coll_idown[i]-1] * $
+                  EXP(-(m.energy_in_k[m.coll_iup[i]-1]-m.energy_in_k[m.coll_idown[i]-1])/col.tgas)
+   R_arr[m.coll_idown[i]-1,m.coll_iup[i]-1,*] += Cul_arr[i,*]*col.rhogas  ;Rul
+   R_arr[m.coll_iup[i]-1,m.coll_idown[i]-1,*] += Clu_arr[i,*]*col.rhogas  ;Rlu
 ENDFOR
 
 FOR h=0,m.np-1 DO BEGIN

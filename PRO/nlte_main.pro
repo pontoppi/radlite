@@ -23,12 +23,8 @@ CASE isot OF
    51: lamda_isotop='12CO_lamda.dat'
 ENDCASE
 
-CASE partner_name OF
-   'H2': partner = 0
-ENDCASE
-
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=0,jmax=20)
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=3)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -47,7 +43,7 @@ collrates    = mol.collrates
 coll_iup     = mol.coll_iup
 coll_idown   = mol.coll_idown
 coll_temps   = mol.temps
-nctrans      = mol.nctrans[partner]
+nctrans      = mol.nctrans
 ntemps       = mol.ntemps
 
 J_col        = DBLARR(nlines,np)
@@ -114,20 +110,19 @@ FOR i=0,ddens.nr-1 DO BEGIN
       bridge->setvar, 'coll_temps',coll_temps
       bridge->setvar, 'ntemps',ntemps
       bridge->setvar, 'nctrans',nctrans
-      bridge->setvar, 'partner',partner
       bridge->setvar, 'np',np
       bridge->setvar, 'npop',npop
       bridge->setvar, 'ini_npop',ini_npop
       
       bridge->execute, nowait=0, 'nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
                        'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
-                       'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,'+$
+                       'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, '+$
                        'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
 
    ENDIF ELSE BEGIN 
       nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
              dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
-             collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, partner,$
+             collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
              np, npop, ini_npop
       
       npop_all[*,*, i]    = npop
