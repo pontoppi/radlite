@@ -5,7 +5,7 @@ PRO nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 @natconst
 
-niter  = 8
+niter  = 16
 frac   = 0.001
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}

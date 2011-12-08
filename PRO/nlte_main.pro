@@ -24,7 +24,7 @@ CASE isot OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=3)
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=5)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -66,17 +66,16 @@ FOR i=0,ncores-1 DO BEGIN
 ENDFOR
 
 FOR i=0,ddens.nr-1 DO BEGIN
-   
    z_col      = REFORM((!pi/2-ddens.theta[0:np-1])*ddens.r[i])  ;exact - we are approximating photons to curve along circles in the polar system
-   tgas_col   = MEDIAN(REFORM(tgas[i,0:np-1]),5)
+   tgas_col   = REFORM(tgas[i,0:np-1])
    rhogas_col = REFORM(rhogas[i,0:np-1])/(mu*mp)
-   minsub     = WHERE(rhogas_col LT 1.) ;Densities cannot be too close to 0.
-   rhogas_col[minsub] = 1.
+;   minsub     = WHERE(rhogas_col LT 1.) ;Densities cannot be too close to 0.
+;   rhogas_col[minsub] = 1.
    abun_col   = REFORM(abun[i,0:np-1])
    JSED_col   = REFORM(mint.meanint[i,0:np-1,*])
 
    FOR h=0,np-1 DO BEGIN
-      J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
+      J_col[*,h] = SMOOTH(INTERPOL(JSED_col[h,*],nu_cont/cc,freq),7)
    ENDFOR
 
 
@@ -120,7 +119,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
                        'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
 
    ENDIF ELSE BEGIN 
-      nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
+      nlte, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
              dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
              collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
              np, npop, ini_npop
