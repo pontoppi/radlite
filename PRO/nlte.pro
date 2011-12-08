@@ -6,7 +6,7 @@ COMMON grid, np, z_col, tgas_col, abun_col, rhogas_col, J_col, JSED_col, nu_cont
 @natconst
 
 
-niter  = 8
+niter  = 20
 dV     = 1d5  ;cm/s
 frac    = 0.001
 
@@ -66,7 +66,7 @@ FOR k=0,niter-1 DO BEGIN
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
-   IF conv LT 1d-12 THEN BEGIN
+   IF conv LT 1d-6 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF

@@ -191,22 +191,23 @@ IF lte EQ 1 THEN BEGIN
 ENDIF ELSE BEGIN
    ;
    ;Check for existing non-lte level population file
+   p = 0
    it_is_there = FILE_TEST('levelpop_nlte.fits')
    IF it_is_there THEN BEGIN
       PRINT, 'Existing level population file found - do you want to use it?'
+      answer=''
       read, answer, prompt='[y/n]'
+      p = strmatch(answer,'y')
    ENDIF
-
-   PRINT, 'You have selected non-LTE!'
-   PRINT, '...starting detailed balance calculation...'
-   IF lte EQ 0 THEN BEGIN
-      ;use Klaus' prescription
-      partner_name = 'H2'
-      nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name
-   ENDIF ELSE BEGIN
-      ;use Alex's prescription
-      non_lte
-   ENDELSE
+   IF p EQ 0 THEN BEGIN
+      PRINT, 'You have selected non-LTE!'
+      PRINT, '...starting detailed balance calculation...'
+      IF lte EQ 0 THEN BEGIN
+         ;use Klaus' prescription
+         partner_name = 'H2'
+         nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name
+      ENDIF
+   ENDIF
 ENDELSE
 
 openw,lun,'levelpop.info',/get_lun
