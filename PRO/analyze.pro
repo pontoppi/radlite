@@ -720,8 +720,8 @@ sizetbig=sizet*(1+imirt)
 meanint=dblarr(sizer,sizetbig,nfr)
 ;endif
 for inu=1,nfr do begin
-   for ir=1,sizer do begin
-      for it=1,sizet do begin
+   for it=1,sizet do begin
+      for ir=1,sizer do begin
          dum = 0.d0
          readf,1,dum
          meanint(ir-1,it-1,inu-1) = dum
@@ -734,8 +734,7 @@ for inu=1,nfr do begin
 endfor
 close,1
 ;endfor
-
-
+stop
 rr=rebin(grid.r,grid.nr,grid.ntheta)
 if grid.ntheta gt 1 then $
    tt=transpose(rebin(grid.theta,grid.ntheta,grid.nr)) $ 

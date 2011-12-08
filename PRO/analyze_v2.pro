@@ -762,15 +762,18 @@ nfr=0
 ;   filename=filename(1:*)
 ;endelse
 
-filename='meanint_radmc.dat'
+;nn=n_elements(filename)
 
-openr,1,filename
+;for in=1,nn do begin
+openr,1,'meanint_radmc.dat';        filename[in-1]
 readf,1,nfr,sizer,sizet,imirt
 sizetbig=sizet*(1+imirt)
+;if in eq 1 then begin
 meanint=dblarr(sizer,sizetbig,nfr)
+;endif
 for inu=1,nfr do begin
-   for it=1,sizet do begin
-      for ir=1,sizer do begin
+   for ir=1,sizer do begin
+      for it=1,sizet do begin
          dum = 0.d0
          readf,1,dum
          meanint(ir-1,it-1,inu-1) = dum
@@ -782,8 +785,9 @@ for inu=1,nfr do begin
    endfor
 endfor
 close,1
+;endfor
 
-
+stop
 rr=rebin(grid.r,grid.nr,grid.ntheta)
 if grid.ntheta gt 1 then $
    tt=transpose(rebin(grid.theta,grid.ntheta,grid.nr)) $ 
@@ -793,6 +797,7 @@ return,{nr:grid.nr,ntheta:grid.ntheta,nnu:grid.nnu,$
         r:grid.r,theta:grid.theta,nu:grid.nu(1:*),$
         rr:rr,tt:tt,meanint:meanint}
 end
+
 
 
 ;--------------------------------------------------------------------
