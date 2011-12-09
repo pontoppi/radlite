@@ -6,13 +6,9 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 @natconst
 
 
-niter  = 10
-frac    = 0.00001
-
-col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
-m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
-       idown:idown,Aul:Aul,Bul:Bul,Blu:Blu,energy_in_k:energy_in_k,g:g,collrates:collrates,$
-       coll_iup:coll_iup,coll_idown:coll_idown,coll_temps:coll_temps,ntemps:ntemps,nctrans:nctrans,np:np}
+niter  = 8
+dV     = 1d5  ;cm/s
+frac    = 0.001
 
 npop        = DBLARR(nlevels,np)
 Jac         = DBLARR(nlevels,nlevels,np)
@@ -63,7 +59,7 @@ FOR k=0,niter-1 DO BEGIN
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
-   IF conv LT 1d-8 THEN BEGIN
+   IF conv LT 1d-12 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF

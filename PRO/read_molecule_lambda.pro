@@ -2,8 +2,7 @@
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
 
-FUNCTION read_molecule_lambda,file,coll=coll,ghz=ghz
-print,'in'
+FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax,ghz=ghz
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -14,6 +13,8 @@ cc     = 2.99792458d10
 hh     = 6.62620755d-27
 kk     = 1.380658d-16   
 
+IF NOT KEYWORD_SET(vmax) THEN vmax = 10
+IF NOT KEYWORD_SET(emax) THEN emax = 1d6
 ;
 ;Declarations
 
@@ -34,6 +35,7 @@ idowndum = 0
 auddum   = 0d0
 freqdum  = 0d0
 
+print,file
 openr,lunm,file, /get_lun
 readf,lunm,str
 readf,lunm,str
@@ -47,10 +49,10 @@ readf,lunm,str
 e     = dblarr(nlev)
 g     = dblarr(nlev)
 lind  = intarr(nlev)
-lev_vib = intarr(nlev)   ;The vibrational quantum number(s) of the level
-lev_rot = intarr(nlev)   ;The rotational quantum number(s)
+lev_vib = strarr(nlev)   ;The vibrational quantum number(s) of the level
+lev_rot = strarr(nlev)   ;The rotational quantum number(s)
 FOR i=0,nlev-1 DO BEGIN
-    readf,lunm,linddum,edum,gdum,vibdum,rotdum,format='(i5,f12.4,f7.1,i15,i15)'
+    readf,lunm,linddum,edum,gdum,vibdum,rotdum,format='(i5,f12.4,f7.1,a15,a15)'
     e[i]       = edum
     g[i]       = gdum
     lind[i]    = linddum
@@ -98,10 +100,9 @@ IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
    namedum = ' '
    ntrandum = 0
    ntempdum = 0
-   pindex   = 0
    FOR k=0,nr_coll_partners-1 DO BEGIN
       readf, lunm, str, format='(a100)'
-      readf, lunm, pindex, namedum,format='(i2,a100)'
+      readf, lunm, namedum,format='(a100)'
       partner_name[k] = namedum
       readf, lunm, str,format='(a100)'
       readf, lunm, ntrandum,format='(i4)'

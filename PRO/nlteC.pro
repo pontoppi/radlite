@@ -56,7 +56,7 @@ FOR k=0,niter-1 DO BEGIN
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
-   IF conv LT 1d-8 THEN BEGIN
+   IF conv LT 1d-18 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF

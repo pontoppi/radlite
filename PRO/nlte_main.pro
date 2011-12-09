@@ -24,7 +24,7 @@ CASE isot OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=2)
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=3)
 
 nlines = N_ELEMENTS(mol.freq)
 
