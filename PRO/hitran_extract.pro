@@ -13,7 +13,6 @@ PRO hitran_extract, isotop=isotop,lambdarange=lambdarange,$
 IF NOT KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
 IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = './'
 IF NOT KEYWORD_SET(max_energy) THEN max_energy = 1d33
-;IF NOT KEYWORD_SET(vmax) THEN vmax = 100
 
 c = 2.9979246d14 ;micron/s
 MAX_LINES = 3000000L

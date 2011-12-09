@@ -3,14 +3,14 @@
 ---------------------------------------------------------------
 2       Format number
 ---------------------------------------------------------------
-5.00    Width of line passband [km/s]                     
-0.20    Velocity sampling [km/s]                          
+50.00   Width of line passband [km/s]                     
+1.50    Velocity sampling [km/s]                          
 -----------------------------------------------------------------
 2       Format number
-moldata_0.dat                 Molecular data file                               
+moldata_2.dat                 Molecular data file                               
 0       Command (0=spectrum,2=image[3-D P/V cube])        
 1.0     Distance in [pc]                                  
-45.0    Inclination [deg]                                 
+20.0    Inclination [deg]                                 
 0.0     Radial velocity, rel. to local standard of rest [km/s]      
-1       Nr of lines to make spectrum/image                
+4       Nr of lines to make spectrum/image                
 1       Starting line to make spectrum/image

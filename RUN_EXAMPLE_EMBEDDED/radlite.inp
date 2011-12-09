@@ -2,7 +2,7 @@
 ================================================================
      200        Maximum number iterations                                    
 2               Iteration method          (0=LI,1=ALI,2=ALI+Ng,-1=IS)        
-0.d0            Flux conservation trick   (0.d0=disable)
+0               Flux conservation trick   (0=disable)
 1.000e-06       Convergence tolerance                    
 0               Convergence crit type     (0=J_nu,1=j_nu) 
 1               Initial guess type        (0=triv)         
@@ -11,7 +11,7 @@
 16              Nr of phi-angle points
 2               Type of mu gridding       (0=regular,1=dr/r,2=dr/rspecial)
 0.1             Largest allowed error     
-1.0d0           Dmu wrt dR                (1.0=tangent ray method)
+1.0             Dmu wrt dR                (1.0=tangent ray method)
 3               Extra mus around mu=0
 ================================================================
 0               Type of outer boundary    (0=empty,2=microwavebg)

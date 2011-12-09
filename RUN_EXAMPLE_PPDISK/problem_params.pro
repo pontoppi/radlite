@@ -197,7 +197,7 @@ bindir=maindir+'/bin/'
 ;; Paths to the Kurucz data, the dust opacity code and the dust 
 ;; optical constants
 ;;
-kuruczdir = '~/WORK/RADLITE_V1.1/KURUCZ/'
+kuruczdir = '../KURUCZ/'
 src_dust  = maindir+'/sources/makeopac/src/'
 dustdata  = maindir+'/sources/makeopac/optconst/'
 ;;
