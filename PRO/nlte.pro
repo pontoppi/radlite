@@ -7,7 +7,7 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 
 niter  = 10
-frac    = 0.001
+frac    = 0.00001
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
 m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
@@ -54,12 +54,12 @@ FOR k=0,niter-1 DO BEGIN
    FOR h=0,np-1 DO BEGIN
       npop_new[*,h] = npop[*,h] - LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
    ENDFOR
-;   bsubs = WHERE(FINITE(npop_new) NE 1)
-;   IF bsubs[0] NE -1 THEN BEGIN
-;      npop_new[bsubs] = npop[bsubs]*1.02
-;   ENDIF
+   bsubs = WHERE(FINITE(npop_new) NE 1)
+   IF bsubs[0] NE -1 THEN BEGIN
+      npop_new[bsubs] = npop[bsubs]*1.02
+   ENDIF
 
-   highsubs = WHERE(npop GT 1.)
+   highsubs = WHERE(npop GT 100.)
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new

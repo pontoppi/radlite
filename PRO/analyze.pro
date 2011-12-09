@@ -734,7 +734,7 @@ for inu=1,nfr do begin
 endfor
 close,1
 ;endfor
-stop
+
 rr=rebin(grid.r,grid.nr,grid.ntheta)
 if grid.ntheta gt 1 then $
    tt=transpose(rebin(grid.theta,grid.ntheta,grid.nr)) $ 

@@ -24,7 +24,7 @@ CASE isot OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=5)
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=2)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -74,9 +74,8 @@ FOR i=0,ddens.nr-1 DO BEGIN
    JSED_col   = REFORM(mint.meanint[i,0:np-1,*])
 
    FOR h=0,np-1 DO BEGIN
-      J_col[*,h] = SMOOTH(INTERPOL(JSED_col[h,*],nu_cont/cc,freq),4)
+      J_col[*,h] = INTERPOL(SMOOTH(JSED_col[h,*],3),nu_cont/cc,freq)
    ENDFOR
-
 
    IF KEYWORD_SET(parallel) THEN BEGIN
       ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}
@@ -118,11 +117,12 @@ FOR i=0,ddens.nr-1 DO BEGIN
                        'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
 
    ENDIF ELSE BEGIN 
+      print, 'Radius: ', ddens.r[i]/AU, ' AU'
       nlte, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
              dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
              collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
              np, npop, ini_npop
-      stop
+      
       npop_all[*,*, i]    = npop
       npop_ini_all[*,*,i] = ini_npop
    ENDELSE
