@@ -40,8 +40,9 @@ FOR k=0,niter-1 DO BEGIN
    dn = npop*frac
    ;
    ;i is the ith rate equation, jth level population
+
+   Pn = P(npop,col,m)
    FOR j=0,nlevels-1 DO BEGIN
-      Pn          = P(npop,col,m)
       npopdn      = npop
       npopdn[j,*] = npopdn[j,*]+dn[j,*] 
       Pndn        = P(npopdn,col,m)
@@ -49,14 +50,26 @@ FOR k=0,niter-1 DO BEGIN
          Jac[j,*,h] = (Pndn[*,h]-Pn[*,h])/dn[j,h]
       ENDFOR
    ENDFOR
-;   print, npop[*,1]
+
    FOR h=0,np-1 DO BEGIN
-      npop_new[*,h] = npop[*,h] - LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
+      newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
+      npop_new[*,h] = npop[*,h] - newton
    ENDFOR
-   bsubs = WHERE(FINITE(npop_new) NE 1)
-   IF bsubs[0] NE -1 THEN BEGIN
-      npop_new[bsubs] = npop[bsubs]*1.02
-   ENDIF
+
+   Pn_new = P(npop_new, col, m)
+   lam = FLTARR(np)
+   FOR h=0,np-1 DO BEGIN
+      gp_0 = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
+      g_0  = 0.5d0*TOTAL(Pn[*,h]^2) 
+      g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2) 
+      lam[h]  = -gp_0/(2d0*(g_1-g_0-gp_0))
+;      print, lam[h]
+   ENDFOR
+;stop
+;   bsubs = WHERE(FINITE(npop_new) NE 1)
+;   IF bsubs[0] NE -1 THEN BEGIN
+;      npop_new[bsubs] = npop[bsubs]*1.02
+;   ENDIF
 
    highsubs = WHERE(npop GT 100.)
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
