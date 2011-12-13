@@ -22,10 +22,9 @@
 @read_molecule_lambda
 @read_psum
 
-PRO line_run, run_name=run_name, v=v
+PRO line_run, run_name=run_name, v=v, vmax=vmax, jmax=jmax
 @natconst.pro
 @line_params.ini
-
 
 ;
 ;Welcome message
@@ -93,10 +92,19 @@ FOR iii=0,ncores-1 DO BEGIN
     min_mu_run = min_mu_run*(1d0 - 1d-12) 
     max_mu_run = max_mu_run*(1d0 + 1d-12) 
     ;
+    ;Extract lines for LTE or nLTE
+    IF lte EQ 1 THEN BEGIN
+    ;
     ;Now calculate moldata.dat for the subrun
-    hitran_extract,cutoff=cutoff,lambdarange=[min_mu_run,max_mu_run],$
+       hitran_extract,cutoff=cutoff,lambdarange=[min_mu_run,max_mu_run],$
                    freq=freq,isot=isot,molfile=molfile,H2O_OP=H2O_OP,$
                    max_energy=max_energy, hitran_path=hit_path
+    ENDIF ELSE BEGIN
+       print,'You are making a moldata file from input not HITRAN.'
+       lambda_extract, max_energy=max_energy, molfile=molfile,$
+                       isot=isot,lambdarange=[min_mu_run,max_mu_run],$
+                       vmax=vmax,jmax=jmax
+    ENDELSE
     ;
     ;Setup the linespectrum.inp file
     write_linespectrum_inp,nlines=N_ELEMENTS(freq),incl=incl,dist=dist,image=image,$
