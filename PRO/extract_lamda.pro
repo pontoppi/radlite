@@ -45,6 +45,7 @@ FOR i=0,nlines-1 DO BEGIN
       keep[i] = 1
    ENDIF
 ENDFOR
+
 glines  = WHERE(keep,nlines_new)
 freq    = mol.freq[glines]
 aud     = mol.aud[glines]

@@ -146,14 +146,9 @@ IF turb_sou NE 0 THEN BEGIN
    make_turbulence,ddens,1,alpha=turb_sou,kepler_frac=0.0,molmass=mol.mumol
 ENDIF
 
-;====================================
-; Put the populations to LTE, if requested
-;====================================
-IF lte EQ 1 THEN BEGIN
+;
+;Write level population files for RADLite
 
-   npop = dblarr(nr,nt,mol.nlevels)
-   ntot = dblarr(nr,nt)
-   
    ;
    ;Some times the gas temperature comes
    ;out 0.0000 - have to check what goes wrong...
@@ -163,31 +158,29 @@ IF lte EQ 1 THEN BEGIN
       print, 'WARNING: Temperature is 0 in some grid points - setting to 5K' 
    ENDIF
    ;
-   ntot = ntot + npop[*,*,0]
-   FOR i=0,mol.nlevels-1 DO BEGIN
+;====================================
+; Put the populations to LTE, if requested
+;====================================
+IF lte EQ 1 THEN BEGIN
+
+   nlev   = mol.nlevels
+   energy = mol.e[0:nlev-1]*hh*cc
+   gunit  = mol.g[0:nlev-1]
+   npop   = DBLARR(nr,nt,nlev)
+
+   FOR i=0,nlev-1 DO BEGIN
       npop[*,*,i] = mol.g[i] * $
                     exp(-(mol.energy_in_K[i]/(tgas[*,0:nt-1])))
    ENDFOR
    ;
    ;get partition sum:
-   
    part = interpol(psum.psum,psum.temp,tgas[*,0:nt-1])
-   FOR i=0,mol.nlevels-1 DO BEGIN
+   FOR i=0,nlev-1 DO BEGIN
       npop[*,*,i] = npop[*,*,i] / part
    ENDFOR
-   
-   openw,lunl,'levelpop_'+molfile,/get_lun
-   printf,lunl,nr,nt,mol.nlevels,1
-   printf,lunl,mol.e[0:mol.nlevels-1]*hh*cc
-   printf,lunl,mol.g[0:mol.nlevels-1]
-   
-   FOR ir=0,nr-1 DO BEGIN
-      FOR it=0,nt-1 DO BEGIN
-         printf,lunl,npop[ir,it,0:mol.nlevels-1]
-      ENDFOR
-   ENDFOR
-   close,lunl
-   free_lun, lunl
+
+;
+;Explicitly calculate non-lte excitation
 ENDIF ELSE BEGIN
    ;
    ;Check for existing non-lte level population file
@@ -199,6 +192,7 @@ ENDIF ELSE BEGIN
       read, answer, prompt='[y/n]'
       p = strmatch(answer,'y')
    ENDIF
+
    IF p EQ 0 THEN BEGIN
       PRINT, 'You have selected non-LTE!'
       PRINT, '...starting detailed balance calculation...'
@@ -208,7 +202,41 @@ ENDIF ELSE BEGIN
          nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name
       ENDIF
    ENDIF
+
+   it_is_there = FILE_TEST('levelpop_nlte.fits')
+   IF it_is_there THEN BEGIN
+      mol    = mrdfits('levelpop_nlte.fits',1)
+      nlev   = mol.nlevels
+      energy = mol.energy_in_K * kk
+      gunit  = mol.g
+      npop   = DBLARR(nr,nt,nlev)
+      FOR ir=0,nr-1 DO BEGIN
+         FOR it=0,nt-1 DO BEGIN
+            FOR il=0,nlev-1 DO BEGIN
+               npop[ir,it,il] = mol.npop_all[il,it,ir]
+            ENDFOR
+         ENDFOR
+      ENDFOR
+   ENDIF ELSE BEGIN
+      print, 'You did not successfully make a non-LTE file.'
+   ENDELSE
+
 ENDELSE
+
+openw,lunl,'levelpop_'+molfile,/get_lun
+printf,lunl,nr,nt,nlev,1
+printf,lunl,energy
+printf,lunl,gunit
+
+FOR ir=0,nr-1 DO BEGIN
+   FOR it=0,nt-1 DO BEGIN
+      printf,lunl,npop[ir,it,0:nlev-1]
+   ENDFOR
+ENDFOR
+close,lunl
+free_lun, lunl
+
+
 
 openw,lun,'levelpop.info',/get_lun
 printf,lun,'-3'
