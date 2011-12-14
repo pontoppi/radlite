@@ -21,6 +21,8 @@
 @interpol
 @read_molecule_lambda
 @read_psum
+@lambda_extract
+@extract_lamda
 
 PRO line_run, run_name=run_name, v=v, vmax=vmax, jmax=jmax
 @natconst.pro

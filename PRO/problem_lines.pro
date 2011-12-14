@@ -113,8 +113,8 @@ read_vel, 'velocity.inp',vel
 ;====================================
 ; Check passband width
 ;====================================
-vmax = max(abs(vel.vphi))
-IF N_ELEMENTS(VERBOSE) THEN PRINT,'Maximum velocity = ',vmax/1d5,' km/s'
+velmax = max(abs(vel.vphi))
+IF N_ELEMENTS(VERBOSE) THEN PRINT,'Maximum velocity = ',velmax/1d5,' km/s'
 mol = read_molecule_lambda(molfile)
 
 ;====================================

@@ -18,7 +18,7 @@ FREQRANGE=1d4/lambdarange
 ;
 IF NOT KEYWORD_SET(isotop) THEN isotop=51
 IF NOT KEYWORD_SET(cutoff) THEN cutoff = 0
-IF NOT KEYWORD_SET(lambdarange) THEN lambdarange=[12,13]
+IF NOT KEYWORD_SET(lambdarange) THEN lambdarange=[4,5]
 IF NOT KEYWORD_SET(vmax) THEN vmax = 4
 IF NOT KEYWORD_SET(jmax) THEN jmax = 40
 
@@ -38,7 +38,7 @@ FORMAT='(i3,d12.6,d10.3,d10.3,d5.4,d5.3,d10.4,d4.2,d8.6,a15,a15,a15,a15,6I1,6I2,
 mol_all = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_file,/coll,/ghz)
 mol     = EXTRACT_LAMDA(mol_all,vmax=vmax,jmax=jmax)
 ntrans  = size(mol.aud,/N_ELEMENTS)
-print,mol.iup
+
 ISOT        = INTARR(ntrans)
 ISOT        = ISOT + 51
 FREQ        = mol.freq
@@ -59,7 +59,7 @@ Iref        = 0
 star        = STRARR(ntrans)
 gu          = mol.g[mol.iup]
 gl          = mol.g[mol.idown]
-print,gu
+
 print,freq
 print,freqrange
 ;
