@@ -1,4 +1,4 @@
-PRO problem_lines, molfile,vmax=vmax,jmax=jmax
+PRO problem_lines, molfile
 @line_params.ini
 @natconst.pro
 
@@ -163,10 +163,10 @@ ENDIF
 ;====================================
 IF lte EQ 1 THEN BEGIN
 
-   nlev   = mol.nlevels
+   nlev = mol.nlevels
    energy = mol.e[0:nlev-1]*hh*cc
-   gunit  = mol.g[0:nlev-1]
-   npop   = DBLARR(nr,nt,nlev)
+   gunit = mol.g[0:nlev-1]
+   npop = dblarr(nr,nt,nlev)
 
    FOR i=0,nlev-1 DO BEGIN
       npop[*,*,i] = mol.g[i] * $
@@ -199,17 +199,16 @@ ENDIF ELSE BEGIN
       IF lte EQ 0 THEN BEGIN
          ;use Klaus' prescription
          partner_name = 'H2'
-         nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name,vmax=vmax,jmax=jmax
+         nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name
       ENDIF
    ENDIF
 
    it_is_there = FILE_TEST('levelpop_nlte.fits')
    IF it_is_there THEN BEGIN
-      mol    = mrdfits('levelpop_nlte.fits',1)
-      nlev   = mol.nlevels
+      mol = mrdfits('levelpop_nlte.fits',1)
+      nlev = mol.nlevels
       energy = mol.energy_in_K * kk
-      gunit  = mol.g
-      npop   = DBLARR(nr,nt,nlev)
+      gunit = mol.g
       FOR ir=0,nr-1 DO BEGIN
          FOR it=0,nt-1 DO BEGIN
             FOR il=0,nlev-1 DO BEGIN

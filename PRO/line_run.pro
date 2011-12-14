@@ -112,7 +112,7 @@ FOR iii=0,ncores-1 DO BEGIN
                            imwidth=imwidth,molfile=molfile
     ;
     ;Run the setup script for the new moldata.dat
-    problem_lines, molfile
+    problem_lines, molfile,vmax=vmax,jmax=jmax
 
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
