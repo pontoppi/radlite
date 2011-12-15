@@ -37,7 +37,7 @@ cgcolorbar, range=[MIN(levels), MAX(levels)],format='(f6.2)', /VERTICAL, $
 
 levels = findgen(100)/5.
 cgcontour, ALOG10(ROTATE(REFORM(pop.npop_all[level,*,*]),1)), x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
-          xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,title='!6Fractional population'
+           title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(e9.2)', /VERTICAL, $
             POSITION=[0.95, 0.10, 0.98, 0.90]
 

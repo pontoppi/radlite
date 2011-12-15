@@ -5,13 +5,15 @@
 ;
 ;
 
-PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens, partner_name=partner_name
+PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens, partner_name=partner_name,vmax=vmax,jmax=jmax
 
 @natconst
 @line_params.ini
 
 IF ~KEYWORD_SET(dV)       THEN dV     = 1d5  ;cm/s
 IF ~KEYWORD_SET(parallel) THEN ncore  = 1
+IF ~KEYWORD_SET(vmax)     THEN vmax   = 4
+IF ~KEYWORD_SET(jmax)     THEN jmax   = 10
 ;
 ; Read the continuum mean intensity
 ;
@@ -24,7 +26,7 @@ CASE isot OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=20)
+mol    = EXTRACT_LAMDA(molall,vmax=vmax,jmax=jmax)
 
 nlines = N_ELEMENTS(mol.freq)
 
