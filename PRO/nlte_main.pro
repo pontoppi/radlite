@@ -24,7 +24,7 @@ CASE isot OF
 ENDCASE
 
 molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=3)
+mol    = EXTRACT_LAMDA(molall,vmax=1,jmax=20)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -76,8 +76,6 @@ FOR i=0,ddens.nr-1 DO BEGIN
    FOR h=0,np-1 DO BEGIN
       J_col[*,h] = INTERPOL(SMOOTH(JSED_col[h,*],3),nu_cont/cc,freq)
    ENDFOR
-;   lsubs = WHERE(J_col LT 1d-30,nsubs)
-;   IF nsubs GT 0 THEN J_col[lsubs] = 1d-30
 
    IF KEYWORD_SET(parallel) THEN BEGIN
       ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}

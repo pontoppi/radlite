@@ -27,18 +27,19 @@ ENDIF ELSE BEGIN
    ratio = ROTATE(lte_ratio,1)
 ENDELSE
 
+!P.Multi = [0, 2, 1]
 levels = findgen(100)/20.-2.5
 cgloadct,4
 cgcontour, ratio, x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
-           title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
+           xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,title='!6Departure from LTE'
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(f6.2)', /VERTICAL, $
-            POSITION=[0.95, 0.10, 0.98, 0.90]
+            POSITION=[0.95/2., 0.10, 0.98/2., 0.90]
 
-;levels = findgen(100)/5.
-;cgcontour, ALOG10(ROTATE(REFORM(pop.npop_all[level,*,*]),1)), x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
-;           title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
-;cgcolorbar, range=[MIN(levels), MAX(levels)],format='(e9.2)', /VERTICAL, $
-;            POSITION=[0.95, 0.10, 0.98, 0.90]
+levels = findgen(100)/5.
+cgcontour, ALOG10(ROTATE(REFORM(pop.npop_all[level,*,*]),1)), x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
+          xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,title='!6Fractional population'
+cgcolorbar, range=[MIN(levels), MAX(levels)],format='(e9.2)', /VERTICAL, $
+            POSITION=[0.95, 0.10, 0.98, 0.90]
 
 stop
 END

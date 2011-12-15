@@ -6,7 +6,7 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 @natconst
 
 niter  = 15
-frac    = 0.001
+frac    = 0.01
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
 m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
@@ -23,6 +23,13 @@ npop_iter   = DBLARR(nlevels,np,niter)
 FOR i=0,nlevels-1 DO BEGIN
    npop[i,*] = g[i] * exp(-(energy_in_K[i]/tgas_col))
 ENDFOR
+;
+;Avoid starting with populations that are too low (0s will make a
+;singular jacobian)
+lsubs       = WHERE(npop LT 1d-4)
+npop[lsubs] = 1d-4
+;
+;Renormalize
 FOR h=0,np-1 DO BEGIN
    Ntot = TOTAL(npop[*,h])
    npop[*,h] = npop[*,h]/Ntot * abun_col[h] * rhogas_col[h] ;in cm^-3
@@ -95,7 +102,7 @@ FOR k=0,niter-1 DO BEGIN
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
-   IF conv LT 1d-8 THEN BEGIN
+   IF conv LT 1d-5 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF
