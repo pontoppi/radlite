@@ -15,16 +15,14 @@
 @Pesc.pro
 @P.pro
 @nlte.pro
-@PL.pro
-@nlteL.pro
 @nlte_main.pro
 @interpol
 @read_molecule_lambda
 @read_psum
-@lambda_extract
-@extract_lamda
+@lamda_extract_lines
+@lamda_extract_levels
 
-PRO line_run, run_name=run_name, v=v, vmax=vmax, jmax=jmax
+PRO line_run, run_name=run_name
 @natconst.pro
 @line_params.ini
 
@@ -36,6 +34,8 @@ print, '                                          '
 print, 'Written by:                               '
 print, 'Klaus Pontoppidan (pontoppi@stsci.edu)    '
 print, 'Kees Dullemond                            '
+print, 'Alex Lockwood                             '
+print, 'Rowin Meijerink                           '
 print, '------------------------------------------'
 
 IF image EQ 2 THEN BEGIN
@@ -46,11 +46,21 @@ ENDELSE
 
 IF NOT KEYWORD_SET(run_name) THEN run_name='run'
 
-;First make a test run with hitran_extract to determine the total
+;First make a test run with hitran_extract (for LTE) or
+;lamda_extract_lines (for NLTE) to determine the total
 ;number of lines in the requested wavelength range. 
-hitran_extract,cutoff=cutoff,lambdarange=[min_mu,max_mu],freq=freq,$
-               isot=isot,molfile=molfile,H2O_OP=H2O_OP,$
-               max_energy=max_energy, hitran_path=hit_path
+IF lte EQ 1 THEN BEGIN
+   hitran_extract,cutoff=cutoff,lambdarange=[min_mu,max_mu],freq=freq,$
+                  isot=isot,molfile=molfile,H2O_OP=H2O_OP,$
+                  max_energy=max_energy, hitran_path=hit_path
+ENDIF ELSE BEGIN  
+   molfile = 'molfile.dat' 
+   lamda_extract_lines, lambdarange=[min_mu,max_mu],$
+                        isot=isot,molfile=molfile,max_energy=max_energy, $
+                        lamda_path=lamda_path
+   moldum = READ_MOLECULE_LAMBDA(molfile)
+   freq   = moldum.freq
+ENDELSE
 ;
 ;Sort in wavelength
 wave = 1d4/freq
@@ -101,11 +111,11 @@ FOR iii=0,ncores-1 DO BEGIN
        hitran_extract,cutoff=cutoff,lambdarange=[min_mu_run,max_mu_run],$
                       freq=freq,isot=isot,molfile=molfile,H2O_OP=H2O_OP,$
                       max_energy=max_energy, hitran_path=hit_path
+       
     ENDIF ELSE BEGIN
-;       print,'You are making a moldata file from input not HITRAN.'
-;       lambda_extract, max_energy=max_energy, molfile=molfile,$
-;                       isot=isot,lambdarange=[min_mu_run,max_mu_run],$
-;                       vmax=vmax,jmax=jmax
+       lamda_extract_lines, lambdarange=[min_mu_run,max_mu_run],$
+                            isot=isot,molfile=molfile,max_energy=max_energy, $
+                            lamda_path=lamda_path
     ENDELSE
     ;
     ;Setup the linespectrum.inp file
@@ -114,7 +124,7 @@ FOR iii=0,ncores-1 DO BEGIN
                            imwidth=imwidth,molfile=molfile
     ;
     ;Run the setup script for the new moldata.dat
-    problem_lines, molfile,vmax=vmax,jmax=jmax
+    problem_lines, molfile
 
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1

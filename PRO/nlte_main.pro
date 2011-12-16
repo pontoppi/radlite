@@ -1,18 +1,21 @@
 
-;
+;==========================================================
 ;Main procedure for the RADLite NLTE module. 
 ;
+;Uses a Newton-Raphson global solver (e.g., Numerical Recipes,
+;Chapter 9.7). The module currently has a framework for
+;parallelization using the IDL_IDLBRIDGE class. 
 ;
-;
+;==========================================================
 
-PRO nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens, partner_name=partner_name,vmax=vmax,jmax=jmax
+PRO nlte_main, molall=molall, tgas=tgas, rhogas=rhogas, abun=abun, species=species, ddens=ddens
 
 @natconst
 @line_params.ini
 
 IF ~KEYWORD_SET(dV)       THEN dV     = 1d5  ;cm/s
 IF ~KEYWORD_SET(parallel) THEN ncore  = 1
-IF ~KEYWORD_SET(vmax)     THEN vmax   = 4
+IF ~KEYWORD_SET(vmax)     THEN vmax   = 0
 IF ~KEYWORD_SET(jmax)     THEN jmax   = 10
 ;
 ; Read the continuum mean intensity
@@ -21,12 +24,7 @@ mint   =  read_meanint()
 np      = ddens.ntheta/2
 nu_cont = ddens.nu
 
-CASE isot OF
-   51: lamda_isotop='12CO_lamda.dat'
-ENDCASE
-
-molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_isotop,/coll,/ghz)
-mol    = EXTRACT_LAMDA(molall,vmax=vmax,jmax=jmax)
+mol    = LAMDA_EXTRACT_LEVELS(molall,vmax=vmax,jmax=jmax)
 
 nlines = N_ELEMENTS(mol.freq)
 
@@ -64,7 +62,7 @@ FOR i=0,ncores-1 DO BEGIN
    (bridges[i])->execute, '.compile nlteC.pro'
    (bridges[i])->execute, 'resolve_all'   
    (bridges[i])->execute, '.compile callback.pro'
-  (bridges[i])->setproperty, callback='callback'
+   (bridges[i])->setproperty, callback='callback'
 ENDFOR
 
 FOR i=0,ddens.nr-1 DO BEGIN
@@ -138,10 +136,9 @@ IF KEYWORD_SET(parallel) THEN BEGIN
 ENDIF
 
 MWRFITS, dum, 'levelpop_nlte.fits', /CREATE
-MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, idown:idown, iup:iup, g:g, gugl:gugl, energy_in_K:energy_in_K, $
-          freq:freq, Aul:Aul, Bul:Bul, Blu:Blu, nlevels:nlevels, theta:ddens.theta[0:np-1], radius:ddens.r}, $
+MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, theta:ddens.theta[0:np-1], radius:ddens.r}, $
          'levelpop_nlte.fits'
-
+MWRFITS, mol, 'levelpop_nlte.fits'
 
 
 END

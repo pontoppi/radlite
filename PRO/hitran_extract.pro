@@ -355,7 +355,7 @@ printf,lun,N_ELEMENTS(E_all),FORMAT='(i6)'
 printf,lun,'!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q'
 FOR i=0,N_ELEMENTS(E_all)-1 DO BEGIN
     printf,lun,i+1,E_all[i],g_all[i],v_all[i],Q_all[i],$
-      FORMAT='(i5,d11.4,f6.1,a15,a15)'
+      FORMAT='(i5,d12.4,f7.1,a15,a15)'
 ENDFOR
 printf,lun,'!NUMBER OF RADIATIVE TRANSITIONS'
 printf,lun,N_ELEMENTS(FREQ),FORMAT='(i6)'

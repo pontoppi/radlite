@@ -1,4 +1,4 @@
-PRO problem_lines, molfile,vmax=vmax,jmax=jmax
+PRO problem_lines, molfile
 @line_params.ini
 @natconst.pro
 
@@ -50,7 +50,16 @@ ENDIF ELSE BEGIN
    xray_abundance, abun=abun,tgas=tgas
    
 ENDELSE
-   
+;
+;Some times the gas temperature comes
+;out 0.0000 - have to check what goes wrong...
+badspots = WHERE(tgas EQ 0.0000)
+IF badspots[0] NE -1 THEN BEGIN
+   tgas[badspots]=5d0           ;setting them to 5K
+   print, 'WARNING: Temperature is 0 in some grid points - setting to 5K' 
+ENDIF
+;
+
 ;======================================
 ;Now create the gas velocity file.
 ;Some velocity fields will return an additional density component to
@@ -69,7 +78,7 @@ gsubs = WHERE(add_dens NE 0)
 IF gsubs[0] NE -1 THEN rhogas[gsubs] = add_dens[gsubs]
 
 ;======================================
-; Now create a gas density out of this
+; Write the gas density
 ;======================================
 
 ; Take only isize=1 and ispec=1
@@ -86,7 +95,7 @@ free_lun, lund
 
 
 ;======================================
-;And abundance
+;Make an abundance file
 ;======================================
 IF gas_decoup NE 0 THEN BEGIN
 ;   IF isot NE 11 THEN BEGIN
@@ -115,12 +124,6 @@ read_vel, 'velocity.inp',vel
 ;====================================
 velmax = max(abs(vel.vphi))
 IF N_ELEMENTS(VERBOSE) THEN PRINT,'Maximum velocity = ',velmax/1d5,' km/s'
-mol = read_molecule_lambda(molfile)
-
-;====================================
-;Read the partition functions
-;====================================
-psum = read_psum(psumfile, mol)
 
 ;====================================
 ;Now that we have the molecular mass, 
@@ -140,109 +143,18 @@ IF turb_kep EQ 0 and turb_sou EQ 0 THEN BEGIN
    STOP
 ENDIF
 IF turb_kep NE 0 THEN BEGIN
+   mol = READ_MOLECULE_LAMBDA(molfile)
    make_turbulence,ddens,2,alpha=0.0,kepler_frac=turb_kep,molmass=mol.mumol
 ENDIF
 IF turb_sou NE 0 THEN BEGIN
+   mol = READ_MOLECULE_LAMBDA(molfile)
    make_turbulence,ddens,1,alpha=turb_sou,kepler_frac=0.0,molmass=mol.mumol
 ENDIF
 
-;
-;Write level population files for RADLite
-
-   ;
-   ;Some times the gas temperature comes
-   ;out 0.0000 - have to check what goes wrong...
-   badspots = WHERE(tgas EQ 0.0000)
-   IF badspots[0] NE -1 THEN BEGIN
-      tgas[badspots]=5d0        ;setting them to 5K
-      print, 'WARNING: Temperature is 0 in some grid points - setting to 5K' 
-   ENDIF
-   ;
 ;====================================
-; Put the populations to LTE, if requested
+;Compute level populations / extract previously computed populations
 ;====================================
-IF lte EQ 1 THEN BEGIN
 
-   nlev   = mol.nlevels
-   energy = mol.e[0:nlev-1]*hh*cc
-   gunit  = mol.g[0:nlev-1]
-   npop   = DBLARR(nr,nt,nlev)
-
-   FOR i=0,nlev-1 DO BEGIN
-      npop[*,*,i] = mol.g[i] * $
-                    exp(-(mol.energy_in_K[i]/(tgas[*,0:nt-1])))
-   ENDFOR
-   ;
-   ;get partition sum:
-   part = interpol(psum.psum,psum.temp,tgas[*,0:nt-1])
-   FOR i=0,nlev-1 DO BEGIN
-      npop[*,*,i] = npop[*,*,i] / part
-   ENDFOR
-
-;
-;Explicitly calculate non-lte excitation
-ENDIF ELSE BEGIN
-   ;
-   ;Check for existing non-lte level population file
-   p = 0
-   it_is_there = FILE_TEST('levelpop_nlte.fits')
-   IF it_is_there THEN BEGIN
-      PRINT, 'Existing level population file found - do you want to use it?'
-      answer=''
-      read, answer, prompt='[y/n]'
-      p = strmatch(answer,'y')
-   ENDIF
-
-   IF p EQ 0 THEN BEGIN
-      PRINT, 'You have selected non-LTE!'
-      PRINT, '...starting detailed balance calculation...'
-      IF lte EQ 0 THEN BEGIN
-         ;use Klaus' prescription
-         partner_name = 'H2'
-         nlte_main, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens, partner_name=partner_name,vmax=vmax,jmax=jmax
-      ENDIF
-   ENDIF
-
-   it_is_there = FILE_TEST('levelpop_nlte.fits')
-   IF it_is_there THEN BEGIN
-      mol    = mrdfits('levelpop_nlte.fits',1)
-      nlev   = mol.nlevels
-      energy = mol.energy_in_K * kk
-      gunit  = mol.g
-      npop   = DBLARR(nr,nt,nlev)
-      FOR ir=0,nr-1 DO BEGIN
-         FOR it=0,nt-1 DO BEGIN
-            FOR il=0,nlev-1 DO BEGIN
-               npop[ir,it,il] = mol.npop_all[il,it,ir]
-            ENDFOR
-         ENDFOR
-      ENDFOR
-   ENDIF ELSE BEGIN
-      print, 'You did not successfully make a non-LTE file.'
-   ENDELSE
-
-ENDELSE
-
-openw,lunl,'levelpop_'+molfile,/get_lun
-printf,lunl,nr,nt,nlev,1
-printf,lunl,energy
-printf,lunl,gunit
-
-FOR ir=0,nr-1 DO BEGIN
-   FOR it=0,nt-1 DO BEGIN
-      printf,lunl,npop[ir,it,0:nlev-1]
-   ENDFOR
-ENDFOR
-close,lunl
-free_lun, lunl
-
-
-
-openw,lun,'levelpop.info',/get_lun
-printf,lun,'-3'
-printf,lun,'levelpop_'+molfile
-printf,lun,0
-close,lun
-free_lun, lun
+make_levelpop, ddens=ddens, tgas=tgas, rhogas=rhogas, abun=abun, psum=psum, molfile=molfile
 
 END
