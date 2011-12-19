@@ -115,7 +115,7 @@ FOR iii=0,ncores-1 DO BEGIN
     ENDIF ELSE BEGIN
        lamda_extract_lines, lambdarange=[min_mu_run,max_mu_run],$
                             isot=isot,molfile=molfile,max_energy=max_energy, $
-                            lamda_path=lamda_path
+                            lamda_path=lamda_path, freq=freq
     ENDELSE
     ;
     ;Setup the linespectrum.inp file

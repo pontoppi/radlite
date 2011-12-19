@@ -6,7 +6,7 @@
 ;
 
 PRO lamda_extract_lines, isot=isot, lambdarange=lambdarange, max_energy=max_energy, $
-                         lamda_path=lamda_path, molfile=molfile
+                         lamda_path=lamda_path, molfile=molfile, freq=freq
 
 @natconst.pro
 @line_params.ini
@@ -20,7 +20,7 @@ CASE isot OF
    51: lamda_main='12CO_lamda.dat'
 ENDCASE
 
-molall = READ_MOLECULE_LAMBDA(lamda_path+lamda_main,/coll,/ghz)
+molall = READ_MOLECULE_LAMBDA(lamda_path+lamda_main,/coll,/ghz,/kelvin)
 mol    = LAMDA_EXTRACT_LEVELS(molall,vmax=vmax,jmax=jmax)
 
 FREQRANGE=1d4/lambdarange
@@ -51,7 +51,7 @@ printf,lun,nlines,FORMAT='(i6)'
 printf,lun,'!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm-1) + E_u(cm-1) + v_u + v_l + Q_p + Q_pp'
 
 FOR i=0,nlines-1 DO BEGIN   
-    printf, lun,i+1, iup[i],idown[i],aud[i],freq[i],eupper[i],mol.lev_vib[iup[i]],mol.lev_vib[idown[i]],mol.lev_rot[iup[i]],mol.lev_rot[idown[i]],$
+    printf, lun,i+1, iup[i],idown[i],aud[i],freq[i],eupper[i],mol.lev_vib[iup[i]-1],mol.lev_vib[idown[i]-1],mol.lev_rot[iup[i]-1],mol.lev_rot[idown[i]-1],$
       FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'
 ENDFOR
 close,lun

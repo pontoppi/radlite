@@ -125,6 +125,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
       
       npop_all[*,*, i]    = npop
       npop_ini_all[*,*,i] = ini_npop
+      stop
    ENDELSE
 
 ENDFOR
