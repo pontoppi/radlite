@@ -3898,6 +3898,7 @@ c
       char_tau    = 0.d0
       istar_done  = 0
       init        = 1
+
 c
 c     Make preparations in case there might be an equatorial
 c     infinitesimally thin optically thick disk present.

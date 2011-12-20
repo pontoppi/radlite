@@ -85,9 +85,10 @@ ENDIF ELSE BEGIN
       npop   = DBLARR(nr,nt,nlev)
       FOR ir=0,nr-1 DO BEGIN
          FOR it=0,nt-1 DO BEGIN
-            FOR il=0,nlev-1 DO BEGIN
+            FOR il=0,nlev-1 DO BEGIN 
                npop[ir,it,il] = pop.npop_all[il,it,ir]
             ENDFOR
+            npop[ir,it,*] = npop[ir,it,*]/TOTAL(npop[ir,it,*])
          ENDFOR
       ENDFOR
    ENDIF ELSE BEGIN
@@ -102,7 +103,7 @@ printf,lunl,energy
 printf,lunl,gunit
 
 FOR ir=0,nr-1 DO BEGIN
-   FOR it=0,nt-1 DO BEGIN
+   FOR it=0,nt-1 DO BEGIN 
       printf,lunl,npop[ir,it,0:nlev-1]
    ENDFOR
 ENDFOR

@@ -101,8 +101,8 @@ FOR iii=0,ncores-1 DO BEGIN
     ;exactly have subN lines, but will
     ;make sure every line in interval is
     ;eventually included
-    min_mu_run = min_mu_run*(1d0 - 1d-12) 
-    max_mu_run = max_mu_run*(1d0 + 1d-12) 
+    min_mu_run = min_mu_run*(1d0 - 1d-4) 
+    max_mu_run = max_mu_run*(1d0 + 1d-4) 
     ;
     ;Extract lines for LTE or nLTE
     IF lte EQ 1 THEN BEGIN

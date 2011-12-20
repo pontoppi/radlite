@@ -25,14 +25,13 @@ mol    = LAMDA_EXTRACT_LEVELS(molall,vmax=vmax,jmax=jmax)
 
 FREQRANGE=1d4/lambdarange
 
-gsubs = WHERE(mol.freq GT FREQRANGE[1] AND mol.freq LT FREQRANGE[0] AND mol.eupper LT max_energy, nlines)
+gsubs = WHERE(mol.freq GE FREQRANGE[1] AND mol.freq LE FREQRANGE[0] AND mol.eupper LT max_energy, nlines)
 
 iup    = mol.iup[gsubs]
 idown  = mol.idown[gsubs]
 aud    = mol.aud[gsubs]
 freq   = mol.freq[gsubs]
 eupper = mol.eupper[gsubs]
-
 
 OPENW,lun,molfile,/get_lun
 printf,lun,'!MOLECULE'
