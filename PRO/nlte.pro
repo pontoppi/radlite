@@ -26,8 +26,8 @@ ENDFOR
 ;
 ;Avoid starting with populations that are too low (0s will make a
 ;singular jacobian)
-lsubs       = WHERE(npop LT 1d-4)
-npop[lsubs] = 1d-4
+lsubs       = WHERE(npop LT 1d-8)
+npop[lsubs] = 1d-8
 ;
 ;Renormalize
 FOR h=0,np-1 DO BEGIN

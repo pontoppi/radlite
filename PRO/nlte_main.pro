@@ -74,7 +74,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
    JSED_col   = REFORM(mint.meanint[i,0:np-1,*])
 
    FOR h=0,np-1 DO BEGIN
-      J_col[*,h] = INTERPOL(SMOOTH(JSED_col[h,*],3),nu_cont/cc,freq)
+      J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
    ENDFOR
 
    IF KEYWORD_SET(parallel) THEN BEGIN
