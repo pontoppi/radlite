@@ -1,9 +1,9 @@
-;Function to extract a subset of lines and molecules from a lamda IDL structure
+;Function to extract a subset of levels from a lamda IDL structure
 ;
 ;INPUT: A lamda structure
 ;OUTPUT: Also a lamda structure, edited to match the constraints
 
-FUNCTION extract_lamda, mol, vmax=vmax, jmax=jmax, lambdarange=lambdarange
+FUNCTION lamda_extract_levels, mol, vmax=vmax, jmax=jmax, OPR=OPR, temp_type=temp_type
 
 IF ~KEYWORD_SET(OPR) THEN OPR             = 2.0
 IF ~KEYWORD_SET(temp_type) THEN temp_type   = 1

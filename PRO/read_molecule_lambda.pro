@@ -1,8 +1,11 @@
 ;-----------------------------------------------------------------
 ;              READ THE LAMBDA MOLECULE DATABASE FORMAT
 ;-----------------------------------------------------------------
+;ghz    - frequencies in data file in GHz (standard lamda)
+;kelvin - Line Eupper in Kelvin (standard lamda
+;
 
-FUNCTION read_molecule_lambda,file, coll=coll,vmax=vmax,emax=emax,ghz=ghz
+FUNCTION read_molecule_lambda,file, coll=coll,ghz=ghz,kelvin=kelvin
 ;
 ;Fixed parameters
 MAXTEMPS = 30
@@ -13,8 +16,6 @@ cc     = 2.99792458d10
 hh     = 6.62620755d-27
 kk     = 1.380658d-16   
 
-IF NOT KEYWORD_SET(vmax) THEN vmax = 10
-IF NOT KEYWORD_SET(emax) THEN emax = 1d6
 ;
 ;Declarations
 
@@ -85,6 +86,7 @@ FOR i=0,nline-1 DO BEGIN
 ENDFOR
 
 IF KEYWORD_SET(ghz) THEN freq = freq*1d9/cc ;->cm-1 if originally in GHz (the standard radio LAMDA format).
+IF KEYWORD_SET(kelvin) THEN eupper = eupper * kk/(hh*cc) ;->cm-1 if originally in Kelvin (the standard radio LAMDA format).
 ;
 ;
 IF KEYWORD_SET(coll) THEN BEGIN ;Read collisional rates?
