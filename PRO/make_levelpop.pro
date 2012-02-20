@@ -41,12 +41,12 @@ IF lte EQ 1 THEN BEGIN
 ENDIF ELSE BEGIN
    ;
    ;Check for existing non-lte level population file
-   p = 0
+   p = 2
    it_is_there = FILE_TEST('levelpop_nlte.fits')
    IF it_is_there THEN BEGIN
       PRINT, 'Existing level population file found - do you want to use it?'
       answer=' '
-      WHILE p EQ 0 DO BEGIN
+      WHILE p EQ 2 DO BEGIN
          read, answer, prompt='[y/n]'
          CASE answer OF
             'y':  p = 1
