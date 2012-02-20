@@ -73,7 +73,7 @@ ENDIF ELSE BEGIN
 
    it_is_there = FILE_TEST('levelpop_nlte.fits')
    IF it_is_there THEN BEGIN
-      pop    = mrdfits('levelpop_nlte.fits',1)
+      pop    = mrdfits('levelpop_nlte.fits',1)   
       mol    = mrdfits('levelpop_nlte.fits',2)
       nlev   = mol.nlevels
       energy = mol.energy_in_K * kk
@@ -85,16 +85,18 @@ ENDIF ELSE BEGIN
       npop   = DBLARR(nr,nt,nlev)
       FOR ir=0,nr-1 DO BEGIN
          FOR it=0,nt-1 DO BEGIN
+            ;
+            ;Convert to fractional level populations
+            pop.npop_all[*,it,ir] = pop.npop_all[*,it,ir]/TOTAL(pop.npop_all[*,it,ir])
             FOR il=0,nlev-1 DO BEGIN 
                npop[ir,it,il] = pop.npop_all[il,it,ir]
             ENDFOR
-            npop[ir,it,*] = npop[ir,it,*]/TOTAL(npop[ir,it,*])
          ENDFOR
       ENDFOR
    ENDIF ELSE BEGIN
       print, 'You did not successfully make a non-LTE file.'
    ENDELSE
-
+   
 ENDELSE
 
 openw,lunl,'levelpop_'+molfile,/get_lun

@@ -50,13 +50,16 @@ J_col        = DBLARR(nlines,np)
 
 npop_all     = DBLARR(nlevels, np, ddens.nr)
 npop_ini_all = DBLARR(nlevels, np, ddens.nr)
+npop_lte_all = DBLARR(nlevels, np, ddens.nr)
 
 bridges        = build_bridges(ncores)
 p_npop_all     = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
 p_npop_ini_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
+p_npop_lte_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
 
 npop           = DBLARR(nlevels*np)
 ini_npop       = DBLARR(nlevels*np)
+lte_npop       = DBLARR(nlevels*np)
 
 FOR i=0,ncores-1 DO BEGIN
    (bridges[i])->execute, '.compile nlteC.pro'
@@ -121,23 +124,25 @@ FOR i=0,ddens.nr-1 DO BEGIN
       nlte, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,$
              dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,$
              collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
-             np, npop, ini_npop
+             np, npop, ini_npop, lte_npop
       
       npop_all[*,*, i]    = npop
       npop_ini_all[*,*,i] = ini_npop
+      npop_lte_all[*,*,i] = lte_npop
       
    ENDELSE
-
+   
 ENDFOR
 
 IF KEYWORD_SET(parallel) THEN BEGIN
    barrier_bridges, bridges
    npop_all     = (*p_npop_all)
    npop_ini_all = (*p_npop_ini_all)
+   npop_lte_all = (*p_npop_lte_all)
 ENDIF
 
 MWRFITS, dum, 'levelpop_nlte.fits', /CREATE
-MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, theta:ddens.theta[0:np-1], radius:ddens.r}, $
+MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, npop_lte:npop_lte_all, theta:ddens.theta[0:np-1], radius:ddens.r}, $
          'levelpop_nlte.fits'
 MWRFITS, mol, 'levelpop_nlte.fits'
 

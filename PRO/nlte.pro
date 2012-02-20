@@ -1,12 +1,12 @@
 PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
            dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g, $
            collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans,$
-           np, npop, ini_npop
+           np, npop, ini_npop, lte_npop
 
 @natconst
 
-niter  = 15
-frac    = 0.01
+niter  = 55
+frac    = 0.001
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
 m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
@@ -23,17 +23,22 @@ npop_iter   = DBLARR(nlevels,np,niter)
 FOR i=0,nlevels-1 DO BEGIN
    npop[i,*] = g[i] * exp(-(energy_in_K[i]/tgas_col))
 ENDFOR
-;
-;Avoid starting with populations that are too low (0s will make a
-;singular jacobian)
-lsubs       = WHERE(npop LT 1d-8)
-npop[lsubs] = 1d-8
+
 ;
 ;Renormalize
 FOR h=0,np-1 DO BEGIN
    Ntot = TOTAL(npop[*,h])
    npop[*,h] = npop[*,h]/Ntot * abun_col[h] * rhogas_col[h] ;in cm^-3
 ENDFOR
+
+lte_npop = npop
+
+;
+;Avoid starting with populations that are too low (0s will make a
+;singular jacobian)
+lsubs       = WHERE(npop LT 1d-30)
+npop[lsubs] = 1d-30
+
 ;
 ;Save the initial level pops
 ini_npop = npop
@@ -46,7 +51,7 @@ FOR k=0,niter-1 DO BEGIN
    ;Calculate the Jacobian
    dn = npop*frac
    zsub = WHERE(dn EQ 0,nzsub)
-   IF nzsub GT 0 THEN dn[zsub] = 1d-30
+   IF nzsub GT 0 THEN dn[zsub] = 1d-5
 
    ;
    ;i is the ith rate equation, jth level population
@@ -92,17 +97,16 @@ FOR k=0,niter-1 DO BEGIN
       ENDFOR
    ENDIF
 
-
-   bsubs = WHERE(FINITE(npop_new) NE 1)
-   IF bsubs[0] NE -1 THEN BEGIN
-      npop_new[bsubs] = npop[bsubs]*1.02
-   ENDIF
+;   bsubs = WHERE(FINITE(npop_new) NE 1)
+;   IF bsubs[0] NE -1 THEN BEGIN
+;      npop_new[bsubs] = npop[bsubs]*1.02
+;   ENDIF
 
    highsubs = WHERE(npop GT 100.)
    conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
    print, conv
    npop = npop_new
-   IF conv LT 1d-5 THEN BEGIN
+   IF conv LT 1d-4 THEN BEGIN
       PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
       BREAK
    ENDIF
@@ -110,9 +114,16 @@ FOR k=0,niter-1 DO BEGIN
       PRINT, 'Warning: singular matrix detected!', STATUS
       BREAK
    ENDIF
-  
+if k eq niter-1 then stop   
 ENDFOR 
-   
+
+;return fractional populations
+;FOR h=0,np-1 DO BEGIN
+;   npop[*,h]     = npop[*,h]/(abun_col[h] * rhogas_col[h])
+;   ini_npop[*,h] = ini_npop[*,h]/(abun_col[h] * rhogas_col[h])
+;   lte_npop[*,h] = lte_npop[*,h]/(abun_col[h] * rhogas_col[h])
+;ENDFOR
+
 END
 
 

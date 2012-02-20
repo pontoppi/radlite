@@ -7,7 +7,10 @@ IF ~KEYWORD_SET(level)   THEN level   = 0
 
 pop = MRDFITS(popfile,1)
 
-lte_ratio = REFORM(pop.npop_all[level,*,*]/pop.npop_ini[level,*,*])
+lsubs = WHERE(pop.npop_all LT 1.)
+pop.npop_all[lsubs] = 0.
+
+lte_ratio = REFORM(pop.npop_all[level,*,*]/pop.npop_lte[level,*,*])
 
 nr = N_ELEMENTS(pop.radius)
 nt = N_ELEMENTS(pop.theta)
@@ -35,7 +38,7 @@ cgcontour, ratio, x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(f6.2)', /VERTICAL, $
             POSITION=[0.95/2., 0.10, 0.98/2., 0.90]
 
-levels = findgen(100)/10.-2.5
+levels = findgen(100)/10.
 cgcontour, ALOG10(ROTATE(REFORM(pop.npop_all[level,*,*]),4)), x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
            title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(e9.2)', /VERTICAL, $
