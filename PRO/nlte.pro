@@ -46,14 +46,6 @@ ini_npop = npop
 ;
 ;Main iteration
 FOR k=0,niter-1 DO BEGIN
-    FOR j=0,nlevels-1 DO BEGIN
-      FOR h=0,np-1 DO BEGIN
-         IF FINITE(npop[j,h]) NE 1 THEN BEGIN
-            IF k GT 0 THEN npop[j,h] = npop_iter[j,h,k-1]
-            print,j,h,npop[j,h]
-         ENDIF
-      ENDFOR
-   ENDFOR
    npop_iter[*,*,k] = npop
    ;
    ;Calculate the Jacobian
@@ -108,6 +100,15 @@ FOR k=0,niter-1 DO BEGIN
 ;   IF bsubs[0] NE -1 THEN BEGIN
 ;      npop_new[bsubs] = npop[bsubs]*1.02
 ;   ENDIF
+   FOR j=0,nlevels-1 DO BEGIN
+      FOR h=0,np-1 DO BEGIN
+         IF FINITE(npop_new[j,h]) NE 1 THEN BEGIN
+            IF k GT 0 THEN npop_new[j,h] = npop_iter[j,h,k-1]
+            IF k EQ 0 THEN npop_new[j,h] = lte_pop
+            print,j,h,npop_new[j,h]
+         ENDIF
+      ENDFOR
+   ENDFOR
 
    highsubs = WHERE(npop GT 100.,hcount)
    IF hcount GT 0 THEN BEGIN
