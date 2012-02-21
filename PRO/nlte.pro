@@ -36,8 +36,8 @@ lte_npop = npop
 ;
 ;Avoid starting with populations that are too low (0s will make a
 ;singular jacobian)
-lsubs       = WHERE(npop LT 1d-30)
-npop[lsubs] = 1d-30
+lsubs       = WHERE(npop LT 1d-30,lcount)
+IF lcount GT 0 THEN npop[lsubs] = 1d-30
 
 ;
 ;Save the initial level pops
@@ -46,6 +46,14 @@ ini_npop = npop
 ;
 ;Main iteration
 FOR k=0,niter-1 DO BEGIN
+    FOR j=0,nlevels-1 DO BEGIN
+      FOR h=0,np-1 DO BEGIN
+         IF FINITE(npop[j,h]) NE 1 THEN BEGIN
+            IF k GT 0 THEN npop[j,h] = npop_iter[j,h,k-1]
+            print,j,h,npop[j,h]
+         ENDIF
+      ENDFOR
+   ENDFOR
    npop_iter[*,*,k] = npop
    ;
    ;Calculate the Jacobian
@@ -55,7 +63,6 @@ FOR k=0,niter-1 DO BEGIN
 
    ;
    ;i is the ith rate equation, jth level population
-
    Pn = P(npop,col,m)
    FOR j=0,nlevels-1 DO BEGIN
       npopdn_neg      = npop
@@ -87,10 +94,10 @@ FOR k=0,niter-1 DO BEGIN
          g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2) 
          lam[h]  = -gp_0/(2d0*(g_1-g_0-gp_0))
       ENDFOR
-      lsubs = WHERE(lam LT 0.1)
-      hsubs = WHERE(lam GT 0.5)
-      lam[lsubs] = 0.1
-      lam[hsubs] = 0.5
+      lsubs = WHERE(lam LT 0.1,lcount)
+      hsubs = WHERE(lam GT 0.5,hcount)
+      IF lcount GT 0 THEN    lam[lsubs] = 0.1
+      IF hcount GT 0 THEN    lam[hsubs] = 0.5
       FOR h=0,np-1 DO BEGIN
          newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
          npop_new[*,h] = npop[*,h] - lam[h]*newton
@@ -102,19 +109,21 @@ FOR k=0,niter-1 DO BEGIN
 ;      npop_new[bsubs] = npop[bsubs]*1.02
 ;   ENDIF
 
-   highsubs = WHERE(npop GT 100.)
-   conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
-   print, conv
-   npop = npop_new
-   IF conv LT 1d-4 THEN BEGIN
-      PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
-      BREAK
+   highsubs = WHERE(npop GT 100.,hcount)
+   IF hcount GT 0 THEN BEGIN
+      conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
+      print, conv
+      npop = npop_new
+      IF conv LT 1d-4 THEN BEGIN
+         PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
+         BREAK
+      ENDIF
+      IF STATUS GT 0 THEN BEGIN      
+         PRINT, 'Warning: singular matrix detected!', STATUS
+         BREAK
+      ENDIF
    ENDIF
-   IF STATUS GT 0 THEN BEGIN      
-      PRINT, 'Warning: singular matrix detected!', STATUS
-      BREAK
-   ENDIF
-if k eq niter-1 then stop   
+   if k eq niter-1 then stop   
 ENDFOR 
 
 ;return fractional populations

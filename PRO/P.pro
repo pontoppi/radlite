@@ -15,10 +15,9 @@ P           = DBLARR(m.nlevels,m.np)
 ;======================================
 ;Add radiative terms to the rate matrix
 ;======================================
-FOR i=0,m.nlines-1 DO BEGIN 
+FOR i=0,m.nlines-1 DO BEGIN
    int = INT_SIMPLE(col.z,npop[m.iup[i]-1,*] - npop[m.idown[i]-1,*]*m.gugl[i])  ;int(z->zmax)
    tau_arr[i,*] = m.Aul[i]/(8d0*!pi*m.freq[i]^3d0*m.dv) * int
-   
    ;
    ;Now calculate the escape probabilities
    FOR h=0,m.np-1 DO BEGIN
