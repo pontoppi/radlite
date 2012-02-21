@@ -148,7 +148,7 @@ ENDIF
 
 spawn, 'cp problem_params.pro '+rundir+'/.'
 spawn, 'cp line_params.ini '+rundir+'/.'
-spawn, 'cp levelpop_nlte.fits'+rundir+'/.'
+spawn, 'mv levelpop_nlte.fits'+rundir+'/.'
 FOR iii=0,ncores-1 DO BEGIN
    ;
    ;Save the molecular file to a unique name
