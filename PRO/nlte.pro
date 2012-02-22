@@ -115,10 +115,10 @@ FOR k=0,niter-1 DO BEGIN
   FOR j=0,nlevels-1 DO BEGIN
       FOR h=0,np-1 DO BEGIN
          IF FINITE(npop_new[j,h]) NE 1 THEN BEGIN
-            IF k GT 0 THEN npop_new[j,h] = npop_iter[j,h,k-1]
-            IF k EQ 0 THEN npop_new[j,h] = lte_pop
+            IF k GT 0 THEN npop_new[j,h] = npop[j,h]*1.02
            ; print,j,h,npop_new[j,h]
          ENDIF
+         IF npop_new[j,h] LT 0.0 THEN npop_new[j,h] = 1d-22
       ENDFOR
    ENDFOR
 
@@ -136,7 +136,7 @@ FOR k=0,niter-1 DO BEGIN
          PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
          BREAK
       ENDIF
-      IF STATUS GT 0 THEN BEGIN      
+      IF STATUS GT 0 THEN BEGIN
          PRINT, 'Warning: singular matrix detected!', STATUS
          BREAK
       ENDIF
