@@ -151,7 +151,6 @@ y_all   = fltarr(n_x_all)
 FOR i=0,lcount-1 DO BEGIN
    
    x_mu = new_vel*1d9/cfreqs[i]+c/cfreqs[i]
-   print,new_vel
    y_Jy = lines_int[i,*,1]
    gsubs = where(x_all ge min(x_mu) and x_all le max(x_mu))   
    y_all[gsubs] = y_all[gsubs] + INTERPOL(y_jy,x_mu,x_all[gsubs])
