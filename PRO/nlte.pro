@@ -46,6 +46,8 @@ ini_npop = npop
 
 ;
 ;Main iteration
+lam1 = FLTARR(np) + 1.
+nf=0
 FOR k=0,niter-1 DO BEGIN
    npop_iter[*,*,k] = npop
    ;
@@ -80,21 +82,35 @@ FOR k=0,niter-1 DO BEGIN
    ;
    ;Did the newton step fail to be closer to the solution?
    IF TOTAL(Pn_new^2) GT TOTAL(Pn^2) THEN BEGIN
-      lam = FLTARR(np)
-      FOR h=0,np-1 DO BEGIN
-         gp_0 = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
-         g_0  = 0.5d0*TOTAL(Pn[*,h]^2) 
-         g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2) 
-         lam[h]  = -gp_0/(2d0*(g_1-g_0-gp_0))
-      ENDFOR
+      print,'newton failed', nf++
+      lam  = FLTARR(np)
+      hosubs = WHERE(lam1 NE 1,count)
+      IF count EQ 0 THEN BEGIN
+         FOR h=0,np-1 DO BEGIN
+            gp_0 = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
+            g_0  = 0.5d0*TOTAL(Pn[*,h]^2) 
+            g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2) 
+            lam[h]  = -gp_0/(2d0*(g_1-g_0-gp_0))
+         ENDFOR
+      ENDIF ELSE BEGIN
+         FOR h=0,np-1 DO BEGIN
+            g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2)
+            a    = (1/(lam1[h]-lam2[h]))*((1/lam1[h]^2)*(g_1-gp_0*lam1[h]-g_0)-(1/lam2[h]^2)*(g_2-gp_0*lam2[h]-g_0))
+            b    = (1/(lam1[h]-lam2[h]))*((-lam2[h]/(lam1[h]^2))*(g_1-gp_0*lam1[h]-g_0)+(lam1[h]/(lam2[h]^2))*(g_2-gp_0*lam2[h]-g_0))
+            lam[h]  = (1/(3*a))*(-b+sqrt(b^2+3*a*gp_0))
+         ENDFOR
+      ENDELSE
       lsubs = WHERE(lam LT 0.1,lcount)
       hsubs = WHERE(lam GT 0.5,hcount)
-      IF lcount GT 0 THEN    lam[lsubs] = 0.1
-      IF hcount GT 0 THEN    lam[hsubs] = 0.5
+      IF lcount GT 0 THEN    lam[lsubs] = 0.1*lam1[lsubs]
+      IF hcount GT 0 THEN    lam[hsubs] = 0.5*lam1[hsubs]
       FOR h=0,np-1 DO BEGIN
          newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
          npop_new[*,h] = npop[*,h] - lam[h]*newton
       ENDFOR
+      lam2   = lam1
+      lam1   = lam
+      g_2     = g_1
    ENDIF
   FOR j=0,nlevels-1 DO BEGIN
       FOR h=0,np-1 DO BEGIN
@@ -105,48 +121,6 @@ FOR k=0,niter-1 DO BEGIN
          ENDIF
       ENDFOR
    ENDFOR
-
-   lam1   = FLTARR(np) + 1. 
-   Pn_two = Pn_new ;or Pn_one if in a loop
-   Pn_one = P(npop_new,col,m)
-    ;
-   ;Do we need a second N-R step?
-   count=0
-   WHILE TOTAL(Pn_one^2) GT TOTAL(Pn_two^2) DO BEGIN
-      print,count++
-      lam2   = lam1
-      lam1   = lam
-      print,lam2,lam1
-      lam    = FLTARR(np)
-      FOR h=0,np-1 DO BEGIN
-         gp_0 = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
-         g_0  = 0.5d0*TOTAL(Pn[*,h]^2) 
-         g_1  = 0.5d0*TOTAL(Pn_one[*,h]^2)
-         g_2  = 0.5d0*TOTAL(Pn_two[*,h]^2)
-         a    = (1/(lam1[h]-lam2[h]))*((1/lam1[h]^2)*(g_1-gp_0*lam1[h]-g_0)-(1/lam2[h]^2)*(g_2-gp_0*lam2[h]-g_0))
-         b    = (1/(lam1[h]-lam2[h]))*((-lam2[h]/(lam1[h]^2))*(g_1-gp_0*lam1[h]-g_0)+(lam1[h]/(lam2[h]^2))*(g_2-gp_0*lam2[h]-g_0))
-         lam[h]  = (1/(3*a))*(-b+sqrt(b^2+3*a*gp_0))
-      ENDFOR
-      lsubs = WHERE(lam LT 0.1,lcount)
-      hsubs = WHERE(lam GT 0.5,hcount)
-      IF lcount GT 0 THEN    lam[lsubs] = 0.1
-      IF hcount GT 0 THEN    lam[hsubs] = 0.5
-      FOR h=0,np-1 DO BEGIN
-         newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn_one[*,h]) 
-         npop_new[*,h] = npop[*,h] - lam[h]*newton
-      ENDFOR
-   FOR j=0,nlevels-1 DO BEGIN
-      FOR h=0,np-1 DO BEGIN
-         IF FINITE(npop_new[j,h]) NE 1 THEN BEGIN
-            IF k GT 0 THEN npop_new[j,h] = npop_iter[j,h,k-1]
-            IF k EQ 0 THEN npop_new[j,h] = lte_pop
-           ; print,j,h,npop_new[j,h]
-         ENDIF
-      ENDFOR
-   ENDFOR
-      Pn_two=Pn_one
-      Pn_one=P(npop_new,col,m)
-   ENDWHILE
 
 ;   bsubs = WHERE(FINITE(npop_new) NE 1)
 ;   IF bsubs[0] NE -1 THEN BEGIN
