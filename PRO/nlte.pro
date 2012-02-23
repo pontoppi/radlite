@@ -102,7 +102,7 @@ FOR k=0,niter-1 DO BEGIN
                a    = (rhs1/alam^2.-rhs2/alam2^2.)/(alam-alam2)
                b    = (-alam2*rhs1/alam^2.+alam*rhs2/alam2^2.)/(alam-alam2)
                IF a EQ 0. THEN BEGIN
-                  tmplam = -slope/(2.*b)
+                  tmplam = -gp_0/(2.*b)
                ENDIF ELSE BEGIN
                   disc = b^2.-3.*a*gp_0
                   IF disc LT 0. THEN BEGIN
