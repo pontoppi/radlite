@@ -7,6 +7,8 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 niter  = 55
 frac    = 0.001
+minlam  = 0.1
+ALF     = 1d-4
 
 col = {z:z_col,tgas:tgas_col,rhogas:rhogas_col,abun:abun_col,JSED:JSED_col,J:J_col}
 m   = {dv:dv,nlines:nlines,nlevels:nlevels,gugl:gugl,freq:freq,iup:iup,$
@@ -46,8 +48,7 @@ ini_npop = npop
 
 ;
 ;Main iteration
-lam1 = FLTARR(np) + 1.
-nf=0
+
 FOR k=0,niter-1 DO BEGIN
    npop_iter[*,*,k] = npop
    ;
@@ -74,59 +75,59 @@ FOR k=0,niter-1 DO BEGIN
    ENDFOR
 
    FOR h=0,np-1 DO BEGIN
-      newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
-      npop_new[*,h] = npop[*,h] - newton
-   ENDFOR
 
-   Pn_new = P(npop_new, col, m)
-   ;
-   ;Did the newton step fail to be closer to the solution?
-   IF TOTAL(Pn_new^2) GT TOTAL(Pn^2) THEN BEGIN
-      print,'newton failed', nf++
-      lam  = FLTARR(np)
-      hosubs = WHERE(lam1 NE 1,count)
-      IF count EQ 0 THEN BEGIN
-         FOR h=0,np-1 DO BEGIN
-            gp_0 = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
-            g_0  = 0.5d0*TOTAL(Pn[*,h]^2) 
-            g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2) 
-            lam[h]  = -gp_0/(2d0*(g_1-g_0-gp_0))
-         ENDFOR
-      ENDIF ELSE BEGIN
-         FOR h=0,np-1 DO BEGIN
-            g_1  = 0.5d0*TOTAL(Pn_new[*,h]^2)
-            a    = (1/(lam1[h]-lam2[h]))*((1/lam1[h]^2)*(g_1-gp_0*lam1[h]-g_0)-(1/lam2[h]^2)*(g_2-gp_0*lam2[h]-g_0))
-            b    = (1/(lam1[h]-lam2[h]))*((-lam2[h]/(lam1[h]^2))*(g_1-gp_0*lam1[h]-g_0)+(lam1[h]/(lam2[h]^2))*(g_2-gp_0*lam2[h]-g_0))
-            lam[h]  = (1/(3*a))*(-b+sqrt(b^2+3*a*gp_0))
-         ENDFOR
-      ENDELSE
-      lsubs = WHERE(lam LT 0.1,lcount)
-      hsubs = WHERE(lam GT 0.5,hcount)
-      IF lcount GT 0 THEN    lam[lsubs] = 0.1*lam1[lsubs]
-      IF hcount GT 0 THEN    lam[hsubs] = 0.5*lam1[hsubs]
-      FOR h=0,np-1 DO BEGIN
-         newton = LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
-         npop_new[*,h] = npop[*,h] - lam[h]*newton
-      ENDFOR
-      lam2   = lam1
-      lam1   = lam
-      g_2     = g_1
-   ENDIF
-  FOR j=0,nlevels-1 DO BEGIN
-      FOR h=0,np-1 DO BEGIN
-         IF FINITE(npop_new[j,h]) NE 1 THEN BEGIN
-            IF k GT 0 THEN npop_new[j,h] = npop[j,h]*1.02
-           ; print,j,h,npop_new[j,h]
-         ENDIF
-         IF npop_new[j,h] LT 0.0 THEN npop_new[j,h] = 1d-22
-      ENDFOR
+      newton = -1*LA_INVERT(REFORM(Jac[*,*,h]),/DOUBLE,STATUS=STATUS)##REFORM(Pn[*,h]) 
+      g_0    = 0.5d0*TOTAL(Pn[*,h]^2) 
+      gp_0   = TOTAL((REFORM(Jac[*,*,h])##REFORM(Pn[*,h])) * REFORM(newton))
+      
+      alam   = 1.
+      WHILE 1 DO BEGIN
+         npop_new[*,h] = npop[*,h] + alam*newton
+;         bsubs = WHERE(FINITE(npop_new[*,h]) NE 1,count)
+;         IF count GT 0 THEN npop_new[*,bsubs]=npop[*,bsubs]*0.99
+         Pn_new = P(npop_new, col, m)
+         g_1    = 0.5d0*TOTAL(Pn_new[*,h]^2) 
+         IF (alam LT minlam) THEN BEGIN
+            npop_new[*,h] = npop[*,h]
+            BREAK
+         ENDIF 
+         IF (g_1 LE g_0+ALF*alam*gp_0) THEN BEGIN
+            BREAK
+         ENDIF ELSE BEGIN
+            IF alam EQ 1. THEN BEGIN ;First time.
+               tmplam  = -gp_0/(2d0*(g_1-g_0-gp_0))
+            ENDIF ELSE BEGIN
+               rhs1 = g_1-g_0-alam*gp_0
+               rhs2 = g_2-g_0-alam2*gp_0
+               a    = (rhs1/alam^2.-rhs2/alam2^2.)/(alam-alam2)
+               b    = (-alam2*rhs1/alam^2.+alam*rhs2/alam2^2.)/(alam-alam2)
+               IF a EQ 0. THEN BEGIN
+                  tmplam = -slope/(2.*b)
+               ENDIF ELSE BEGIN
+                  disc = b^2.-3.*a*gp_0
+                  IF disc LT 0. THEN BEGIN
+                     tmplam = 0.5*alam
+                  ENDIF ELSE BEGIN
+                     IF b LE 0. THEN BEGIN
+                        tmplam =  (-b+sqrt(disc))/(3.0*a)
+                     ENDIF ELSE BEGIN
+                        tmplam = -gp_0/(b+SQRT(disc))
+                     ENDELSE
+                  ENDELSE
+               ENDELSE
+               IF tmplam GT 0.5*alam THEN tmplam = 0.5*alam
+            ENDELSE
+            if finite(tmplam) NE 1 then stop
+            alam2 = alam
+            g_2   = g_1
+            alam  = MAX([tmplam, 0.1*alam])
+         ENDELSE
+      ENDWHILE
    ENDFOR
 
 ;   bsubs = WHERE(FINITE(npop_new) NE 1)
-;   IF bsubs[0] NE -1 THEN BEGIN
-;      npop_new[bsubs] = npop[bsubs]*1.02
-;   ENDIF
-
+;   npop_new[bsubs] = npop[bsubs]*1.02
+   
    highsubs = WHERE(npop GT 100.,highcount)
    IF highcount GT 0 THEN BEGIN
       conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
