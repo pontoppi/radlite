@@ -1,4 +1,4 @@
-PRO problem_lines, molfile
+PRO problem_lines, molfile, run_nlte=run_nlte
 @line_params.ini
 @natconst.pro
 
@@ -155,6 +155,6 @@ ENDIF
 ;Compute level populations / extract previously computed populations
 ;====================================
 
-make_levelpop, ddens=ddens, tgas=tgas, rhogas=rhogas, abun=abun, psum=psum, molfile=molfile
+make_levelpop, ddens=ddens, tgas=tgas, rhogas=rhogas, abun=abun, psum=psum, molfile=molfile, run_nlte=run_nlte
 
 END

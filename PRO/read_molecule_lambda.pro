@@ -36,7 +36,7 @@ idowndum = 0
 auddum   = 0d0
 freqdum  = 0d0
 
-print,file
+;print,file
 openr,lunm,file, /get_lun
 readf,lunm,str
 readf,lunm,str

@@ -27,6 +27,8 @@ PRO line_run, run_name=run_name
 @natconst.pro
 @line_params.ini
 
+RESOLVE_ALL, /continue_on_error, /QUIET
+spawn, 'clear'
 ;
 ;Welcome message
 print, '------------------------------------------'
@@ -38,6 +40,8 @@ print, 'Kees Dullemond                            '
 print, 'Alex Lockwood                             '
 print, 'Rowin Meijerink                           '
 print, '------------------------------------------'
+print, ' '
+print, ' '
 
 IF image EQ 2 THEN BEGIN
    executable = 'time '+exe_path+'RADlite_imcir'
@@ -125,7 +129,34 @@ FOR iii=0,ncores-1 DO BEGIN
                            imwidth=imwidth,molfile=molfile
     ;
     ;Run the setup script for the new moldata.dat
-    problem_lines, molfile
+
+    ;
+    ;Check for existing non-lte level
+    ;population file, and calculate it if
+    ;this is the first core run (if
+    ;it's a later core, it is
+    ;assumed that the nlte module was
+    ;already run.  
+    run_nlte = -1
+    IF iii EQ 0 THEN BEGIN
+       it_is_there = FILE_TEST('levelpop_nlte.fits')
+       IF it_is_there THEN BEGIN
+          PRINT, 'Existing level population file found - do you want to use it?'
+          answer=' '
+          WHILE run_nlte EQ -1 DO BEGIN
+             read, answer, prompt='[y/n]'
+             CASE answer OF
+                'y':  run_nlte = 0
+                'n':  run_nlte = 1 
+                ELSE: print, 'Please answer yes [y] or no [n]...'
+             ENDCASE
+          ENDWHILE
+       ENDIF ELSE BEGIN
+          run_nlte = 1   ;We didn't find a nlte file - calculate it!
+       ENDELSE
+    ENDIF
+    
+    problem_lines, molfile, run_nlte=run_nlte
 
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
@@ -157,7 +188,7 @@ FOR iii=0,ncores-1 DO BEGIN
    spawn, 'mv RADLite_core*.log '+rundir+'/.'
    ;
    ;And save the lines to a unique name
-   IF image eq 0 or image EQ 2 THEN BEGIN
+   IF image eq 0 THEN BEGIN
       spawn, 'mv linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
    ENDIF
    IF image EQ 2 THEN BEGIN

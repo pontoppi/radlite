@@ -3,7 +3,7 @@
 ;Generate level population files for RADLite
 ;====================================
 
-PRO make_levelpop, ddens=ddens, tgas=tgas, rhogas=rhogas, abun=abun, psum=psum, molfile=molfile
+PRO make_levelpop, ddens=ddens, tgas=tgas, rhogas=rhogas, abun=abun, psum=psum, molfile=molfile, run_nlte=run_nlte
 @line_params.ini
 @natconst.pro
 
@@ -39,43 +39,23 @@ IF lte EQ 1 THEN BEGIN
 ;Or solve the detailed balance equations for NLTE
 ;===================================
 ENDIF ELSE BEGIN
+   mol    = read_molecule_lambda(molfile)
+   CASE mol.species OF 
+      'CO': lamda_main='12CO_lamda.dat'
+   ENDCASE
    ;
-   ;Check for existing non-lte level population file
-   p = 2
-   it_is_there = FILE_TEST('levelpop_nlte.fits')
-   IF it_is_there THEN BEGIN
-      p = 3
-      PRINT, 'Existing level population file found - do you want to use it?'
-      answer=' '
-      WHILE p EQ 3 DO BEGIN
-         read, answer, prompt='[y/n]'
-         CASE answer OF
-            'y':  p = 1
-            'n':  p = 2 
-            ELSE: print, 'Please answer yes [y] or no [n]...'
-         ENDCASE
-      ENDWHILE
-   ENDIF
-
-   IF p EQ 2 THEN BEGIN
-      PRINT, 'You have selected non-LTE!'
+   ;Read the full lamda file      
+   molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_main,/coll,/ghz)
+   ;
+   ;use the Newton-Raphson global solver, if requested
+   IF run_nlte EQ 1 THEN BEGIN
       PRINT, '...starting detailed balance calculation...'
-      mol    = read_molecule_lambda(molfile)
-      CASE mol.species OF 
-         'CO': lamda_main='12CO_lamda.dat'
-      ENDCASE
-      ;
-      ;Read the full lamda file      
-      molall = READ_MOLECULE_LAMBDA(main_path+'LAMDA/'+lamda_main,/coll,/ghz)
-      ;
-      ;use the Newton-Raphson global solver
       nlte_main, molall=molall, tgas=tgas, rhogas=rhogas, abun=abun, ddens=ddens
-   ENDIF
-
+   ENDIF   
    it_is_there = FILE_TEST('levelpop_nlte.fits')
    IF it_is_there THEN BEGIN
-      pop    = mrdfits('levelpop_nlte.fits',1)   
-      mol    = mrdfits('levelpop_nlte.fits',2)
+      pop    = mrdfits('levelpop_nlte.fits',1,/SILENT)   
+      mol    = mrdfits('levelpop_nlte.fits',2,/SILENT)
       nlev   = mol.nlevels
       energy = mol.energy_in_K * kk
       gunit  = mol.g
@@ -95,9 +75,8 @@ ENDIF ELSE BEGIN
          ENDFOR
       ENDFOR
    ENDIF ELSE BEGIN
-      print, 'You did not successfully make a non-LTE file.'
-   ENDELSE
-   
+      print, 'Error: Non-LTE level population file not found!'
+   ENDELSE  
 ENDELSE
 
 openw,lunl,'levelpop_'+molfile,/get_lun

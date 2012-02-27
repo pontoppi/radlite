@@ -59,6 +59,7 @@ FOR k=0,niter-1 DO BEGIN
 
    ;
    ;i is the ith rate equation, jth level population
+   
    Pn = P(npop,col,m)
    FOR j=0,nlevels-1 DO BEGIN
       npopdn_neg      = npop
@@ -83,8 +84,6 @@ FOR k=0,niter-1 DO BEGIN
       alam   = 1.
       WHILE 1 DO BEGIN
          npop_new[*,h] = npop[*,h] + alam*newton
-;         bsubs = WHERE(FINITE(npop_new[*,h]) NE 1,count)
-;         IF count GT 0 THEN npop_new[*,bsubs]=npop[*,bsubs]*0.99
          Pn_new = P(npop_new, col, m)
          g_1    = 0.5d0*TOTAL(Pn_new[*,h]^2) 
          IF (alam LT minlam) THEN BEGIN
@@ -124,11 +123,8 @@ FOR k=0,niter-1 DO BEGIN
          ENDELSE
       ENDWHILE
    ENDFOR
-
-;   bsubs = WHERE(FINITE(npop_new) NE 1)
-;   npop_new[bsubs] = npop[bsubs]*1.02
    
-   highsubs = WHERE(npop GT 100.,highcount)
+   highsubs = WHERE(npop GT 10.,highcount)
    IF highcount GT 0 THEN BEGIN
       conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
       print, conv
@@ -142,15 +138,7 @@ FOR k=0,niter-1 DO BEGIN
          BREAK
       ENDIF
    ENDIF
-   if k eq niter-1 then stop   
 ENDFOR 
-
-;return fractional populations
-;FOR h=0,np-1 DO BEGIN
-;   npop[*,h]     = npop[*,h]/(abun_col[h] * rhogas_col[h])
-;   ini_npop[*,h] = ini_npop[*,h]/(abun_col[h] * rhogas_col[h])
-;   lte_npop[*,h] = lte_npop[*,h]/(abun_col[h] * rhogas_col[h])
-;ENDFOR
 
 END
 

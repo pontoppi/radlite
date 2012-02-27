@@ -52,21 +52,25 @@ npop_all     = DBLARR(nlevels, np, ddens.nr)
 npop_ini_all = DBLARR(nlevels, np, ddens.nr)
 npop_lte_all = DBLARR(nlevels, np, ddens.nr)
 
-bridges        = build_bridges(ncores)
-p_npop_all     = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
-p_npop_ini_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
-p_npop_lte_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
 
 npop           = DBLARR(nlevels*np)
 ini_npop       = DBLARR(nlevels*np)
 lte_npop       = DBLARR(nlevels*np)
 
-FOR i=0,ncores-1 DO BEGIN
-   (bridges[i])->execute, '.compile nlteC.pro'
-   (bridges[i])->execute, 'resolve_all'   
-   (bridges[i])->execute, '.compile callback.pro'
-   (bridges[i])->setproperty, callback='callback'
-ENDFOR
+IF KEYWORD_SET(parallel) THEN BEGIN
+   bridges        = build_bridges(ncores)
+   p_npop_all     = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
+   p_npop_ini_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
+   p_npop_lte_all = ptr_new(DBLARR(nlevels, np, ddens.nr), /no_copy)
+   FOR i=0,ncores-1 DO BEGIN
+      (bridges[i])->execute, '.compile Ppump.pro'
+      (bridges[i])->execute, '.compile Pesc.pro'
+      (bridges[i])->execute, '.compile P.pro'
+      (bridges[i])->execute, '.compile nlte.pro'
+      (bridges[i])->execute, '.compile callback.pro'
+      (bridges[i])->setproperty, callback='callback'
+   ENDFOR
+ENDIF
 
 FOR i=0,ddens.nr-1 DO BEGIN
   
@@ -81,11 +85,13 @@ FOR i=0,ddens.nr-1 DO BEGIN
    ENDFOR
 
    IF KEYWORD_SET(parallel) THEN BEGIN
-      ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all}
+
+      ud     = {i:i,p_npop_all:p_npop_all, p_npop_ini_all:p_npop_ini_all, p_npop_lte_all:p_npop_lte_all}
       
       bridge = get_idle_bridge(bridges)
       
       bridge->setproperty, userdata=ud
+      bridge->setproperty
       bridge->setvar, 'z_col', z_col
       bridge->setvar, 'tgas_col', tgas_col
       bridge->setvar, 'rhogas_col', rhogas_col
@@ -113,11 +119,17 @@ FOR i=0,ddens.nr-1 DO BEGIN
       bridge->setvar, 'np',np
       bridge->setvar, 'npop',npop
       bridge->setvar, 'ini_npop',ini_npop
-      
-      bridge->execute, nowait=0, 'nlteC, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
+      bridge->setvar, 'lte_npop',lte_npop
+
+      bridge->execute, /nowait, 'PRINT, Radius = ddens.r[i]'
+      bridge->execute, /nowait, 'nlte, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
                        'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
                        'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, '+$
-                       'np, npop, ini_npop' ;we can't pass an IDL structure - only arrays and scalars
+                       'np, npop, ini_npop, lte_npop' ;we can't pass an IDL structure - only arrays and scalars: hence this clunky arg list.
+
+      writeu,-1,STRING(13b)
+      writeu,-1,'Running statistical balance calculation in parallel... '+STRTRIM(STRING(100d0*i/(ddens.nr-1),format='(f6.2)'),2) + '% complete'
+
 
    ENDIF ELSE BEGIN 
       print, 'Radius: ', ddens.r[i]/AU, ' AU'
@@ -131,7 +143,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
       npop_lte_all[*,*,i] = lte_npop
       
    ENDELSE
-   
+
 ENDFOR
 
 IF KEYWORD_SET(parallel) THEN BEGIN
@@ -141,10 +153,12 @@ IF KEYWORD_SET(parallel) THEN BEGIN
    npop_lte_all = (*p_npop_lte_all)
 ENDIF
 
-MWRFITS, dum, 'levelpop_nlte.fits', /CREATE
+PRINT, ' '
+
+MWRFITS, dum, 'levelpop_nlte.fits', /CREATE, /SILENT
 MWRFITS, {npop_all:npop_all, npop_ini:npop_ini_all, npop_lte:npop_lte_all, theta:ddens.theta[0:np-1], radius:ddens.r}, $
-         'levelpop_nlte.fits'
-MWRFITS, mol, 'levelpop_nlte.fits'
+         'levelpop_nlte.fits', /SILENT
+MWRFITS, mol, 'levelpop_nlte.fits', /SILENT
 
 
 END
