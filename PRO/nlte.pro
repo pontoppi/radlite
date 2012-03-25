@@ -5,7 +5,7 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 @natconst
 
-niter  = 55
+niter  = 30
 frac    = 0.001
 minlam  = 0.1
 ALF     = 1d-4
