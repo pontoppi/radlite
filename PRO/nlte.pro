@@ -35,7 +35,6 @@ FOR h=0,np-1 DO BEGIN
 ENDFOR
 
 lte_npop = npop
-
 ;
 ;Avoid starting with populations that are too low (0s will make a
 ;singular jacobian)
