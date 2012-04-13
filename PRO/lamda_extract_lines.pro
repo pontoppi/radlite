@@ -18,7 +18,9 @@ IF ~KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
 
 CASE isot OF
    51: lamda_main='12CO_lamda.dat'
+   52: lamda_main='13CO_Lamda.dat'
 ENDCASE
+
 
 molall = READ_MOLECULE_LAMBDA(lamda_path+lamda_main,/coll,/ghz,/kelvin)
 mol    = LAMDA_EXTRACT_LEVELS(molall,vmax=vmax,jmax=jmax)
