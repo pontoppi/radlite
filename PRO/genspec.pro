@@ -35,10 +35,6 @@ IF KEYWORD_SET(multiruns) THEN BEGIN
          PRINT, 'No files in specified subdirectory: ', multiruns[i]
          STOP
       ENDIF
-;      FOR j=0,N_ELEMENTS(linefiles_subrun)-1 DO BEGIN
-;         stop
-;         linefiles_subrun[j] = multiruns[i]+'/'+linefiles_subrun[j]
-;      ENDFOR
       IF i NE 0 THEN BEGIN
          linefiles = [linefiles,linefiles_subrun]
       ENDIF ELSE BEGIN
@@ -49,19 +45,16 @@ IF KEYWORD_SET(multiruns) THEN BEGIN
 ENDIF ELSE BEGIN
 ;
 ;Determine number of line spectrum files
-   spawn, 'ls -tr linespectrum_moldata_*.dat', linefiles
+   spawn, 'ls linespectrum_moldata_*.dat', linefiles
    nfiles = N_ELEMENTS(linefiles)
 ENDELSE
 
 IF KEYWORD_SET(maxnfile) THEN nfiles = maxnfile
 
 nlines = fltarr(nfiles)
-str=''
 
-openr, 1, linefiles[0]
-FOR i=1,4 DO readf,1,str
-readf,1,dum,nfreq
-close,1
+test_read = read_line(linefiles[0])
+nfreq  = test_read.nfreq
 
 lines  = dblarr(LMAX,nfreq)
 velos  = dblarr(LMAX,nfreq)
@@ -70,11 +63,12 @@ lcount = 0L
 
 FOR ff=0,nfiles-1 DO BEGIN
    dum_str = read_line(linefiles[ff])
-   dum_nl  = N_ELEMENTS(dum_str.cfreqs)
+   dum_nl  = dum_str.nlines
+   nfreq   = dum_str.nfreq
    cfreqs[lcount:lcount+dum_nl-1]   = dum_str.cfreqs
    FOR i=0,dum_nl-1 DO BEGIN
-      velos[lcount+i,*]  = dum_str.velo[*,i]
-      lines[lcount+i,*]  = dum_str.flux[*,i]
+      velos[lcount+i,0:nfreq-1]  = dum_str.velo[*,i]
+      lines[lcount+i,0:nfreq-1]  = dum_str.flux[*,i]
    ENDFOR
    lcount = lcount + dum_nl
 ENDFOR
@@ -83,19 +77,19 @@ ENDFOR
 ;remove duplicate lines if present
 cfreqs = cfreqs[0:lcount-1]
 
-uniqsubs = UNIQ(cfreqs)
-cfreqs = cfreqs[uniqsubs]
-velos = velos[uniqsubs,*]
-lines = lines[uniqsubs,*]
-lcount = N_ELEMENTS(uniqsubs)
+uniqsubs  = UNIQ(cfreqs)
+cfreqs    = cfreqs[uniqsubs]
+velos     = velos[uniqsubs,*]
+lines     = lines[uniqsubs,*]
+lcount    = N_ELEMENTS(uniqsubs)
 
-lines = lines[0:lcount-1,*]
-velos = velos[0:lcount-1,*]
-vel   = velos[0,*]
-res_el = vel[1]-vel[0]
-N_vel = LONG(2*Max_vel/res_el+1L)
+lines     = lines[0:lcount-1,*]
+velos     = velos[0:lcount-1,*]
+vel       = velos[0,*]
+res_el    = vel[1]-vel[0]
+N_vel     = LONG(2*Max_vel/res_el+1L)
 lines_int = fltarr(lcount, N_vel,2)
-new_vel = 2*Max_vel*findgen(N_vel)/(N_vel-1)-Max_vel
+new_vel   = 2*Max_vel*findgen(N_vel)/(N_vel-1)-Max_vel
 
 c_lines = fltarr(lcount)
 
@@ -110,13 +104,13 @@ FOR i=0L,lcount-1 DO BEGIN
 
     ;
     ;Calculate the line continuum (assuming a linear function)
-    cont  = interpol([line[0],line[nfreq-1]],[vel[0],vel[nfreq-1]],vel)
+    cont       = interpol([line[0],line[nfreq-1]],[vel[0],vel[nfreq-1]],vel)
     ;And save the 0 velocity continuum for later
     c_lines[i] = interpol([line[0],line[nfreq-1]],[vel[0],vel[nfreq-1]],0.) 
     ;And then subtract the continuum
-    line  = line - cont
+    line       = line - cont
 
-    line_int = interpol([line[0],line,line[nfreq-1]],$
+    line_int   = interpol([line[0],line,line[nfreq-1]],$
                         [-max_vel,vel,max_vel],new_vel)
     lines_int[i,*,1] = line_int
 ENDFOR

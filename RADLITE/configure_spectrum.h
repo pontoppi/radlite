@@ -27,7 +27,7 @@ c#define LINE_FREQDEP_DUST
 #define SZ_LINEPROFILE       401
 #define SZ_LINEPROFILE_SMALL 40
 #define SZ_NLINES            150
-#define SZ_NLEVELS           150
+#define SZ_NLEVELS           300
 #define SZ_NCOLTRANS         30
 #define SZ_NCTTEMP           10
 #define LINE_VELOCITIES
