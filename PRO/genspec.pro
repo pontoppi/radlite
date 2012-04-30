@@ -77,14 +77,14 @@ ENDFOR
 ;remove duplicate lines if present
 cfreqs = cfreqs[0:lcount-1]
 
-uniqsubs  = UNIQ(cfreqs)
+uniqsubs  = UNIQ(cfreqs, SORT(cfreqs))
 cfreqs    = cfreqs[uniqsubs]
 velos     = velos[uniqsubs,*]
 lines     = lines[uniqsubs,*]
 lcount    = N_ELEMENTS(uniqsubs)
 
-lines     = lines[0:lcount-1,*]
-velos     = velos[0:lcount-1,*]
+;lines     = lines[0:lcount-1,*]
+;velos     = velos[0:lcount-1,*]
 vel       = velos[0,*]
 res_el    = vel[1]-vel[0]
 N_vel     = LONG(2*Max_vel/res_el+1L)
