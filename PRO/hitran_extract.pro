@@ -11,8 +11,9 @@ PRO hitran_extract, isotop=isotop,lambdarange=lambdarange,$
                     vmax=vmax
 
 IF NOT KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
-IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = './'
+IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = '.'
 IF NOT KEYWORD_SET(max_energy) THEN max_energy = 1d33
+IF NOT KEYWORD_SET(vmax) THEN vmax = 100
 
 c = 2.9979246d14 ;micron/s
 MAX_LINES = 3000000L
@@ -174,6 +175,11 @@ CASE isotop OF
       molecule='HD'
       hitran_file=hitran_path+'HD.par'
    END
+   500:BEGIN
+      molweight=2.
+      molecule='H2'
+      hitran_file=hitran_path+'H2.par'
+   END
 ENDCASE
 ;
 ;HITRAN08 file format
@@ -281,12 +287,8 @@ IF KEYWORD_SET(H2O_OP) AND isotop EQ 11 THEN BEGIN
       END
    ENDCASE
 ENDIF ELSE BEGIN
-   IF NOT KEYWORD_SET(vmax) THEN BEGIN
-      outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy)      
-   ENDIF ELSE BEGIN
-      outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy $
-                      AND vu LE vmax)
-   ENDELSE
+   outsubs = WHERE(ISOT eq isotop AND FREQ lt FREQRANGE[0] AND FREQ gt FREQRANGE[1] AND S gt cutoff AND Eupper LT max_energy $
+                  AND vu LE vmax)
 ENDELSE
 
 
@@ -354,7 +356,7 @@ printf,lun,N_ELEMENTS(E_all),FORMAT='(i6)'
 printf,lun,'!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q'
 FOR i=0,N_ELEMENTS(E_all)-1 DO BEGIN
     printf,lun,i+1,E_all[i],g_all[i],v_all[i],Q_all[i],$
-      FORMAT='(i5,d12.4,f7.1,a15,a15)'
+      FORMAT='(i5,d11.4,f6.1,a15,a15)'
 ENDFOR
 printf,lun,'!NUMBER OF RADIATIVE TRANSITIONS'
 printf,lun,N_ELEMENTS(FREQ),FORMAT='(i6)'
@@ -369,8 +371,40 @@ FOR i=0,N_ELEMENTS(FREQ)-1 DO BEGIN
 ;    levell = WHERE(vl[i] EQ v_all AND Qpp[i] EQ Q_all)
 ;    levelu = WHERE(Eupper[i] EQ E_all AND Qp[i] EQ Q_all)
 ;    levell = WHERE(Elower[i] EQ E_all AND Qpp[i] EQ Q_all)
-    levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 0.0001)
-    levell = WHERE(ABS(E_all-Elower[i])/(Elower[i]+0.1) LT 0.0001) ;+0.1 in case Elower is the E=0 ground level
+;    levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 0.0001)
+;    levell = WHERE(ABS(E_all-Elower[i])/(Elower[i]+0.1) LT 0.0001)
+;    ;+0.1 in case Elower is the E=0 ground level
+
+
+; 5/1/2012 BUG FIXed by Coco. Identifying levels by both energy and Qp
+
+    yy = ABS(E_all-Eupper[i])/Eupper[i]
+    levelu_temp = WHERE(Q_all EQ Qp[i] and yy lt 1e-4)
+     
+    if n_elements(levelu_temp) gt 1 then  begin
+       ind = where(yy(levelu_temp) eq min(yy(levelu_temp)))
+       levelu = levelu_temp(ind)
+       ;print,'levelu=',levelu, E_all[levelu],Eupper[i],Qp[i],Q_all[levelu]
+    endif else begin
+       levelu = levelu_temp
+    endelse
+
+
+     if levelu[0] eq -1 then  print, i,'  ',Qp[i]
+   
+   
+   
+    xx = ABS(E_all-Elower[i])/(Elower[i]+0.1)
+    levell_temp = WHERE( xx lt 1d-4 and  (Q_all EQ Qpp[i]))
+
+    if n_elements(levell_temp) gt 1 then  begin
+       ind = where(xx(levell_temp) eq min(xx(levell_temp)))
+       levell = levell_temp(ind)
+       ;print,'levelu=',levelu, E_all[levell],Eupper[i],Qpp[i],Q_all[levell]
+    endif else begin
+       levell = levell_temp
+    endelse
+
    
     printf, lun,i+1,levelu[0]+1,levell[0]+1,A[i],FREQ[i],Eupper[i],vu[i],vl[i],Qp[i],Qpp[i],$
       FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'
