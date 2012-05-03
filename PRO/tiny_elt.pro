@@ -25,8 +25,8 @@ fitsfile = fitsfile+'_psf_'+STRTRIM(STRING(lambda),2)+'.fits'
 
 IF tel eq 'EELT' THEN BEGIN
    dd      = 0d3                ;cm
-   Rmirror = 2100d0             ;cm
-   Rinner  = 420d0              ;cm
+   Rmirror = 1940d0             ;cm
+   Rinner  = 555d0              ;cm
    dseg    = 140.*sqrt(3)/2d0   ;125.574d0 ;cm
    nside   = 39.
 ENDIF
