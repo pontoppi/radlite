@@ -54,6 +54,7 @@ lev_vib = strarr(nlev)   ;The vibrational quantum number(s) of the level
 lev_rot = strarr(nlev)   ;The rotational quantum number(s)
 FOR i=0,nlev-1 DO BEGIN
     readf,lunm,linddum,edum,gdum,vibdum,rotdum,format='(i5,f12.4,f7.1,a15,a15)'
+ ;   print,linddum,edum,gdum,vibdum
     e[i]       = edum
     g[i]       = gdum
     lind[i]    = linddum
@@ -75,7 +76,7 @@ lin_rot = strarr(nline)   ;The rotational quantum number(s) of the line (upper t
 
 FOR i=0,nline-1 DO BEGIN
    readf,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum,vibdum,rotdum,format='(i5,i5,i5,e12.3,f16.7,f12.5,a30,a30)'
-;   readf,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum,format='(i5,i5,i5,e12.3,f16.7,f12.5)'
+ ;  print,lunm,dum,iupdum,idowndum,auddum,freqdum,eupperdum
    iup[i]   = iupdum
    idown[i] = idowndum
    aud[i]   = auddum

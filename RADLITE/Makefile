@@ -20,7 +20,7 @@ OPTIM = -O3
 
 # Which compiler to use
 #FF = ifort -132
-FF = gfortran -m64 -ffixed-line-length-132 
+FF = gfortran -m64 -ffixed-line-length-132 -fpic 
 
 
 # Glueing all the things together
