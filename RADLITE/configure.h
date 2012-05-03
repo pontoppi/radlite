@@ -8,8 +8,8 @@ c#define LINE_FREQDEP_DUST
 #define SUBGRID
 #define COORD_SPHERICAL
 #define ESC_MINIMAL_EXTENSION 
-#define FRSIZE_X      210
-#define FRSIZE_Y      420
+#define FRSIZE_X      150
+#define FRSIZE_Y      200
 #define FRSIZE_FREQ      401
 #define FRSIZE_MU   43
 #define FRSIZE_PHI  16
@@ -26,8 +26,8 @@ c#define LINE_FREQDEP_DUST
 #define MOLECULAR_DATA_DIR   '.'
 #define SZ_LINEPROFILE       401
 #define SZ_LINEPROFILE_SMALL 40
-#define SZ_NLINES            150
-#define SZ_NLEVELS           150
+#define SZ_NLINES            300
+#define SZ_NLEVELS           600
 #define SZ_NCOLTRANS         30
 #define SZ_NCTTEMP           10
 #define LINE_VELOCITIES

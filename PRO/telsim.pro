@@ -33,9 +33,9 @@ CASE telescope OF
       sigma   = 0.002           ;Jy/beam
    END
    'EELT_CO' : BEGIN
-      eltpix  = 0.006           ;arcsec
-      eltres  = 0.021           ;arcsec
-      sigma   = 1.25*1d-4       ;Jy/beam
+      eltpix  = 0.011           ;arcsec
+      eltres  = 0.023           ;arcsec
+      sigma   = 1.20*1d-4       ;Jy/beam
    END
    'EELT' : BEGIN
       eltpix  = 0.006           ;arcsec
