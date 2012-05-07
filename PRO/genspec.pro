@@ -3,7 +3,7 @@ PRO genspec,obsres=obsres,maxnfile=maxnfile,xrange=xrange,$
               scale_spec=scale_spec,sedcomp=sedcomp,sampling=sampling,$
               multiruns=multiruns,noise=noise,dist=dist
 
-LMAX = 5000
+LMAX = 50000
 n_x_max = 1d7
 c=2.99792458d14
 

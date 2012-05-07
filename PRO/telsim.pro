@@ -33,13 +33,13 @@ CASE telescope OF
       sigma   = 0.002           ;Jy/beam
    END
    'EELT_CO' : BEGIN
-      eltpix  = 0.011           ;arcsec
-      eltres  = 0.023           ;arcsec
+      eltpix  = 0.0086          ;arcsec
+      eltres  = 0.034           ;arcsec
       sigma   = 1.20*1d-4       ;Jy/beam
    END
-   'EELT' : BEGIN
-      eltpix  = 0.006           ;arcsec
-      eltres  = 0.017           ;arcsec
+   'EELT_N' : BEGIN
+      eltpix  = 0.0172          ;arcsec
+      eltres  = 0.100           ;arcsec
       sigma   = 0.4*1d-3        ;Jy/beam
    END
    'EELT_LW' : BEGIN
@@ -54,7 +54,7 @@ CASE telescope OF
    END
     'NIRSPEC' : BEGIN
       eltpix  = 0.08             ;arcsec
-      eltres  = 0.10             ;arcsec
+      eltres  = 0.20             ;arcsec
       sigma   = 7.0*1d-6        ;Jy/beam (6d-21 W/m^2 at 22.5)
    END
     'SUPER_OWL' : BEGIN
@@ -212,7 +212,7 @@ FOR i=0,nf-1 DO BEGIN
    line_im = line_im + (im_elt[*,*,i] - (im_elt[*,*,0]+im_elt[*,*,nf-1])/2d0)
 ENDFOR
 mwrfits, line_im,outname+'.fits'
-mwrfits, {totspec:total(total(im_elt,1),1)*eltpix^2,velo:velo},outname+'.fits'
+mwrfits, {totspec:total(total(im_elt,1),1)*eltpix^2,velo:velo, pixsize:eltpix, pixunit:'Arcsec/pixel'},outname+'.fits'
 
 ;
 ;Create slit image
