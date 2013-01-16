@@ -1,27 +1,43 @@
 @imdisp.pro
 
 PRO imcir_conv, filename,xs=xs,ys=ys,plgrid=plgrid,ifr=ifr,nx=nx,ny=ny,$
-                logsc = logsc,maxi=maxi,scale=scale,addstar=addstar,stopi=stopi,$
+                logsc = logsc,maxi=maxi,scale=scale,add_resolved_star=add_resolved_star,stopi=stopi,$
                 saveit=saveit,plotit=plotit,zlog=zlog,wnum=wnum,sqrt=sqrt,$
-                specast=specast,posang=posang,specres=specres,pvit=pvit
+                specast=specast,posang=posang,specres=specres,pvit=pvit, int_unit=int_unit, down_samp=down_samp
 
 @natconst.pro
-IF NOT KEYWORD_SET(xs)  THEN xs  = 10.0 ;AU
-IF NOT KEYWORD_SET(ys)  THEN ys  = 10.0 ;AU
-IF NOT KEYWORD_SET(ifr) THEN ifr = 0
-IF NOT KEYWORD_SET(nx)  THEN nx = 500
-IF NOT KEYWORD_SET(ny)  THEN ny = 500
-IF NOT KEYWORD_SET(wnum) THEN wnum = 3
-IF NOT KEYWORD_SET(posang) THEN posang = 0d0
-IF NOT KEYWORD_SET(addstar) THEN addstar = 1
-IF NOT KEYWORD_SET(saveit) THEN saveit='test.fits'
-IF NOT KEYWORD_SET(spacast) THEN specast='specast.fits'
+IF ~KEYWORD_SET(xs)  THEN xs  = 10.0 ;AU
+IF ~KEYWORD_SET(ys)  THEN ys  = 10.0 ;AU
+IF ~KEYWORD_SET(ifr) THEN ifr = 0
+IF ~KEYWORD_SET(nx)  THEN nx = 500
+IF ~KEYWORD_SET(ny)  THEN ny = 500
+IF ~KEYWORD_SET(wnum) THEN wnum = 3
+IF ~KEYWORD_SET(posang) THEN posang = 0d0
+IF ~KEYWORD_SET(add_resolved_star) THEN add_resolved_star = 0
+IF ~KEYWORD_SET(saveit) THEN saveit='test.fits'
+IF ~KEYWORD_SET(spacast) THEN specast='specast.fits'
+IF ~KEYWORD_SET(int_unit) THEN int_unit = 'erg/s/cm^2/Hz/sterad'
+IF KEYWORD_SET(addstar) THEN BEGIN
+   print, 'The addstar keyword has been replaced by the add_resolved_star keyword'
+   stop
+ENDIF
+
+IF ~KEYWORD_SET(distance) THEN BEGIN
+   distance = 125.
+   print, 'distance is assumed to be: ', distance, 'pc'
+ENDIF
+
+IF int_unit EQ 'MJy/sterad' THEN BEGIN
+   unit_conversion = 1e17 ;erg/s/cm^2/Hz --> MJy
+ENDIF ELSE BEGIN
+   unit_conversion = 1.
+ENDELSE
 
 posang_rad = !pi*posang/180.d0   ;
 xs_au = xs * AU
 ys_au = ys * AU
 
-IF KEYWORD_SET(addstar) THEN BEGIN
+IF KEYWORD_SET(add_resolved_star) THEN BEGIN
    nr_star = 30.
 ENDIF ELSE BEGIN
    nr_star = 0.
@@ -95,9 +111,9 @@ FOR iifr=first_fr,last_fr DO BEGIN
    imcir_im[0:imcir.nphi-1,0:imcir.nr-1] = imcir.imcir[iifr,*,*]
    
 ;
-;Now add the star, if requested
+;Now add the star, assuming it will be resolved
  
-   IF KEYWORD_SET(addstar) THEN BEGIN
+   IF KEYWORD_SET(add_resolved_star) THEN BEGIN
       ;the last two points are outside the star to make sure the interpolation is grounded
       star_rad = rstar*(findgen(nr_star))/(nr_star-2-1) 
       
@@ -123,7 +139,27 @@ FOR iifr=first_fr,last_fr DO BEGIN
    triangulate, x,y,triangles
    imrect[*,*,iifr] = trigrid(x,y,imcir_im[*,*],triangles,xgrid=xgrid,ygrid=ygrid,$
                     [xs_au/(nx-1),ys_au/(ny-1)], [-xs_au/2.,-ys_au/2.,xs_au/2.,ys_au/2.])
+
+   ;
+   ;Otherwise assume the star is unresolved
+   IF ~KEYWORD_SET(add_resolved_star) THEN BEGIN
+      scaled_star_intensity   = (!pi*rstar^2.)/((xgrid[1]-xgrid[0])*(ygrid[1]-ygrid[0]))
+      imrect[nx/2,ny/2,iifr] += imcir.radray[iifr]*scaled_star_intensity
+   ENDIF
+
 ENDFOR
+
+IF KEYWORD_SET(down_samp) THEN BEGIN
+   nx = FLOOR(nx/down_samp)
+   ny = FLOOR(ny/down_samp)
+   xgrid = FREBIN(xgrid,nx)
+   ygrid = FREBIN(ygrid,ny)
+   imrect_new = FLTARR(nx,ny,imcir.nfr)
+   FOR iifr=first_fr,last_fr DO BEGIN
+      imrect_new[*,*,iifr] = FREBIN(imrect[*,*,iifr],nx,ny)
+   ENDFOR
+   imrect = imrect_new
+ENDIF
 
 spec2d = fltarr(nx,imcir.nfr)
 IF KEYWORD_SET(pvit) THEN BEGIN
@@ -146,7 +182,7 @@ IF KEYWORD_SET(specast) THEN BEGIN
    
    PRINT, 'Saving spectro-astrometry to file: ', specast
    mwrfits, {xgrid:xgrid,ygrid:ygrid,velo:imcir.velo,sa:sa,fl:fl,fl_cir:fl_cir,$
-             addstar:addstar,spec2d:spec2d,nu0:imcir.nu0,posang:posang,nx:nx,ny:ny,xs:xs,ys:ys},specast
+             add_resolved_star:add_resolved_star,spec2d:spec2d,nu0:imcir.nu0,posang:posang,nx:nx,ny:ny,xs:xs,ys:ys},specast
 
 
    loadct,0
@@ -163,10 +199,21 @@ ENDIF
 
 IF KEYWORD_SET(saveit) THEN BEGIN
    imcir_file = saveit
+
+   mkhdr, hdr, imrect
+   sxaddpar, hdr, 'BUNIT', int_unit, 'Surface brightness unit'
+   sxaddpar, hdr, 'CDELT1', ABS(xgrid[1]-xgrid[0])/AU/distance/3600., 'Pixel scale in degrees along NAXIS1'
+   sxaddpar, hdr, 'CDELT2', ABS(ygrid[1]-ygrid[0])/AU/distance/3600., 'Pixel scale in degrees along NAXIS2'
+   sxaddpar, hdr, 'CENTRAL FREQ', imcir.nu0, 'Central frequency in Hz'
+   sxaddpar, hdr, 'NUDELT', (imcir.velo[1]-imcir.velo[0])*1d5/cc * imcir.nu0, 'Delta frequency in Hz'
+   sxaddpar, hdr, 'VELODELT', (imcir.velo[1]-imcir.velo[0]), 'Delta velocity in km/s'
+   sxaddpar, hdr, 'DISTANCE', distance, 'Distance in pc for CDELT1/CDELT2'
+
+
    PRINT, 'Saving to .fits file: ', imcir_file
-   mwrfits, imrect, imcir_file, /create
-   mwrfits, {xgrid:xgrid,ygrid:ygrid,velo:imcir.velo,sa:sa,fl:fl,fl_cir:fl_cir,$
-             addstar:addstar,spec2d:spec2d,nu0:imcir.nu0},imcir_file
+   mwrfits, imrect*unit_conversion, imcir_file, hdr, /create
+   mwrfits, {xgrid:xgrid,ygrid:ygrid,grid_unit:'cm',velo:imcir.velo,velo_unit:'km/s',sa:sa,fl:fl,fl_cir:fl_cir,flux_unit:'Jy',$
+             add_resolved_star:add_resolved_star,spec2d:spec2d,nu0:imcir.nu0,nu0_unit:'Hz'},imcir_file
 ENDIF
 
 
@@ -218,5 +265,5 @@ IF KEYWORD_SET(plotit) THEN BEGIN
    set_plot, 'x'
    @plot_clear.h
 ENDIF
-
+stop
 END

@@ -1,4 +1,5 @@
 PRO model2fits, filename=filename
+  @natconst.pro
 
   IF ~KEYWORD_SET(filename) THEN filename='radlite_run.fits'
   LMAX = 100000L
@@ -60,10 +61,20 @@ PRO model2fits, filename=filename
     
   c_lines = fltarr(lcount)
   
+  ;
+  ;Calculate integrated line fluxes
+  intensity = FLTARR(lcount)
+  FOR i=0,lcount-1 DO BEGIN
+     nvel = N_ELEMENTS(velos[i,*])
+     cont = (lines[i,0]+lines[i,nvel-1])/2.
+     freq = (REFORM(1d5*velos[i,*])/cc+1)*cfreqs[i]
+     intensity[i] = INT_TABULATED(freq,lines[i,*]-cont[0],/SORT, /DOUBLE)
+  ENDFOR
+
   MWRFITS, dummy, filename, /CREATE, /SILENT
-  MWRFITS, {velo:velos,flux:lines,cfreqs:cfreqs,Eupper:Eupper,$
+  MWRFITS, {velo:velos,flux:lines,intensity:intensity,cfreqs:cfreqs,Eupper:Eupper,$
             Aud:Aud,gupper:gupper,glower:glower,species:mol_str.species,$
             Eupper_unit:'cm-1',Aud_unit:'s^-1',flux_unit:'erg/cm^2/s/Hz',velo_unit:'km/s'}, filename, /SILENT
-
+  
 stop
 END
