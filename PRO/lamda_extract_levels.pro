@@ -97,7 +97,6 @@ FOR p=0,mol.nr_coll_partners-1 DO BEGIN
    pos_left  = STRPOS(mol.partner_name[p], mol.species)+STRLEN(mol.species)+2 
    pos_right = STRPOS(mol.partner_name[p], '!')
    partner_string = STRCOMPRESS(STRMID(mol.partner_name[p], pos_left, pos_right-pos_left),/REMOVE_ALL)
-
    ;
    ;Scale rates appropriately
    CASE partner_string OF 

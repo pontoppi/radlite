@@ -41,7 +41,8 @@ IF lte EQ 1 THEN BEGIN
 ENDIF ELSE BEGIN
    mol    = read_molecule_lambda(molfile)
    CASE mol.species OF 
-      'CO': lamda_main='12CO_lamda.dat'
+      '12CO': lamda_main='12CO_lamda.dat'
+      '13CO': lamda_main='13CO_Lamda.dat'
    ENDCASE
    ;
    ;Read the full lamda file      

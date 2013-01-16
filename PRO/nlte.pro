@@ -35,7 +35,17 @@ FOR h=0,np-1 DO BEGIN
 ENDFOR
 
 lte_npop = npop
-
+;Change initial conditions to test convergence
+;FOR h=0,np-1 DO BEGIN
+;npop[0:10,h] = 100.0*npop[0:10,h]
+;npop[11:21,h] = 10.0*npop[11:21,h]
+;npop[22:32,h] = .5*npop[22:32,h]; 1.0/200. * abun_col[h] * rhogas_col[h]
+;npop[51:75,h] = 1.0/600. * abun_col[h] * rhogas_col[h]
+;ENDFOR
+;FOR h=0,np-1 DO BEGIN
+;   Ntot = TOTAL(npop[*,h])
+;   npop[*,h] = npop[*,h]/Ntot * abun_col[h] * rhogas_col[h] ;in cm^-3
+;ENDFOR
 ;
 ;Avoid starting with populations that are too low (0s will make a
 ;singular jacobian)

@@ -22,6 +22,7 @@
 
 \title{RADLite manual (version 1.1)}
 \author{Klaus M. Pontoppidan (pontoppi@gps.caltech.edu)}
+\author{Alexandra C. Lockwood (alock@gps.caltech.edu)}
 
 \maketitle
 
@@ -181,21 +182,21 @@ you ran {\tt line\_run}. That way, you will not be overwriting previous runs.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{RADLite.pdf}
-\caption{Routines called during a non-LTE run of RADlite.  The output is given in red for each routine.}
+\includegraphics[scale=0.4]{RADLite_flowchart_2012.pdf}
+\caption{Routines called during a run of RADlite.  The output is given in red for each routine.}
 \end{figure}
 
 \subsection{Description of Routines}
 
 \begin{itemize}
 
-\item{\tt extract\_lambda.pro}\\
+\item{\tt lamda\_extract\_levels.pro}\\
 User inputs desired levels according to maximum vibrational and rotational level.  The levels are extracted from the molecular file as a whole, as are all transitions involving those levels.  All collisional transitions are weighted according to collisional partner abundance and interpolated onto one temperature grid, for interpolation in P.pro.
 
 \item {\tt hitran\_extract.pro}\\
 Extracts molecular information from HITRAN file and writes molecular data file.
 
-\item {\tt lamda\_extract.pro}\\
+\item {\tt lamda\_extract\_lines.pro}\\
 Similar to {\tt hitran\_extract} except extracts data from LAMDA formatted file.
 
 \item {\tt line\_run.pro}\\
