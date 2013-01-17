@@ -175,7 +175,7 @@ IF KEYWORD_SET(noise) THEN BEGIN
 ENDIF
 
 plot, x_all,y_all, xtitle='Wavelength [micron]', ytitle='Flux [Jy]',$
-  yrange=yrange,xrange=xrange,psym=psym,/xs,ylog=ylog,xlog=xlog,color=60
+  yrange=yrange,xrange=xrange,psym=psym,/xs,ylog=ylog,xlog=xlog
 
 IF KEYWORD_SET(sedcomp) THEN $
    oplot, x,y/dist^2d0*scale_spec,color=56300

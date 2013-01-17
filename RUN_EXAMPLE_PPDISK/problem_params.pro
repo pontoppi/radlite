@@ -93,7 +93,7 @@ run       = 0           ; Do a run within IDL? If 0, then only setup.
 ;                         The spatial grid 
 ;--------------------------------------------------------------------------
 nr     = 120            ; number of points in radius
-nt     = 200             ; Number of points in theta for main theta grid
+nt     = 100             ; Number of points in theta for main theta grid
 ntex   = 10             ; Extra points in theta 
 rin    = 0.0*AU         ; Inner radius of radial grid (--> tin is computed)
 tin    = 1500.d0        ; Inner temperature (--> rin is computed)
@@ -149,7 +149,7 @@ hrpuff = 0.0            ; Puffing-up H/R
 ;--------------------------------------------------------------------------
 ;           Parameters for RADMC : The radiative transfer part
 ;--------------------------------------------------------------------------
-nphot  = 2000000         ; Nr of photons for RADMC
+nphot  = 500000         ; Nr of photons for RADMC
 npdiff = 15             ; Minimum nr of photons per cell --> diffusion alg
 errtol = 1d-6           ; Error tolerance for diffusion alg
 ifast  = 1              ; >0 (1 or 2)--> Approx to make RADMC even faster

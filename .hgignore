@@ -1,0 +1,9 @@
+.DS_Store
+
+# use glob syntax.
+syntax: glob
+
+RUN_EXAMPLE_EMBEDDED/*.inp
+RUN_EXAMPLE_PPDISK/*.inp
+RUN_EXAMPLE_EMBEDDED/*.dat
+RUN_EXAMPLE_PPDISK/*.dat

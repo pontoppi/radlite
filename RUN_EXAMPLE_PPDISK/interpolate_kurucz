@@ -10,7 +10,7 @@ getopts("q");
 
 #$dir = "/home/dominik/dkerb/KURUCZ";
 #$dir = "/scratch/dullemon/kurucz";
-$dir = "/Users/pontoppi/WORK/RADTRANS_LINE_05_09_06/kurucz";
+$dir = "/Users/pontoppi/WORK/RADLITE/KURUCZ";
 
 use POSIX qw(ceil floor);
 
