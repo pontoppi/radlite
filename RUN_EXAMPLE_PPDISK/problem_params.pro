@@ -197,7 +197,7 @@ bindir=maindir+'/bin/'
 ;; Paths to the Kurucz data, the dust opacity code and the dust 
 ;; optical constants
 ;;
-kuruczdir = '../KURUCZ/'
+kuruczdir = maindir+'/KURUCZ/'
 src_dust  = maindir+'/sources/makeopac/src/'
 dustdata  = maindir+'/sources/makeopac/optconst/'
 ;;
