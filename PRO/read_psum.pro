@@ -18,7 +18,7 @@ WHILE pos NE -1 DO BEGIN
    pos = STRPOS(row, ' ', pos+1)
    posits[nspecies+1] = pos
    species[nspecies]  = STRMID(row,posits[nspecies],posits[nspecies+1]-posits[nspecies])
-   nspecies++
+   nspecies++   
 ENDWHILE
 species = STRCOMPRESS(species, /remove_all)
 molmass = FLTARR(nspecies-1)

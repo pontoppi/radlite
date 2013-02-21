@@ -40,7 +40,7 @@ freqdum  = 0d0
 openr,lunm,file, /get_lun
 readf,lunm,str
 readf,lunm,str
-species = str ;Name of the molecule
+species = STRCOMPRESS(str) ;Name of the molecule
 readf,lunm,str
 readf,lunm,mumol     ;Molecular weight
 readf,lunm,str

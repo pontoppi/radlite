@@ -19,6 +19,7 @@ IF ~KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
 CASE isot OF
    51: lamda_main='12CO_lamda.dat'
    52: lamda_main='13CO_Lamda.dat'
+   141: lamda_main='HF_lamda.dat'
 ENDCASE
 
 

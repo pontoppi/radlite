@@ -43,6 +43,7 @@ ENDIF ELSE BEGIN
    CASE mol.species OF 
       '12CO': lamda_main='12CO_lamda.dat'
       '13CO': lamda_main='13CO_Lamda.dat'
+      'HF': lamda_main='HF_lamda.dat'
    ENDCASE
    ;
    ;Read the full lamda file      
