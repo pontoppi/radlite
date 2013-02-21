@@ -60,8 +60,9 @@ spawn,'cp -f '+kuruczdir+'interpolate_kurucz ./ >& /dev/null'
 ;
 cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,A10)', $
                  Tstar,logg,0.0, $
-                 "> flux.dat")
-spawn,cmd
+                 "> flux.dat")+' '+kuruczdir
+
+spawn,cmd,out
 ;
 ; Read the flux from the Kurucz interpolator
 ;
@@ -80,8 +81,7 @@ LL = int_tabulated(s1,s2,/sort,/double)
 lnu = flux*Lstar/LL
 s1 = nu
 s2 = lnu
-LL1 = int_tabulated(s1,s2,/double,/sort)
-;print,LL,LL1,LL1/Lstar
+LL1 = int_tabulated(s1,s2,/sort,/double)
 lnusmooth = lnu
 imin = 0
 imax=1200
@@ -89,8 +89,6 @@ imax=1200
 ; Print info, and plot the Kurucz model
 ;
 if silent ne 1 then begin
-   ;;print,nu[0],nu[imax]
-   ;;print,lam[0],lam[imax]
    dumm=nu*lnusmooth/LS
    plot,3d14/nu,dumm,/xlog,/ylog,yrange=[1d-14,1]*max(dumm)
 endif
