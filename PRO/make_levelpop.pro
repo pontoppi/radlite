@@ -81,6 +81,9 @@ ENDIF ELSE BEGIN
    ENDELSE  
 ENDELSE
 
+lowsubs = WHERE(npop LT 1e-99)
+npop[lowsubs] = 0.0
+
 openw,lunl,'levelpop_'+molfile,/get_lun
 printf,lunl,nr,nt,nlev,1
 printf,lunl,energy
