@@ -94,7 +94,7 @@ CASE atype OF
        IF subs[0] NE -1 THEN abun[subs] = min_abun
        abun_collpartner = 0.d0
        IF KEYWORD_SET(coldfinger) THEN BEGIN
-          IF VERBOSE THEN PRINT, 'Vertical cold finger effect activated!'
+          IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Vertical cold finger effect activated!'
 
           mp_snowline = MAX(WHERE(a_h2o_freeze[*,nt/2] EQ 0))+1
           IF mp_snowline[0] EQ -1 THEN BEGIN

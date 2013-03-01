@@ -372,7 +372,7 @@ FOR i=0,N_ELEMENTS(FREQ)-1 DO BEGIN
     levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 0.00001)
     levell = WHERE(ABS(E_all-Elower[i])/(Elower[i]+0.1) LT 0.00001) ;+0.1 in case Elower is the E=0 ground level
    
-    IF (N_ELEMENTS(levelu) GT 1) OR (N_ELEMENTS(levell) GT 1) THEN STOP
+;    IF (N_ELEMENTS(levelu) GT 1) OR (N_ELEMENTS(levell) GT 1) THEN STOP
 
     printf, lun,i+1,levelu[0]+1,levell[0]+1,A[i],FREQ[i],Eupper[i],vu[i],vl[i],Qp[i],Qpp[i],$
       FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'

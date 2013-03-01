@@ -5,3 +5,4 @@ syntax: glob
 
 RUN_EXAMPLE_EMBEDDED/*.dat
 RUN_EXAMPLE_PPDISK/*.dat
+*.o
