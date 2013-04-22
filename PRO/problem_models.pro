@@ -166,7 +166,7 @@ if n_elements(gastodust) eq 0 then gastodust = 100.
 if n_elements(ntt) eq 0 then ntt=50
 if n_elements(nrr) eq 0 then nrr=90
 if n_elements(ntex) eq 0 then ntex=10
-if n_elements(rhofloor) eq 0 then rhofloor = 1d-26
+if n_elements(rhofloor) eq 0 then rhofloor = 1d-90
 if n_elements(hrgrid) eq 0 then hrgrid = 0.6  
 if n_elements(hrgmax) eq 0 then hrgmax = 0.9*!pi/2.d0
 if n_elements(nib) eq 0 then nib = 4
@@ -765,7 +765,7 @@ if n_elements(opacnames) ne n_elements(pllongs) and $
 endif
 if not keyword_set(pllongs) then pllongs=-2.d0+dblarr(n_elements(opacnames))
 if n_elements(gastodust) eq 0 then gastodust = 100.
-if n_elements(rhofloor) eq 0 then rhofloor = 1d-26
+if n_elements(rhofloor) eq 0 then rhofloor = 1d-90
 if not keyword_set(bindir) then bindir='../bin/'
 if nvstr gt 0 and tauchop gt 0.d0 then begin
    print,'ERROR: The vertical structure iteration module is'
@@ -915,6 +915,8 @@ case imakedisk of
         for ispec=0,nspec-1 do begin
             rhodust[*,*,ispec] = rhodusttot * abun[*,*,ispec]
         endfor
+
+        rhodust += rhofloor
         ;;
         ;; Write the stuff to the input files
         ;;
@@ -1015,6 +1017,10 @@ case imakedisk of
             smooth_rim,r,theta,rhodust,kappa,sigdust=sigdust,$
                     drsm=drsm,tautol=tautol
         endif
+
+        ;; Add the density background
+        rhodust += rhofloor
+
         ;;
         ;; Write the dust density to the input files of RADMC
         ;;
