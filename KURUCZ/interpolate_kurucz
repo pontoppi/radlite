@@ -8,10 +8,6 @@
 use Getopt::Std;
 getopts("q");
 
-#$dir = "/home/dominik/dkerb/KURUCZ";
-#$dir = "/scratch/dullemon/kurucz";
-$dir = "../KURUCZ";
-
 use POSIX qw(ceil floor);
 
 unless (@ARGV) {
@@ -31,13 +27,14 @@ EOF
 
 @loggs = (0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0);
 
-@metalicities = sort {$a<=>$b} map {/f([mp])(\d\d)/;($1 eq 'm' ? -$2 : $2) } split(' ',`ls $dir/f*.pck*`);
-
 $T = shift;
 $logg = shift;
 $met0 = shift;
 $met = $met0*10;
-$dir = @ARGV[0];
+$dir = shift;
+
+@metalicities = sort {$a<=>$b} map {/f([mp])(\d\d)/;($1 eq 'm' ? -$2 : $2) } split(' ',`ls $dir/f*.pck*`);
+
 
 ($T_low,$T_high,$delta_t) = find_in_table($T,\@temperatures);
 ($logg_low,$logg_high,$delta_logg) = find_in_table($logg,\@loggs);
