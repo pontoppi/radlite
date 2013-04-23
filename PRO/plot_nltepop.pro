@@ -30,19 +30,21 @@ ENDIF ELSE BEGIN
    ratio = ROTATE(lte_ratio,4)
 ENDELSE
 
+
+cgloadct,4
+cgwindow
 !P.Multi = [0, 2, 1]
 levels = findgen(100)/20.-1
-cgloadct,4
+
 cgcontour, ratio, x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
-           xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,title='!6Departure from LTE'
+           xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,title='!6Departure from LTE',/addcmd
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(f6.2)', /VERTICAL, $
-            POSITION=[0.95/2., 0.10, 0.98/2., 0.90]
+            POSITION=[0.95/2., 0.10, 0.98/2., 0.90],/addcmd
 
 levels = findgen(100)/10.
 cgcontour, ALOG10(ROTATE(REFORM(pop.npop_all[level,*,*]),4)), x/AU, y/AU, /fill, levels=levels,xrange=xrange,yrange=yrange,/xs,/ys, $
-           title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl
+           title='!6', xtitle='!6Radius [AU]', ytitle='Height [AU]',/xl,/yl,/addcmd
 cgcolorbar, range=[MIN(levels), MAX(levels)],format='(e9.2)', /VERTICAL, $
-            POSITION=[0.95, 0.10, 0.98, 0.90]
+            POSITION=[0.95, 0.10, 0.98, 0.90],/addcmd
 
-stop
 END

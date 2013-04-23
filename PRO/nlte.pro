@@ -5,8 +5,8 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 @natconst
 
-niter  = 30
-frac    = 0.001
+niter   = 20
+frac    = 0.0001
 minlam  = 0.1
 ALF     = 1d-4
 
@@ -35,22 +35,11 @@ FOR h=0,np-1 DO BEGIN
 ENDFOR
 
 lte_npop = npop
-;Change initial conditions to test convergence
-;FOR h=0,np-1 DO BEGIN
-;npop[0:10,h] = 100.0*npop[0:10,h]
-;npop[11:21,h] = 10.0*npop[11:21,h]
-;npop[22:32,h] = .5*npop[22:32,h]; 1.0/200. * abun_col[h] * rhogas_col[h]
-;npop[51:75,h] = 1.0/600. * abun_col[h] * rhogas_col[h]
-;ENDFOR
-;FOR h=0,np-1 DO BEGIN
-;   Ntot = TOTAL(npop[*,h])
-;   npop[*,h] = npop[*,h]/Ntot * abun_col[h] * rhogas_col[h] ;in cm^-3
-;ENDFOR
-;
+
 ;Avoid starting with populations that are too low (0s will make a
 ;singular jacobian)
-lsubs       = WHERE(npop LT 1d-30,lcount)
-IF lcount GT 0 THEN npop[lsubs] = 1d-30
+lsubs       = WHERE(npop LT 1d-10,lcount)
+IF lcount GT 0 THEN npop[lsubs] = 1d-10
 
 ;
 ;Save the initial level pops
@@ -140,13 +129,15 @@ FOR k=0,niter-1 DO BEGIN
       conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
       print, conv
       npop = npop_new
-      IF conv LT 1d-4 THEN BEGIN
+      IF conv LT 1d-3 THEN BEGIN
          PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
          BREAK
       ENDIF
       IF STATUS GT 0 THEN BEGIN
          PRINT, 'Warning: singular matrix detected!', STATUS
-         BREAK
+         frac = frac * 1.1
+         
+;         BREAK
       ENDIF
    ENDIF
 ENDFOR 

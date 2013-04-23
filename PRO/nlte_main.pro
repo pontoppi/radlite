@@ -21,7 +21,6 @@ IF ~KEYWORD_SET(jmax)     THEN jmax   = 10
 ; Read the continuum mean intensity
 ;
 mint   =  read_meanint()
-;mint.meanint = smooth(mint.meanint,10)
 np      = ddens.ntheta/2
 nu_cont = ddens.nu
 
@@ -82,7 +81,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
    JSED_col   = REFORM(mint.meanint[i,0:np-1,*])
    
    ;Change the input sampling to one that is optimal for the non-LTE calculation
-   ;optimal_sample, z_col, tgas_col, rhogas_col, abun_col, JSED_col
+   optimal_sample, z_col, tgas_col, rhogas_col, abun_col, JSED_col
 
    FOR h=0,np-1 DO BEGIN
       J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
@@ -143,7 +142,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
              collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
              np, npop, ini_npop, lte_npop
       
-      npop_all[*,*, i]    = npop
+      npop_all[*,*, i]    = ABS(npop)
       npop_ini_all[*,*,i] = ini_npop
       npop_lte_all[*,*,i] = lte_npop
       
