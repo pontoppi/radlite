@@ -1,4 +1,5 @@
-PRO make_problem_params, var_mdisk, var_mstar, var_tstar, var_rstar, var_gtd, var_plh, var_nphot, var_hrgrid
+PRO make_problem_params, var_mdisk=var_mdisk, var_mstar=var_mstar, var_tstar=var_tstar, var_rstar=var_rstar,$
+ var_gtd=var_gtd, var_plh=var_plh, var_nphot=var_nphot, var_hrgrid=var_hrgrid
 ;Mdisk is in units of Mstar
 ;Rstar is in units of Rsun
 ;Mstar is in units of Msun
@@ -17,13 +18,14 @@ IF KEYWORD_SET(var_tstar) THEN tstar=var_tstar
 IF KEYWORD_SET(var_gtd) THEN gastodust=var_gtd
 IF KEYWORD_SET(var_plh) THEN plh=var_plh
 IF KEYWORD_SET(var_nphot) THEN nphot=var_nphot
+IF KEYWORD_SET(var_hrgrid) THEN hrgrid=var_hrgrid
 
 openw,lun,'problem_params.pro',/get_lun
 printf, lun, 'imakedisk = '+STRING(imakedisk)
 printf, lun, ';-----------------------------------------'
-printf, lun, 'simser = "'+STRING(simser)+'"'
-printf, lun, 'simnr = "'+STRING(simnr)+'"'
-printf, lun, 'simweb = "'+STRING(simweb)+'"'
+printf, lun, "simser = '"+STRING(simser)+"'"
+printf, lun, "simnr = '"+STRING(simnr)+"'"
+printf, lun, "simweb = '"+STRING(simweb)+"'"
 printf, lun, ';-----------------------------------------'
 printf, lun, 'rstar = '+STRING(rstar)
 printf, lun, 'mstar = '+STRING(mstar)
