@@ -59,6 +59,7 @@ spawn,'cp -f '+kuruczdir+'interpolate_kurucz ./ >& /dev/null'
 ;
 ; Command line for the kurucz interpolator
 ;
+
 cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,1x,A10,A100)', $
                  Tstar,logg,0.0, "> flux.dat")+' '+kuruczdir
 spawn,cmd,out

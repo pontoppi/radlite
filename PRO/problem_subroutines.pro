@@ -1,3 +1,87 @@
+;---------------------------------------------------------------------------------------
+; Compute the volume of the gridcells in the midplane for the
+; accretion routine
+;---------------------------------------------------------------------------------------
+function compute_vol
+
+;
+; Read the R grid
+;
+openr, 1, 'radius.inp'
+readf, 1, irsi_frsizex
+rr = dblarr(irsi_frsizex)
+readf, 1, rr
+close, 1
+
+rsi_x_c = dblarr(irsi_frsizex+4)
+rsi_x_c(2:irsi_frsizex+1) = rr
+;
+; The boundaries
+; 
+rsi_x_c(1) = rsi_x_c(2)^2d0 / rsi_x_c(3)
+rsi_x_c(0) = rsi_x_c(1)^2d0 / rsi_x_c(2)
+rsi_x_c(irsi_frsizex+2) = rsi_x_c(irsi_frsizex+1)^2. / rsi_x_c(irsi_frsizex)
+rsi_x_c(irsi_frsizex+3) = rsi_x_c(irsi_frsizex+2)^2. / rsi_x_c(irsi_frsizex+1)
+;
+; The cell interfaces
+;
+rsi_x_i = dblarr(irsi_frsizex+3)
+for ix=1, irsi_frsizex+3 do begin
+   rsi_x_i(ix-1) = sqrt(rsi_x_c(ix)*rsi_x_c(ix-1))
+endfor
+r_i = rsi_x_i(1:irsi_frsizex+1)
+;
+; Read the Theta grid
+; 
+openr, 1, 'theta.inp'
+readf, 1, irsi_frsizey, imirt
+itmax = irsi_frsizey
+dum = dblarr(irsi_frsizey)
+readf, 1, dum
+close, 1
+rsi_x_c = dblarr(2*itmax+4)
+rsi_x_c(2:itmax+1) = dum
+;
+; Do the mirroring
+;
+if imirt ne 0 then begin
+   irsi_frsizey = 2 * irsi_frsizey
+   for iy=0, itmax-1 do begin
+      rsi_x_c(2*itmax+1-iy) = !dpi - rsi_x_c(iy+2)
+   endfor
+endif
+;
+; The boundaries
+; 
+rsi_x_c(1) = - rsi_x_c(2)
+rsi_x_c(0) = - rsi_x_c(3)
+rsi_x_c(irsi_frsizey+2) = 2d0 * !dpi - rsi_x_c(irsi_frsizey+1)
+rsi_x_c(irsi_frsizey+3) = 2d0 * !dpi - rsi_x_c(irsi_frsizey)
+
+rsi_x_i = dblarr(irsi_frsizey+3)
+for iy=1, irsi_frsizey+2 do begin
+   rsi_x_i(iy-1) = 0.5d0 * (rsi_x_c(iy-1) + rsi_x_c(iy))
+endfor
+
+t_i = rsi_x_i(1:2*itmax+1)
+
+nri = n_elements(r_i)
+nti = n_elements(t_i)
+ii = (nti-1)/2+1
+;
+; Calculate the volume of the grid cells
+; 
+vol = dblarr(n_elements(r_i)-1)
+for ir=0, nri-2 do begin
+   vol(ir) = (1d0/3d0) * (2d0 * !dpi) * (r_i(ir+1)^3d0 - r_i(ir)^3d0) * $
+              abs(cos(t_i(ii-2)) - cos(t_i(ii-1)))
+endfor
+;
+; The end
+;
+return, {vol:vol, r_i:r_i, t_i:t_i}
+end
+
 ;------------------------------------------------------------------------
 ;                   FIND PEAK OF STELLAR RADIATION 
 ;

@@ -134,7 +134,8 @@ FOR k=0,niter-1 DO BEGIN
       ENDWHILE
    ENDFOR
    
-   highsubs = WHERE(npop GT 10.,highcount)
+   highsubs = WHERE(npop_new GT 10.,highcount)
+   
    IF highcount GT 0 THEN BEGIN
       conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
       print, conv

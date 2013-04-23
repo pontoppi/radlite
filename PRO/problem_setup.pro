@@ -85,6 +85,14 @@ simpledisk_vertstruct,rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
          imakedisk=imakedisk,run=run,hrstore=hrstore,$
          thintin=thintin,tt=tt,radius=r,theta=theta,bindir=bindir,$
          dostr=dostr,ref2=ref2
+
+;
+;Added the accretion description of Nikoletta Sipos. If there is time
+;as some point, this should be cleaned up and implemented as a proper subroutine
+;
+if do_acc eq 1 then begin
+ @problem_accretion.pro
+endif
 ;
 ; Write a data file with the names simser,simnr,simweb
 ;
@@ -93,26 +101,5 @@ printf,1,simser
 printf,1,simnr
 printf,1,simweb
 close,1
-;
-; Make plots and write info
-;
-if show eq 1 then begin
-   pos = [0.1,0.55,0.95,0.95]
-   xtitle = 'R [AU]'
-   ytitle = '!4p!X/2-!4H!X = H/R'
-   nnt = n_elements(theta)
-   window,1,xsize=800,ysize=700
-   !p.multi(2)=2
-;   surface,tt.taur gt 1,r,theta,/xl,ax=50,/xs,/ys
-   surface,tt.taur gt 1,r/au,!pi/2-theta,/xl,ax=90,az=0,/xs,/ys,position=pos,xtitle=xtitle,ytitle=ytitle
-   contour,tt.taur gt 1,r/au,!pi/2-theta,/xl,/xs,/ys,position=pos,/noerase,/fill,$
-          title='Grid and the !4s!X!DV!N>1 region'
-;   surface,tt.taur gt 1,r/au,!pi/2-theta,xtitle=xtitle,ytitle=ytitle,/xl,ax=90,az=0,/xs,/ys,position=pos,/noerase
-   plot,tt.taur(0:20,nnt-1),yrange=[0,6],psym=6,yminor=1,yticks=6,$
-            xtitle='Radial grid points from inner edge',$ 
-            ytitle='!4s!X!DV!N at midplane'
-   oplot,tt.taur(0:20,nnt-1)
-   !p.multi(2)=1
-endif
-;
+
 end

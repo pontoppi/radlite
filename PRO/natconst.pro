@@ -16,3 +16,6 @@ TS     = 5.78d3
 RG     = 8.3144d7
 mu     = 2.3
 amu    = 1.6605402d-24
+year   = 3.1536d7       ; Year                    [s]
+hour   = 3.6000d3       ; Hour                    [s]
+day    = 8.64d4         ; Day                     [s]

@@ -8,7 +8,7 @@ c#define LINE_FREQDEP_DUST
 #define SUBGRID
 #define COORD_SPHERICAL
 #define ESC_MINIMAL_EXTENSION 
-#define FRSIZE_X      150
+#define FRSIZE_X      210
 #define FRSIZE_Y      250
 #define FRSIZE_FREQ      401
 #define FRSIZE_MU   43
