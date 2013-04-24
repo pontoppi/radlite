@@ -12,7 +12,7 @@
 ; original model, the coarse-freq-grid version and the corresponding 
 ; blackbody curve, this can be done with 'silent=0'.
 ;-------------------------------------------------------------------------
-pro kurucz,tstar,lstar,mstar,model=model,silent=silent,worig=worig,$
+pro kurucz,tstar,rstar,lstar,mstar,model=model,silent=silent,worig=worig,$
                kuruczdir=kuruczdir
 ;
 ; Defaults
@@ -46,7 +46,7 @@ close,1
 ;
 ; Compute certain quantities for the star
 ; 
-Rstar = sqrt(Lstar/4./!DPI/ss/Tstar^4)
+;Rstar = sqrt(Lstar/4./!DPI/ss/Tstar^4)  ;changed by ACL 4/24/2013
 logg = alog10(GG*Mstar/Rstar^2)
 ;
 ; First clear possible old files
@@ -59,7 +59,7 @@ spawn,'cp -f '+kuruczdir+'interpolate_kurucz ./ >& /dev/null'
 ;
 ; Command line for the kurucz interpolator
 ;
-
+print,'kd'+kuruczdir,Tstar,logg
 cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,1x,A10,A100)', $
                  Tstar,logg,0.0, "> flux.dat")+' '+kuruczdir
 spawn,cmd,out
