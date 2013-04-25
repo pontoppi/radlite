@@ -44,7 +44,6 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
                                  var_plh=hrpl[k],var_mstar=mstar[l],$
                                  var_tstar=tstar[l],var_rstar=rstar[l],var_hrgrid=hrgrid
             problem_setup
-            wait,2.0
             spawn,'radmc'
             FOR a=0,N_ELEMENTS(isot)-1 DO BEGIN
                count=count+1
@@ -64,11 +63,11 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
                ENDIF
             ENDFOR
             IF KEYWORD_SET(save_radmc) THEN BEGIN
-               spawn, 'cp problem_params.pro '+run_dir
-               spawn, 'cp meanint_radmc.dat '+run_dir
-               spawn, 'cp scatsource.dat '+run_dir
-               spawn, 'cp dusttemp_final.dat '+run_dir
-               spawn, 'cp spectrum_all.dat '+run_dir
+               spawn, 'cp problem_params.pro '+rundir
+               spawn, 'cp meanint_radmc.dat '+rundir
+               spawn, 'cp scatsource.dat '+rundir
+               spawn, 'cp dusttemp_final.dat '+rundir
+               spawn, 'cp spectrum_all.dat '+rundir
             ENDIF
 
          ENDFOR
