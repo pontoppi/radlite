@@ -8,7 +8,7 @@
 ;run_dirs - returns a named array of the run directories
 ;=======================================================
 
-PRO grid_radmc, clobber=clobber, run_dirs=run_dirs, save_radmc=save_radmc, run_table=run_table, obsres=obsres
+PRO grid_radmc, clobber=clobber, save_radmc=save_radmc, run_table=run_table, obsres=obsres
 
 IF KEYWORD_SET(clobber) THEN spawn, 'rm -rf grid_*'
 IF ~KEYWORD_SET(obsres) THEN obsres=300
@@ -22,7 +22,7 @@ hrgrid=[.4]
 hrpl=[1./7.];[0.,1./7.,2./7.]
 mstar=[1.0];[0.1,0.5,1.0]
 rstar=[2.0]
-tstar=[4275]
+tstar=[4275.0]
 isot=[51]
 maxabun=[1d-4]
 minabun=[1d-4]
