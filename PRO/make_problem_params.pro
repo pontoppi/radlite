@@ -80,6 +80,10 @@ printf, lun, ';-----------------------------------------'
 printf, lun, 'rpfrin = '+STRING(rpfrin)
 printf, lun, 'hrpuff = '+STRING(hrpuff)
 printf, lun, ';-----------------------------------------'
+printf, lun, 'env = '+STRING(env)
+printf, lun, 'csenv = '+STRING(csenv)
+printf, lun, 'time = '+STRING(time)
+printf, lun, ';-----------------------------------------'
 printf, lun, 'nphot = '+STRING(nphot)
 printf, lun, 'npdiff = '+STRING(npdiff)
 printf, lun, 'errtol = '+STRING(errtol)

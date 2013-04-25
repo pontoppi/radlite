@@ -5,9 +5,9 @@
 ;==========================================================================
 @problem_models.pro
 @problem_mixopacities.pro
-@problem_natconst.pro
 ;
-close,/all
+PRO problem_setup
+@natconst.pro
 ;
 ; Checks
 ;
@@ -126,4 +126,4 @@ if show eq 1 then begin
    !p.multi(2)=1
 endif
 
-end
+END

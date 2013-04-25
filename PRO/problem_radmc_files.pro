@@ -72,7 +72,7 @@ nf     = n_elements(o.freq)
 ;
 if keyword_set(kurucz) then begin
    lstar = LS * (rstar/RS)^2 * (tstar/TS)^4
-   kurucz,tstar,lstar,mstar,/worig,kuruczdir=kurdir
+   kurucz,tstar,rstar,lstar,mstar,/worig,kuruczdir=kurdir
 endif else begin
    openw,1,'starspectrum.inp'
    printf,1,nf

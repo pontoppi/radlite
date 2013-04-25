@@ -1,4 +1,4 @@
-PRO make_line_params,var_max_abun=var_max_abun,var_min_abun=var_min_abun,var_fr_temp=var_fr_temp
+PRO make_line_params,var_max_abun=var_max_abun,var_min_abun=var_min_abun,var_fr_temp=var_fr_temp,var_gtd=var_gtd,var_isot=var_isot
 
 IF file_test('line_params_fixed.ini') THEN BEGIN
    @line_params_fixed.ini
@@ -9,6 +9,8 @@ ENDELSE
 IF KEYWORD_SET(var_max_abun) THEN max_abun=var_max_abun
 IF KEYWORD_SET(var_min_abun) THEN min_abun=var_min_abun
 IF KEYWORD_SET(var_fr_temp) THEN fr_temp=var_fr_temp
+IF KEYWORD_SET(var_gtd) THEN gtd=var_gtd
+IF KEYWORD_SET(var_isot) THEN isot=var_isot
 
 openw,lun,'line_params.ini',/get_lun
 printf, lun, 'main_path = "'+main_path+'"'
