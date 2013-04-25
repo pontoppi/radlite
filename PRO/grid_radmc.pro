@@ -16,10 +16,10 @@ IF ~KEYWORD_SET(run_table) THEN run_table='run_table.fits'
 
 ;fr_temps = [1.,50.,100.,150.,200.,250.]
 
-mdisk=[1d-3];[1d-1,1d-2,1d-3,1d-4]
-g2d=[1d3];[1d2,1d3,1d4]
+mdisk=[1d-2,1d-3]
+g2d=[1d3]
 hrgrid=[.4]
-hrpl=[1./7.];[0.,1./7.,2./7.]
+hrpl=[1./7.,2./7.]
 mstar=[1.0];[0.1,0.5,1.0]
 rstar=[2.0]
 tstar=[4275.0]
@@ -43,6 +43,7 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
             make_problem_params, var_mdisk=mdisk[i],var_gtd=g2d[j],$
                                  var_plh=hrpl[k],var_mstar=mstar[l],$
                                  var_tstar=tstar[l],var_rstar=rstar[l],var_hrgrid=hrgrid
+            RESOLVE_ROUTINE, ['problem_setup']
             problem_setup
             spawn,'radmc'
             FOR a=0,N_ELEMENTS(isot)-1 DO BEGIN
@@ -64,10 +65,10 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
             ENDFOR
             IF KEYWORD_SET(save_radmc) THEN BEGIN
                spawn, 'cp problem_params.pro '+rundir
-               spawn, 'cp meanint_radmc.dat '+rundir
-               spawn, 'cp scatsource.dat '+rundir
-               spawn, 'cp dusttemp_final.dat '+rundir
-               spawn, 'cp spectrum_all.dat '+rundir
+               spawn, 'mv meanint_radmc.dat '+rundir
+               spawn, 'mv scatsource.dat '+rundir
+               spawn, 'mv dusttemp_final.dat '+rundir
+               spawn, 'mv spectrum_all.dat '+rundir
             ENDIF
 
          ENDFOR
