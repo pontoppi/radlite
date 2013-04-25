@@ -167,17 +167,24 @@ FOR iii=0,ncores-1 DO BEGIN
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3
     ENDELSE
 ENDFOR
+
+;
+;Check for RADlite processes still running
+IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
+   WHILE 1 DO BEGIN
+      spawn, 'ps cax | grep RADlite', radlite_running
+      print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
+      IF radlite_running[0] EQ '' THEN BREAK
+      wait, 2.0
+   ENDWHILE
+ENDIF ELSE BEGIN
+   wait, wait_time
+ENDELSE
+
 ;
 ;Now save the result
 ;
 ;Copy the model setup parameters
-
-IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
-   PRINT, 'Make sure all processes are complete, then type .c to finish'
-   stop
-ENDIF ELSE BEGIN
-   wait, wait_time
-ENDELSE
 
 spawn, 'cp problem_params.pro '+rundir+'/.'
 spawn, 'cp line_params.ini '+rundir+'/.'
