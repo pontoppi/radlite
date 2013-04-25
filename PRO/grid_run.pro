@@ -29,7 +29,7 @@ FOR i=0,N_ELEMENTS(fr_temps)-1 DO BEGIN
       ;We need to recompile all routines that inline line_params.ini
       RESOLVE_ROUTINE, ['line_run','problem_lines','lamda_extract_lines','make_abundance',$
                         'make_turbulence','make_velocity','nlte_main','xray_abundance']
-      line_run, run_name='grid',wait_time=60.,rundir=rundir
+      line_run, run_name='grid',rundir=rundir
       run_par = {dir:rundir,fr_temp:fr_temps[i],g2d:g2d[j]}
       run_pars = [run_pars,run_par]
       cd, rundir
