@@ -16,13 +16,14 @@ IF ~KEYWORD_SET(run_table) THEN run_table='run_table.fits'
 
 ;fr_temps = [1.,50.,100.,150.,200.,250.]
 
-mdisk=[1d-2,1d-3]
-g2d=[1d3]
-hrgrid=[.4]
-hrpl=[1./7.,2./7.]
-mstar=[1.0];[0.1,0.5,1.0]
-rstar=[2.0]
-tstar=[4275.0]
+mdisk=[1d-1,1d-2,1d-3,1d-4]
+g2d=[1d2,1d3,1d4]
+hrgrid=[.5,.43,.38,.32]
+nphot=[2500000,2000000,1000000,1000000]
+hrpl=[0,1./7.,2./7.]
+mstar=[0.1,0.5,1.0]
+rstar=[1.0,1.5,2.0]
+tstar=[2935.0,3765.0,4275.0]
 isot=[51]
 maxabun=[1d-4]
 minabun=[1d-4]
@@ -42,7 +43,8 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
             print,i,j,k,l
             make_problem_params, var_mdisk=mdisk[i],var_gtd=g2d[j],$
                                  var_plh=hrpl[k],var_mstar=mstar[l],$
-                                 var_tstar=tstar[l],var_rstar=rstar[l],var_hrgrid=hrgrid
+                                 var_tstar=tstar[l],var_rstar=rstar[l],$
+                                 var_hrgrid=hrgrid[i],var_nphot=nphot[i]
             RESOLVE_ROUTINE, ['problem_setup']
             problem_setup
             spawn,'radmc'
@@ -55,12 +57,12 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
                                 ;We need to recompile all routines that inline line_params.ini
                   RESOLVE_ROUTINE, ['line_run','problem_lines','lamda_extract_lines','make_abundance',$
                                     'make_turbulence','make_velocity','nlte_main','xray_abundance']
-                  line_run, run_name='grid',wait_time=60.,rundir=rundir
+                  line_run, run_name='grid',rundir=rundir
                   run_par = {dir:rundir,mdisk:mdisk[i],g2d:g2d[j],plh:hrpl[k],mstar:mstar[l]}
                   IF count EQ 1 THEN run_pars=run_par ELSE run_pars = [run_pars,run_par]
-                  cd, rundir
-                  genspec, obsres=obsres
-                  cd, '..'
+                  ;cd, rundir
+                  ;genspec, obsres=obsres
+                  ;cd, '..'
                ENDIF
             ENDFOR
             IF KEYWORD_SET(save_radmc) THEN BEGIN
