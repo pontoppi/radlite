@@ -5,7 +5,7 @@
 ;===================================================
 
 PRO optimal_sample, z_col,tgas_col,rhogas_col,abun_col,JSED_col
-
+stop
 nf = (SIZE(JSED_col))[2]
 
 sg_filter = SAVGOL(3, 3, 0, 2)
