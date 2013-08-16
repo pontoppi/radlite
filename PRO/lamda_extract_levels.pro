@@ -104,8 +104,8 @@ FOR p=0,mol.nr_coll_partners-1 DO BEGIN
       'o-H2' : collrates[*,*,p] *= (OPR/(OPR+1.)) ;weighted ortho-H2 rates
       'H2'   : collrates[*,*,p] *= 1d0            ;do nothing
       'He'   : collrates[*,*,p] *= 0.2            ;cosmic abundance relative to number of H2 molecules
-      'H'    : collrates[*,*,p] *= 1d-5           ;collisions with H
-      'e-'   : collrates[*,*,p] *= 1d-5           ;collisions with electrons
+      'H'    : collrates[*,*,p] *= 1d-3           ;collisions with H
+      'e-'   : collrates[*,*,p] *= 1d-3           ;collisions with electrons
       ELSE   : BEGIN
          PRINT, 'Unknown collision partner: ', partner_string
          STOP
