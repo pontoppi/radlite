@@ -5,9 +5,9 @@
 ;==========================================================================
 @problem_models.pro
 @problem_mixopacities.pro
-@problem_natconst.pro
 ;
-close,/all
+PRO problem_setup
+@natconst.pro
 ;
 ; Checks
 ;
@@ -85,6 +85,16 @@ simpledisk_vertstruct,rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
          imakedisk=imakedisk,run=run,hrstore=hrstore,$
          thintin=thintin,tt=tt,radius=r,theta=theta,bindir=bindir,$
          dostr=dostr,ref2=ref2
+
+;
+;Added the accretion description of Nikoletta Sipos. If there is time
+;as some point, this should be cleaned up and implemented as a proper subroutine
+;
+if N_ELEMENTS(do_acc) gt 0 then begin
+   if do_acc then begin
+      @problem_accretion.pro
+   endif
+endif
 ;
 ; Write a data file with the names simser,simnr,simweb
 ;
@@ -93,6 +103,7 @@ printf,1,simser
 printf,1,simnr
 printf,1,simweb
 close,1
+
 ;
 ; Make plots and write info
 ;
@@ -114,5 +125,5 @@ if show eq 1 then begin
    oplot,tt.taur(0:20,nnt-1)
    !p.multi(2)=1
 endif
-;
-end
+
+END

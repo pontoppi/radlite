@@ -122,8 +122,8 @@ case fresmd of
    end
    31: begin            ; For the crystalline features
       lambda0  = 1d4
-      lambda1  = 75.0
-      lambda2  = 8.0
+      lambda1  = 40.0
+      lambda2  = 5.0
       lambda3  = 0.1  
       nfrnew01 = 20
       nfrnew12 = 200

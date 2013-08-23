@@ -111,7 +111,7 @@ IF gas_decoup NE 0 THEN BEGIN
 ;      stop
 ;   ENDIF
 ENDIF ELSE BEGIN
-   make_abundance,abun_str,fr_temp=fr_temp,PT_rel=PT_rel,abun=abun
+   make_abundance,abun_str,PT_rel=PT_rel,abun=abun
 ENDELSE
 
 ;====================================

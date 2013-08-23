@@ -53,9 +53,9 @@ npop_ini_all = DBLARR(nlevels, np, ddens.nr)
 npop_lte_all = DBLARR(nlevels, np, ddens.nr)
 
 
-npop           = DBLARR(nlevels*np)
-ini_npop       = DBLARR(nlevels*np)
-lte_npop       = DBLARR(nlevels*np)
+npop           = DBLARR(nlevels,np)
+ini_npop       = DBLARR(nlevels,np)
+lte_npop       = DBLARR(nlevels,np)
 
 IF KEYWORD_SET(parallel) THEN BEGIN
    bridges        = build_bridges(ncores)
@@ -79,6 +79,9 @@ FOR i=0,ddens.nr-1 DO BEGIN
    rhogas_col = REFORM(rhogas[i,0:np-1])/(mu*mp)
    abun_col   = REFORM(abun[i,0:np-1])
    JSED_col   = REFORM(mint.meanint[i,0:np-1,*])
+   
+   ;Change the input sampling to one that is optimal for the non-LTE calculation
+   optimal_sample, z_col, tgas_col, rhogas_col, abun_col, JSED_col
 
    FOR h=0,np-1 DO BEGIN
       J_col[*,h] = INTERPOL(JSED_col[h,*],nu_cont/cc,freq)
@@ -139,7 +142,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
              collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, $
              np, npop, ini_npop, lte_npop
       
-      npop_all[*,*, i]    = npop
+      npop_all[*,*, i]    = ABS(npop)
       npop_ini_all[*,*,i] = ini_npop
       npop_lte_all[*,*,i] = lte_npop
       

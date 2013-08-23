@@ -23,7 +23,7 @@
 @lamda_extract_levels
 @make_levelpop
 
-PRO line_run, run_name=run_name
+PRO line_run, run_name=run_name, wait_time=wait_time, look_for_lpop_file=look_for_lpop_file, rundir=rundir
 @natconst.pro
 @line_params.ini
 
@@ -140,7 +140,7 @@ FOR iii=0,ncores-1 DO BEGIN
     run_nlte = -1
     IF iii EQ 0 THEN BEGIN
        it_is_there = FILE_TEST('levelpop_nlte.fits')
-       IF it_is_there THEN BEGIN
+       IF it_is_there AND KEYWORD_SET(look_for_lpop_file) THEN BEGIN
           PRINT, 'Existing level population file found - do you want to use it?'
           answer=' '
           WHILE run_nlte EQ -1 DO BEGIN
@@ -161,21 +161,30 @@ FOR iii=0,ncores-1 DO BEGIN
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log&'
-       wait, 10.
+       wait, 3.
     ENDIF ELSE BEGIN
        print, 'spawning foreground process for core: ',iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3
     ENDELSE
 ENDFOR
+
+;
+;Check for RADlite processes still running
+IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
+   WHILE 1 DO BEGIN
+      spawn, 'ps cax | grep RADlite', radlite_running
+      print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
+      IF radlite_running[0] EQ '' THEN BREAK
+      wait, 2.0
+   ENDWHILE
+ENDIF ELSE BEGIN
+   wait, wait_time
+ENDELSE
+
 ;
 ;Now save the result
 ;
 ;Copy the model setup parameters
-
-IF ncores GT 1 THEN BEGIN
-   PRINT, 'Make sure all processes are complete, then type .c to finish'
-   stop
-ENDIF
 
 spawn, 'cp problem_params.pro '+rundir+'/.'
 spawn, 'cp line_params.ini '+rundir+'/.'

@@ -29,7 +29,7 @@ FOR i=0,m.nlines-1 DO BEGIN
    ;coefficients - note that the
    ;subscripts follow the
    ;IDL column/row matrix indexing
-
+   
    R_arr[m.idown[i]-1,m.iup[i]-1,*] = m.Aul[i]*Pesc_arr[i,*] + m.Bul[i]*Ppump_arr[i,*]*col.J[i,*]  ;Rul
    R_arr[m.iup[i]-1,m.idown[i]-1,*] = m.Blu[i]*Ppump_arr[i,*]*col.J[i,*]                         ;Rlu   
 ENDFOR

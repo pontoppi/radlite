@@ -7,7 +7,7 @@
 ;1) Alpha-viscosity turbulence
 ;
 
-PRO make_abundance,atype, fr_temp=fr_temp,PT_rel=PT_rel,abun=abun,tgas=tgas
+PRO make_abundance,atype, PT_rel=PT_rel,abun=abun,tgas=tgas
 
 @natconst.pro
 @line_params.ini
@@ -15,16 +15,6 @@ PRO make_abundance,atype, fr_temp=fr_temp,PT_rel=PT_rel,abun=abun,tgas=tgas
 iformat=1
 
 gamma  = 1.4 ;Adiabatic constant for a diatomic gas
-
-IF NOT KEYWORD_SET(max_abun) THEN BEGIN
-   PRINT, 'No molecular abundance given, assuming 2.3e-4'
-   max_abun = 2d-4
-ENDIF
-IF NOT KEYWORD_SET(fr_temp) THEN BEGIN
-   PRINT, 'No freeze-out temperature given, assuming 110 K.'
-   fr_temp = 110.
-ENDIF
-
 
 Tstruct = read_temperature()
 Dstruct = read_density()
@@ -52,7 +42,7 @@ CASE atype OF
         abun = fltarr(nr,nt)
         abun[*] = max_abun
         fsubs = WHERE(T lt fr_temp)
-        IF fsubs[0] NE -1 THEN abun[fsubs] = 1d-8
+        IF fsubs[0] NE -1 THEN abun[fsubs] = min_abun
         abun_collpartner = 0.d0
     END
     4: BEGIN                    ;Density-dependent freeze-out temperature
@@ -94,7 +84,7 @@ CASE atype OF
        IF subs[0] NE -1 THEN abun[subs] = min_abun
        abun_collpartner = 0.d0
        IF KEYWORD_SET(coldfinger) THEN BEGIN
-          IF VERBOSE THEN PRINT, 'Vertical cold finger effect activated!'
+          IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Vertical cold finger effect activated!'
 
           mp_snowline = MAX(WHERE(a_h2o_freeze[*,nt/2] EQ 0))+1
           IF mp_snowline[0] EQ -1 THEN BEGIN

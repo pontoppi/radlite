@@ -1,7 +1,10 @@
 .DS_Store
+RADLITE/RADlite
+RADLITE/RADlite_imcir
 
 # use glob syntax.
 syntax: glob
 
 RUN_EXAMPLE_EMBEDDED/*.dat
 RUN_EXAMPLE_PPDISK/*.dat
+*.o

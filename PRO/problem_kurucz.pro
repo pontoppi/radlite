@@ -17,6 +17,7 @@ pro kurucz,tstar,lstar,mstar,model=model,silent=silent,worig=worig,$
 ;
 ; Defaults
 ;
+
 if n_elements(kuruczdir) eq 0 then begin
    kuruczdir = '/home/dullemon/science/kurucz/'
 endif
@@ -45,7 +46,7 @@ close,1
 ;
 ; Compute certain quantities for the star
 ; 
-Rstar = sqrt(Lstar/4./!DPI/ss/Tstar^4)
+Rstar = sqrt(Lstar/4./!DPI/ss/Tstar^4)  
 logg = alog10(GG*Mstar/Rstar^2)
 ;
 ; First clear possible old files
@@ -58,10 +59,8 @@ spawn,'cp -f '+kuruczdir+'interpolate_kurucz ./ >& /dev/null'
 ;
 ; Command line for the kurucz interpolator
 ;
-cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,A10)', $
-                 Tstar,logg,0.0, $
-                 "> flux.dat")+' '+kuruczdir
-
+cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,1x,A10,A100)', $
+                 Tstar,logg,0.0, "> flux.dat")+' '+kuruczdir
 spawn,cmd,out
 ;
 ; Read the flux from the Kurucz interpolator

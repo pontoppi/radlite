@@ -10,7 +10,8 @@
 
 PRO telsim, lineposvel,lineposvel_small=lineposvel_small,dist=dist,$
             telescope=telescope,outname=outname,psf=psf,vsamp=vsamp,$
-            slitwidth=slitwidth,specres=specres
+            slitwidth=slitwidth,specres=specres,noiseless=noiseless,$
+            add_model=add_model
 @natconst.pro
 
 IF NOT KEYWORD_SET(slitwidth) THEN slitwidth = 0.2 ;arcsec
@@ -35,7 +36,7 @@ CASE telescope OF
    'EELT_CO' : BEGIN
       eltpix  = 0.0086          ;arcsec
       eltres  = 0.034           ;arcsec
-      sigma   = 1.20*1d-4       ;Jy/beam
+      sigma   = 1.20*1d-4/2.       ;Jy/beam
    END
    'EELT_N' : BEGIN
       eltpix  = 0.0172          ;arcsec
@@ -97,9 +98,6 @@ IF KEYWORD_SET(lineposvel_small) THEN BEGIN
    xpixsize_s = info_s.xgrid[1]-info_s.xgrid[0]
    ypixsize_s = info_s.ygrid[1]-info_s.ygrid[0]
    freq_hz_s  = info_s.nu0
-;   xpixsize_s = sxpar(hdr,'xpix')
-;   ypixsize_s = sxpar(hdr,'ypix')
-;   freq_hz_s  = sxpar(hdr,'freq')
    
    IF xpixsize NE ypixsize THEN BEGIN
       PRINT, 'Non-square pixels not yet supported!'
@@ -151,6 +149,12 @@ kernel_int = FREBIN(kernel,ROUND(nk*factor),ROUND(nk*factor))
 error = abs(1-ROUND(nk*factor)/(nk*factor))
 print, 'Kernel rebin error: ', error*100, '%'
 kernel_int = kernel_int/total(kernel_int)
+
+size_im     = (SIZE(a[*,*,0]))[1]
+size_kernel = (SIZE(kernel_int))[1]
+IF size_im LT size_kernel THEN BEGIN
+   kernel_int = kernel_int[(size_kernel-size_im)/2:(size_kernel+size_im)/2,(size_kernel-size_im)/2-1:(size_kernel+size_im)/2-1]
+ENDIF
  
 ;
 ;Rebin to ELT pixels
@@ -195,12 +199,36 @@ ENDIF ELSE BEGIN
    velo = info.velo
 ENDELSE
 
+;There is an option to add a noiseless model cube at this point. The
+;original purpose was to add a planet calculation. It is the users
+;responsibility that the added model flux cube actually makes sense.
+IF KEYWORD_SET(add_model) THEN BEGIN
+   xoff = 30
+   yoff = 0
+   fsh  = 5
+   add_data = MRDFITS(add_model)
+   add_data = SHIFT(add_data,0,0,fsh)
+   nf_add = (SIZE(add_data))[3]
+   nx_add  = (SIZE(add_data))[1]
+   ny_add  = (SIZE(add_data))[2]
+   IF nf_add NE nf THEN BEGIN
+      print, 'Shape of added model cube does not match!'
+      stop
+   ENDIF
+   im_elt[(n_elt_pix-nx_add)/2+xoff:(n_elt_pix+nx_add)/2+xoff-1,(n_elt_pix-ny_add)/2+yoff:(n_elt_pix+ny_add)/2+yoff-1,*] $
+      += add_data
+
+ENDIF
+
 FOR i=0,nf-1 DO BEGIN
    ;
    ;Add noise
-   ns = randomn(seed,n_elt_pix,n_elt_pix) * $
-        sigma/(!pi*(eltres/2.)^2)
-   im_elt[*,*,i] = im_elt[*,*,i] + ns
+   IF ~KEYWORD_SET(noiseless) THEN BEGIN
+      ns = randomn(seed,n_elt_pix,n_elt_pix) * $
+           sigma/(!pi*(eltres/2.)^2)
+      im_elt[*,*,i] = im_elt[*,*,i] + ns
+   ENDIF
+
    ;
    ;and calculate line
    line[i] = total(im_elt[*,*,i])*eltpix^2.

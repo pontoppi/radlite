@@ -116,8 +116,6 @@ velos     = velos[uniqsubs,*]
 lines     = lines[uniqsubs,*]
 lcount    = N_ELEMENTS(uniqsubs)
 
-;lines     = lines[0:lcount-1,*]
-;velos     = velos[0:lcount-1,*]
 vel       = velos[0,*]
 res_el    = vel[1]-vel[0]
 N_vel     = LONG(2*Max_vel/res_el+1L)
@@ -144,8 +142,8 @@ FOR i=0L,lcount-1 DO BEGIN
     ;And then subtract the continuum
     line       = line - cont
 
-    line_int   = interpol([line[0],line,line[nfreq-1]],$
-                        [-max_vel,vel,max_vel],new_vel)
+    line_int    = INTERPOL([line[0],line,line[nfreq-1]],$
+                           [-max_vel,vel,max_vel],new_vel)
     lines_int[i,*,1] = line_int
 
     fnu       = cfreqs[i]
@@ -164,7 +162,6 @@ min_mu = MIN(c/cfreqs[gsubs])
 min_mu = min_mu - max_vel*1d9*min_mu/c
 ;
 ;Define new wavelength grid
-;n_x_all = FLOOR((max_mu-min_mu)/ ((min_mu+(max_mu-min_mu)/2d0) * reswidth*1d9/c))
 x_all   = dblarr(n_x_max)
 
 x_all[0] = min_mu

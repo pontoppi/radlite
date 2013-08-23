@@ -265,5 +265,5 @@ IF KEYWORD_SET(plotit) THEN BEGIN
    set_plot, 'x'
    @plot_clear.h
 ENDIF
-stop
+
 END

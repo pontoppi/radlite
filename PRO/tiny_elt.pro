@@ -38,8 +38,8 @@ IF tel eq 'Keck' THEN BEGIN
    nside   = 7.
 ENDIF
 IF tel eq 'VLT' THEN BEGIN
-   dd      = 0.03               ;cm
-   Rmirror = 412d0              ;cm
+   dd      = 0.03              ;cm
+   Rmirror = 370d0             ;cm
    Rinner  = 90d0              ;cm
    dseg    = 60.*sqrt(3)/2d0   ;125.574d0 ;cm
    nside   = 21.

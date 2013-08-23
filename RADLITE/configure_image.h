@@ -26,8 +26,8 @@ c#define LINE_FREQDEP_DUST
 #define MOLECULAR_DATA_DIR   '.'
 #define SZ_LINEPROFILE       401
 #define SZ_LINEPROFILE_SMALL 40
-#define SZ_NLINES            150
-#define SZ_NLEVELS           150
+#define SZ_NLINES            1000
+#define SZ_NLEVELS           1000
 #define SZ_NCOLTRANS         30
 #define SZ_NCTTEMP           10
 #define LINE_VELOCITIES

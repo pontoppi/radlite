@@ -21,8 +21,7 @@
 \begin{document}
 
 \title{RADLite manual (version 1.1)}
-\author{Klaus M. Pontoppidan (pontoppi@gps.caltech.edu)}
-\author{Alexandra C. Lockwood (alock@gps.caltech.edu)}
+\author{Klaus M. Pontoppidan (pontoppi@stsci.edu), Alexandra C. Lockwood (alock@gps.caltech.edu)}
 
 \maketitle
 
@@ -162,7 +161,7 @@ I wait for my run to complete). RADLite is thus made to start, say, 3 parallel p
 process resulting in the rendering of {\tt subN} lines is called a subrun. The specific lines that are rendered
 is determined by setting a wavelength range (using keywords {\tt min\_mu} and {\tt max\_mu}), as well as which molecule to actually render by specifying the hitran isotope code
 with {\tt isot}. If the total number of lines is 98 and subN is 20, RADLite will generate 5 separate runs; 4 with 20 lines and 1 with 18. With 3 cores made available, these runs will 
-take up 3 cores for the first three runs, followed by 2 cores for the final runs. 
+take up 3 cores for the first three runs, followed by 2 cores for the final runs.  If non-LTE is chosen, you must also specify the highest vibrational and rotational level to include in the calculation of statistical equilibrium, where the ground state is v=0.  Also, if you have several cores available you will want to parallelize the radial calculations, using the {\tt parallel} keyword.
 
 \item RADLite is executed using: \\
 {\tt IDL> .r line\_run}\\
@@ -178,47 +177,51 @@ you ran {\tt line\_run}. That way, you will not be overwriting previous runs.
 
 \end{itemize}
 
-\subsection{Flow Chart Of Routines}
+\subsection{Flow Chart and Description of Routines}
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{RADLite_flowchart_2012.pdf}
+\includegraphics[scale=0.6]{RADLite_flowchart_2012.pdf}
 \caption{Routines called during a run of RADlite.  The output is given in red for each routine.}
 \end{figure}
 
-\subsection{Description of Routines}
-
 \begin{itemize}
-
-\item{\tt lamda\_extract\_levels.pro}\\
-User inputs desired levels according to maximum vibrational and rotational level.  The levels are extracted from the molecular file as a whole, as are all transitions involving those levels.  All collisional transitions are weighted according to collisional partner abundance and interpolated onto one temperature grid, for interpolation in P.pro.
 
 \item {\tt hitran\_extract.pro}\\
 Extracts molecular information from HITRAN file and writes molecular data file.
 
+\item{\tt lamda\_extract\_levels.pro}\\
+User inputs desired levels according to maximum vibrational and rotational level.  The levels are extracted from the molecular file as a whole, as are all transitions involving those levels.  All collisional transitions are weighted according to collisional partner abundance and interpolated onto one temperature grid, for interpolation in P.pro.
+
 \item {\tt lamda\_extract\_lines.pro}\\
-Similar to {\tt hitran\_extract} except extracts data from LAMDA formatted file.
+Similar to {\tt hitran\_extract.pro} except extracts data from LAMDA formatted file.
 
 \item {\tt line\_run.pro}\\
-Breaks run down into sub-runs according to number of lines per run and number of cores allotted.  Calls {\tt problem\_lines} to create level population information and then the RADLite executable to generate spectra.
+Breaks into sub-runs and creates {\tt moldata\_\#.dat} for each.  Calls {\tt problem\_lines.pro} to create level population information and then calls the RADLite executable to generate spectra.  Each call of this routine creates a separate time-stamped directory for the output.
+
+\item{\tt make\_levelpop.pro}\\
+The level populations of the molecule are determined and stored in the levelpop\_moldata.dat files, with the meta data stored in levelpop.info.  If non-LTE has been selected, nlte\_main.pro is called, otherwise level populations are set to LTE using the temperature structure and partition sum that is calculated previously.
 
 \item{\tt nlte.pro}\\
-This program solves the equations of statistical equilibrium.  First, P.pro generates all the rate coefficients for the level transitions and then uses a Newton-Rhapson iteration to converge onto a solution for the level populations.  The user can set a convergence criteria as a maximum fractional difference between iterations.  
+This program solves the equations of statistical equilibrium.  First, {\tt P.pro} generates all the rate coefficients for the level transitions and then uses a Newton-Rhapson iteration to converge onto a solution for the level populations.  The user can set a convergence criteria as a maximum fractional difference between iterations.  
 
 \item{\tt nlte\_main.pro}\\
-The mean intensity field is read from the RADMC output and interpolated to the desired frequencies.  Also, if the user chooses to specify the number of levels to populate (using maximum v and j values), these levels and the associated transitions are selected.  The radii are then processed separately, either consecutively or in parallel using the build\_bridges function of IDL, and nlte.pro is called for each radius.  All the radii are combined at the end and the population file levelpop\_nlte.fits is created.
+The mean intensity field is read from the RADMC output and interpolated to the desired frequencies.  Also, if the user chooses to specify the number of levels to populate (using maximum v and j values from {\tt line\_params.ini}), these levels and the associated transitions are uniquely selected.  The radii are then processed separately, either consecutively or in parallel using the build\_bridges function of IDL, and {\tt nlte.pro} is called for each radius.  All the radii are combined at the end and the population file levelpop\_nlte.fits is created.
 
 \item{\tt P.pro}\\
-The optical depth along the vertical column is computed and used to calculate the probability of escape (Pesc.pro) and of being captured and pumping the lines (Ppump.pro).  These probabilities, along with the interpolated intensity field, the Einstein A and B coefficients, and the collisional rate coefficients, are used to calculate the rate of transitions between any two levels.  The output is an n by n matrix where n is the number of levels specified by the user.  The final row in the matrix is populated with the total abundance in the cell in order to conserve mass and constrain the solution.
+The optical depth along the vertical column is computed and used to calculate the probability of escape ({\tt Pesc.pro}) and of being captured and pumping the lines ({\tt Ppump.pro}).  These probabilities, along with the interpolated intensity field, the Einstein A and B coefficients, and the collisional rate coefficients, are used to calculate the rate of transitions between any two levels.  The output is an n by n matrix where n is the number of levels specified by the user.  The final row in the matrix is populated with the total abundance in the cell in order to conserve mass and constrain the solution.
+
+\item{\tt Pesc.pro}\\
+Calculates the escape probability at a given depth in the disk using the prescription described in Woitke et al.(2009).
+
+\item{\tt Ppump.pro}\\
+Same as {\tt Pesc.pro} but calculates the probability a photon will be re-absorbed, adding to the intensity field.
 
 \item {\tt problem\_lines.pro}\\
-Problem lines generates the gas structure input files including temperature, density, abundance, turbulence and velocity profiles, each gridded with height and radius in the disk.  The level populations of the molecule are determined and stored in the levelpop\_moldata.dat files, with the meta data stored in levelpop.info.  If non-LTE has been selected, nlte\_main.pro is called, otherwise level populations are set to LTE using the temperature structure and partition sum that was calculated previously.
+Problem lines generates the gas structure input files including temperature, density, abundance, turbulence and velocity profiles, each gridded with height and radius in the disk, and then calls {\tt make\_levelpop.pro}.
 
 \item{\tt read\_molecule\_lambda.pro}\\
 This routine reads the molecular information, including energy levels and radiative and collisional transition rates, from an input file and returns an easily manipulated package.
-
-\item {\tt write\_linespectrum\_inp}\\
-Writes linespectrum.inp file.
  
 \end{itemize}
 

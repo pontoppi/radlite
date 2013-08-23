@@ -88,7 +88,7 @@ ENDELSE
 ;according to Rowin's model, but the user asks for a different
 ;(and inconsistent!) abundance structure. If so, calculate the new
 ;abundance structure here.
-make_abundance,abun_str, fr_temp=fr_temp,PT_rel=PT_rel, abun=abun, tgas=tgas
+make_abundance,abun_str,PT_rel=PT_rel, abun=abun, tgas=tgas
 
 ;
 ;Now we can loop over each radius to produce all the excitation input
