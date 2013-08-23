@@ -31,14 +31,18 @@ ENDIF
 IF KEYWORD_SET(multiruns) THEN BEGIN
    FOR i=0,N_ELEMENTS(multiruns)-1 DO BEGIN
       spawn, 'ls '+multiruns[i]+'/linespectrum*.dat',linefiles_subrun
+      spawn, 'ls '+multiruns[i]+'/moldata_*.dat',molfiles_subrun
+
       IF linefiles_subrun[0] EQ '' THEN BEGIN
          PRINT, 'No files in specified subdirectory: ', multiruns[i]
          STOP
       ENDIF
       IF i NE 0 THEN BEGIN
          linefiles = [linefiles,linefiles_subrun]
+         molfiles  = [molfiles,molfiles_subrun]
       ENDIF ELSE BEGIN
          linefiles = linefiles_subrun
+         molfiles  = molfiles_subrun
       ENDELSE
    ENDFOR
    nfiles = N_ELEMENTS(linefiles)
@@ -46,8 +50,14 @@ ENDIF ELSE BEGIN
 ;
 ;Determine number of line spectrum files
    spawn, 'ls linespectrum_moldata_*.dat', linefiles
+   spawn, 'ls moldata_*.dat', molfiles
    nfiles = N_ELEMENTS(linefiles)
 ENDELSE
+
+IF nfiles NE N_ELEMENTS(molfiles) THEN BEGIN
+   PRINT, 'number of line files does not equal number of molecular data files!'
+   STOP
+ENDIF
 
 IF KEYWORD_SET(maxnfile) THEN nfiles = maxnfile
 
@@ -56,26 +66,49 @@ nlines = fltarr(nfiles)
 test_read = read_line(linefiles[0])
 nfreq  = test_read.nfreq
 
-lines  = dblarr(LMAX,nfreq)
-velos  = dblarr(LMAX,nfreq)
-cfreqs = dblarr(LMAX)
+lines   = dblarr(LMAX,nfreq)
+velos   = dblarr(LMAX,nfreq)
+cfreqs  = dblarr(LMAX)
+species = strarr(LMAX)
+trans   = strarr(LMAX)
+eupper  = dblarr(LMAX)
+aud     = dblarr(LMAX)
+gupper  = dblarr(LMAX)
+glower  = dblarr(LMAX)
+
+
 lcount = 0L
 
 FOR ff=0,nfiles-1 DO BEGIN
+   dum_mol = read_molecule_lambda(molfiles[ff])
    dum_str = read_line(linefiles[ff])
    dum_nl  = dum_str.nlines
    nfreq   = dum_str.nfreq
-   cfreqs[lcount:lcount+dum_nl-1]   = dum_str.cfreqs
+   cfreqs[lcount:lcount+dum_nl-1] = dum_str.cfreqs
+   trans[lcount:lcount+dum_nl-1]  = 'v='+STRCOMPRESS(dum_mol.lin_vib)+$
+                                    ' J='+STRCOMPRESS(dum_mol.lin_rot)
+   eupper[lcount:lcount+dum_nl-1] = dum_mol.eupper
+   aud[lcount:lcount+dum_nl-1]    = dum_mol.aud
+   gupper[lcount:lcount+dum_nl-1] = dum_mol.g[dum_mol.iup-1]
+   glower[lcount:lcount+dum_nl-1] = dum_mol.g[dum_mol.idown-1]
+
    FOR i=0,dum_nl-1 DO BEGIN
       velos[lcount+i,0:nfreq-1]  = dum_str.velo[*,i]
       lines[lcount+i,0:nfreq-1]  = dum_str.flux[*,i]
+      species[lcount+i]          = dum_mol.species
    ENDFOR
    lcount = lcount + dum_nl
 ENDFOR
 
 ;
 ;remove duplicate lines if present
-cfreqs = cfreqs[0:lcount-1]
+cfreqs  = cfreqs[0:lcount-1]
+trans   = trans[0:lcount-1]
+eupper  = eupper[0:lcount-1]
+aud     = aud[0:lcount-1]
+species = species[0:lcount-1]
+gupper  = gupper[0:lcount-1]
+glower  = glower[0:lcount-1]
 
 uniqsubs  = UNIQ(cfreqs, SORT(cfreqs))
 cfreqs    = cfreqs[uniqsubs]
@@ -91,7 +124,8 @@ N_vel     = LONG(2*Max_vel/res_el+1L)
 lines_int = fltarr(lcount, N_vel,2)
 new_vel   = 2*Max_vel*findgen(N_vel)/(N_vel-1)-Max_vel
 
-c_lines = fltarr(lcount)
+c_lines     = fltarr(lcount)
+line_fluxes = fltarr(lcount)
 
 specx = dblarr(lcount*N_vel)
 specy = dblarr(lcount*N_vel)
@@ -113,6 +147,12 @@ FOR i=0L,lcount-1 DO BEGIN
     line_int   = interpol([line[0],line,line[nfreq-1]],$
                         [-max_vel,vel,max_vel],new_vel)
     lines_int[i,*,1] = line_int
+
+    fnu       = cfreqs[i]
+    fnus      = (1.+vel*1d9/c)*fnu
+    
+    line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
+    line_fluxes[i] = line_flux
 ENDFOR
 
 ;
@@ -191,5 +231,7 @@ set_plot, 'x'
 
 mwrfits, dum, 'model.fits',/create
 mwrfits, {wave:x_all,spec:y_all,lines:l_only},'model.fits'
+mwrfits, {fluxes:line_fluxes,trans:trans,species:species,eupper:eupper,$
+          aud:aud,gupper:gupper,glower:glower},'model.fits'
 
 END
