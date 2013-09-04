@@ -203,6 +203,7 @@ FOR iii=0,ncores-1 DO BEGIN
    ENDIF
    IF image EQ 2 THEN BEGIN
       spawn, 'mv lineposvelcirc_moldata*.dat '+rundir+'/.'
+      spawn, 'mv linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
    ENDIF
    IF image EQ 1 THEN BEGIN
       FOR lj=1,nlines DO BEGIN

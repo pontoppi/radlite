@@ -17,7 +17,6 @@ IF NOT KEYWORD_SET(max_energy) THEN max_energy = 1d33
 c = 2.9979246d14 ;micron/s
 MAX_LINES = 3000000L
 
-
 freqrange = 1d4/lambdarange
 
 ISOT        = INTARR(MAX_LINES)
@@ -375,8 +374,12 @@ FOR i=0,N_ELEMENTS(FREQ)-1 DO BEGIN
 ;    levelu = WHERE(Eupper[i] EQ E_all AND Qp[i] EQ Q_all)
 ;    levell = WHERE(Elower[i] EQ E_all AND Qpp[i] EQ Q_all)
     levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 0.00001)
-    levell = WHERE(ABS(E_all-Elower[i])/(Elower[i]+0.1) LT 0.00001) ;+0.1 in case Elower is the E=0 ground level
-   
+    IF Elower[i] NE 0 THEN BEGIN
+       levell = WHERE(ABS(E_all-Elower[i])/Elower[i] LT 0.00001)
+    ENDIF ELSE BEGIN
+       levell = WHERE(E_all EQ 0.) 
+    ENDELSE
+    
 ;    IF (N_ELEMENTS(levelu) GT 1) OR (N_ELEMENTS(levell) GT 1) THEN STOP
 
     printf, lun,i+1,levelu[0]+1,levell[0]+1,A[i],FREQ[i],Eupper[i],vu[i],vl[i],Qp[i],Qpp[i],$
