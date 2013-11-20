@@ -25,7 +25,7 @@ ENDFOR
 set_plot, 'ps'
 @plot_setup.h
 loadct,4
-device, filename='abundance_plot.eps', /encapsulated, /color;,xsize=10,ysize=14 
+device, filename='abundance_plot.eps', /encapsulated, /color
 
 contour, REFORM(abunstr.abun[*,*,0]), x/AU,y/AU, /fill,levels=levels,yrange=yrange,xrange=xrange,$
          /xs,/ys
