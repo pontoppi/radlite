@@ -373,15 +373,14 @@ FOR i=0,N_ELEMENTS(FREQ)-1 DO BEGIN
 ;    levell = WHERE(vl[i] EQ v_all AND Qpp[i] EQ Q_all)
 ;    levelu = WHERE(Eupper[i] EQ E_all AND Qp[i] EQ Q_all)
 ;    levell = WHERE(Elower[i] EQ E_all AND Qpp[i] EQ Q_all)
-    levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 0.00001)
+    levelu = WHERE(ABS(E_all-Eupper[i])/Eupper[i] LT 1e-4)
     IF Elower[i] NE 0 THEN BEGIN
-       levell = WHERE(ABS(E_all-Elower[i])/Elower[i] LT 0.00001)
+       levell = WHERE(ABS(E_all-Elower[i])/Elower[i] LT 1e-4)
     ENDIF ELSE BEGIN
        levell = WHERE(E_all EQ 0.) 
     ENDELSE
     
 ;    IF (N_ELEMENTS(levelu) GT 1) OR (N_ELEMENTS(levell) GT 1) THEN STOP
-
     printf, lun,i+1,levelu[0]+1,levell[0]+1,A[i],FREQ[i],Eupper[i],vu[i],vl[i],Qp[i],Qpp[i],$
       FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'
 ENDFOR

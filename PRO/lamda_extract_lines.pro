@@ -53,8 +53,8 @@ printf,lun,nlines,FORMAT='(i6)'
 printf,lun,'!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm-1) + E_u(cm-1) + v_u + v_l + Q_p + Q_pp'
 
 FOR i=0,nlines-1 DO BEGIN   
-    printf, lun,i+1, iup[i],idown[i],aud[i],freq[i],eupper[i],mol.lev_vib[iup[i]-1],mol.lev_vib[idown[i]-1],mol.lev_rot[iup[i]-1],mol.lev_rot[idown[i]-1],$
-      FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'
+   printf, lun,i+1, iup[i],idown[i],aud[i],freq[i],eupper[i],mol.lev_vib[iup[i]-1],mol.lev_vib[idown[i]-1],mol.lev_rot[iup[i]-1],mol.lev_rot[idown[i]-1],$
+           FORMAT='(i5,i5,i5,e12.3,f16.7,f12.5,a15,a15,a15,a15)'
 ENDFOR
 close,lun
 free_lun, lun

@@ -125,7 +125,7 @@ FOR i=0,ddens.nr-1 DO BEGIN
       bridge->setvar, 'ini_npop',ini_npop
       bridge->setvar, 'lte_npop',lte_npop
 
-      bridge->execute, /nowait, "PRINT, 'Radius = ', rr"
+      bridge->execute, "PRINT, 'Radius = ', rr"
       bridge->execute, /nowait, 'nlte, z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col,'+$
                        'dv, nlines, nlevels, gugl, freq, iup, idown, Aul, Bul, Blu, energy_in_k, g,'+$
                        'collrates, coll_iup, coll_idown, coll_temps, ntemps, nctrans, '+$
