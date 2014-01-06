@@ -11,19 +11,21 @@
 PRO telsim, lineposvel,lineposvel_small=lineposvel_small,dist=dist,$
             telescope=telescope,outname=outname,psf=psf,vsamp=vsamp,$
             slitwidth=slitwidth,specres=specres,noiseless=noiseless,$
-            add_model=add_model
+            add_model=add_model,pixel_aspect=pixel_aspect
 @natconst.pro
 
-IF NOT KEYWORD_SET(slitwidth) THEN slitwidth = 0.2 ;arcsec
+IF ~KEYWORD_SET(slitwidth) THEN slitwidth = 0.2 ;arcsec
 
-IF NOT KEYWORD_SET(dist) THEN BEGIN
+IF ~KEYWORD_SET(pixel_aspect) THEN pixel_aspect = 1.
+
+IF ~KEYWORD_SET(dist) THEN BEGIN
    dist = 125d0   ;pc
 ENDIF
 
-IF NOT KEYWORD_SET(telescope) THEN BEGIN
+IF ~KEYWORD_SET(telescope) THEN BEGIN
    telescope = 'EELT'
 ENDIF
-IF NOT KEYWORD_SET(outname) THEN BEGIN
+IF ~KEYWORD_SET(outname) THEN BEGIN
    outname = 'telescope_image'
 ENDIF
 
@@ -34,9 +36,9 @@ CASE telescope OF
       sigma   = 0.002           ;Jy/beam
    END
    'EELT_CO' : BEGIN
-      eltpix  = 0.0086          ;arcsec
+      eltpix  = 0.009          ;arcsec
       eltres  = 0.034           ;arcsec
-      sigma   = 1.20*1d-4/2.       ;Jy/beam
+      sigma   = 0.00023          ;Jy/beam
    END
    'EELT_N' : BEGIN
       eltpix  = 0.0172          ;arcsec
@@ -204,7 +206,7 @@ ENDELSE
 ;responsibility that the added model flux cube actually makes sense.
 IF KEYWORD_SET(add_model) THEN BEGIN
    xoff = 30
-   yoff = 0
+   yoff = 5
    fsh  = 5
    add_data = MRDFITS(add_model)
    add_data = SHIFT(add_data,0,0,fsh)
@@ -234,6 +236,19 @@ FOR i=0,nf-1 DO BEGIN
    line[i] = total(im_elt[*,*,i])*eltpix^2.
 ENDFOR
 
+;
+;We can change the pixel aspect ratio at this point. Note that noise
+;per pixel will not be preserved. 
+IF pixel_aspect NE 1 THEN BEGIN
+   ny_new = ROUND(n_elt_pix/pixel_aspect)
+   im_elt_rebin = fltarr(n_elt_pix,ny_new,nf)
+   FOR i=0,nf-1 DO BEGIN
+      im_elt_rebin[*,*,i] = FREBIN(im_elt[*,*,i],n_elt_pix,ny_new)
+   ENDFOR
+   im_elt_original = im_elt
+   im_elt = im_elt_rebin
+ENDIF
+
 mwrfits, im_elt, outname+'.fits', /CREATE
 line_im = fltarr(n_elt_pix,n_elt_pix)
 FOR i=0,nf-1 DO BEGIN
@@ -242,6 +257,9 @@ ENDFOR
 mwrfits, line_im,outname+'.fits'
 mwrfits, {totspec:total(total(im_elt,1),1)*eltpix^2,velo:velo, pixsize:eltpix, pixunit:'Arcsec/pixel'},outname+'.fits'
 
+IF pixel_aspect NE 1 THEN BEGIN
+   im_elt = im_elt_original
+ENDIF
 ;
 ;Create slit image
 slit_im = total(im_elt,2)

@@ -99,14 +99,13 @@ FOR p=0,mol.nr_coll_partners-1 DO BEGIN
    partner_string = STRCOMPRESS(STRMID(mol.partner_name[p], pos_left, pos_right-pos_left),/REMOVE_ALL)
    ;
    ;Scale rates appropriately
-   
    CASE partner_string OF 
       'p-H2' : collrates[*,*,p] *= (1./(OPR+1.))  ;weighted para-H2 rates
       'o-H2' : collrates[*,*,p] *= (OPR/(OPR+1.)) ;weighted ortho-H2 rates
       'H2'   : collrates[*,*,p] *= 1d0            ;do nothing
       'He'   : collrates[*,*,p] *= 0.2            ;cosmic abundance relative to number of H2 molecules
-      'H'    : collrates[*,*,p] *= 1d-1           ;collisions with H
-      'e-'   : collrates[*,*,p] *= 1d-1           ;collisions with electrons
+      'H'    : collrates[*,*,p] *= 1d-4           ;collisions with H
+      'e-'   : collrates[*,*,p] *= 1d-6           ;collisions with electrons
       ELSE   : BEGIN
          PRINT, 'Unknown collision partner: ', partner_string
          STOP

@@ -975,6 +975,8 @@ case imakedisk of
             rhodusttot = disk_model_1(r,theta,rdisk,sigdust00,plsig1,plsig2,$
                          hrdisk,plh,hrmin=hrmin,hrstore=hrstore,$
                          hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdusttot)
+            ;;lowsubs = WHERE(r/AU gt 17.5 and r/AU lt 22.5)
+            ;;rhodusttot[lowsubs,*] = rhodusttot[lowsubs,*]/100.
         endelse
         ;;
         ;; Compute the mass
