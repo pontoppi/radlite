@@ -207,7 +207,7 @@ ENDELSE
 IF KEYWORD_SET(add_model) THEN BEGIN
    xoff = 30
    yoff = 5
-   fsh  = 5
+   fsh  = -2
    add_data = MRDFITS(add_model)
    add_data = SHIFT(add_data,0,0,fsh)
    nf_add = (SIZE(add_data))[3]
