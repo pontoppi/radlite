@@ -1,4156 +1,3 @@
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 03-08-2009
-          Time: 15:47:09.046
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 03-08-2009
-          Time: 18:16:18.160
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 03-08-2009
-           Time: 18:18:17.361
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 03-08-2009
-          Time: 18:29:24.580
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 03-08-2009
-           Time: 18:30:28.864
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 03-08-2009
-          Time: 18:43:13.988
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 03-08-2009
-           Time: 18:44:12.535
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 03-08-2009
-          Time: 18:46:17.033
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 03-08-2009
-           Time: 18:47:11.196
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 11:15:02.165
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 11:19:29.174
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 04-08-2009
-           Time: 11:20:22.397
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 11:38:23.510
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          300
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 04-08-2009
-           Time: 11:39:01.911
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 12:16:54.009
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          300
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 04-08-2009
-           Time: 12:17:33.896
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 12:19:12.023
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          300
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 04-08-2009
-           Time: 12:19:51.827
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 04-08-2009
-          Time: 12:25:55.193
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          120
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          300
- telescope dbdr     =            1
- telescope extra b  =          -80
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.980912842771901        --> Error = 
-  9.635536110408793E-003
-     Min |mu|       :   0.107560252186112     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 04-08-2009
-           Time: 12:26:35.518
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:00:46.649
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.981749105402674        --> Error = 
-  9.209487996018062E-003
-     Min |mu|       :   0.108214046888525     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:01:16.719
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:05:24.785
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.981749105402674        --> Error = 
-  9.209487996018062E-003
-     Min |mu|       :   0.108214046888525     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  * During Short Characteristic integration     
-    there were overshoots in the quadrature.    
-    These have been corrected automatically,    
-    but they indicate poor grid resolution!     
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:05:57.139
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:12:21.136
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.981749105402674        --> Error = 
-  9.209487996018062E-003
-     Min |mu|       :   0.108214046888525     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  * During Short Characteristic integration     
-    there were overshoots in the quadrature.    
-    These have been corrected automatically,    
-    but they indicate poor grid resolution!     
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:12:55.131
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:30:01.276
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  * During Short Characteristic integration     
-    there were overshoots in the quadrature.    
-    These have been corrected automatically,    
-    but they indicate poor grid resolution!     
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:31:11.148
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:38:42.461
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:39:58.948
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:42:41.016
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:47:56.820
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:51:45.859
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:51:54.192
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 13:52:01.635
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 13:53:48.147
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:00:47.736
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:00:55.892
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:01:04.427
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 14:35:44.623
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 14:50:18.717
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 14:52:47.294
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:56:08.596
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:56:39.640
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:56:47.896
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 14:56:56.458
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 15:34:07.904
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 15:40:45.105
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 15:48:27.048
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 15:48:35.035
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 15:48:43.335
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 15:57:49.531
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 16:07:17.172
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 16:09:04.983
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:09:41.691
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:09:50.043
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:09:57.894
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 16:15:16.917
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 16:29:11.588
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 16:30:34.557
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:58:43.411
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:58:51.196
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 16:58:59.358
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 17:22:20.337
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 17:24:02.933
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 17:24:20.836
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 17:24:39.716
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 29-09-2009
-          Time: 17:24:47.274
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 17:31:34.298
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 29-09-2009
-           Time: 17:45:55.541
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 10:52:31.974
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 10:52:40.163
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 10:52:48.648
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:03:51.566
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:11:14.953
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:13:02.222
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 11:13:38.760
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 11:13:46.750
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 15-10-2009
-          Time: 11:13:54.443
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:19:09.692
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:33:00.599
- ========= END OF RUN RADLITE =========
- ......................................
- Warnings:
-  <none>
- ......................................
- Finishing Date: 15-10-2009
-           Time: 11:34:22.787
- ========= END OF RUN RADLITE =========
- 
- 
- 
- =========== RUN OF RADICAL ===========
- Action       : spectrum/image
- Starting Date: 21-10-2009
-          Time: 17:13:34.023
- ......................................
-       COMPILATION OF CODE:            
- Dimension = 2              (RADGRID_TWODIM)
- Include lines              (INCLUDE_LINES)
- Include dust continuum     (INCLUDE_DUST)
- Transfer: MESC             (ESC_MINIMAL_EXTENSION)
- Long char: refined         (LONGCHAR_EXTRA_POINTS)
- Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.9999998E-03
- Mirror in Theta : yes      (MIRROR_THETA)
- Mirror in phi : yes        (MIRROR_PHI)
- Interpol                   (INTERPOL_PHI_3)
- Interpol                   (INTERPOL_THETA_3)
- Interpol                   (INTERPOL_SRC_1)
- Interpol                   (INTERPOL_FREQ_1)
- Quadrature                 (SRCQDR_PNT_2)
- ALI                        (ALI_PNT_2)
- 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
- FRSIZE_FREQ    =          401
- FRSIZE_MU      =           43
- FRSIZE_PHI     =           16
- FRSIZE_CHAR    =           24
- FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
- FRSIZE_INF_X   =          120
- FRSIZE_INF_Y   =          120
- 
- SZ_LINEPROFILE       =          401
- SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
- SZ_NCOLTRANS         =           30
- SZ_NCTTEMP           =           10
- 
- DUST_SPECIES_MAX     =            2
- DUST_SIZE_MAX        =            1
- DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.000000000000000E-002
- DUST_TEMP_MAX        =    3000.00000000000     
- DUST_TEMP_ACCUR      =   1.000000000000000E-002
- DUST ALI             : disabled
- 
- ......................................
-           SETUP OF PROBLEM:           
- metric             = S
- frsize radius      =          150
- frsize theta       =          400
- nr mu              =           41
- nr phi             =           16
- mu-grid type       =            2
- mu-grid allow err  =   0.100000000000000     
- mu-grid coarseness =    1.00000000000000     
- mu-grid extra mu=0 =            3
- bound cond inner   =            2
- bound cond outer   =            0
- telescope nphi     =          150
- telescope dbdr     =            1
- telescope extra b  =          -60
- isave physvar      =            1
- isave scatnonlte   =            1
- isave intensity    =            0
- isave source       =           -1
- isave meanint      =            0
- isave dusttemp     =           -1
- isave levpop       =           -1
- isave electemp     =           -1
- ......................................
-             SOME REMARKS:             
-     Max |mu|       :   0.985191794290596        --> Error = 
-  7.459332519906159E-003
-     Min |mu|       :   0.111193840326382     
- Nr of short SC     :            0
- Nr of extended SC  :            0
- Frac extended SC   :  Infinity      
- Greatest DR/R      :   -1.00000000000000     
- Nr of R-refine     :           -1
- 
- ......................................
- Warnings:
-  * Velocity step exceeded line width.          
-    Might result in errors.                     
- ......................................
- Finishing Date: 21-10-2009
-           Time: 17:17:22.594
- ========= END OF RUN RADLITE =========
 
 
 
@@ -4164,7 +11,7 @@
  Transfer: MESC             (ESC_MINIMAL_EXTENSION)
  Long char: refined         (LONGCHAR_EXTRA_POINTS)
  Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.99999978E-03
+    Fraction of long ESC:    9.99999978E-03
  Mirror in Theta : yes      (MIRROR_THETA)
  Mirror in phi : yes        (MIRROR_PHI)
  Interpol                   (INTERPOL_PHI_3)
@@ -4174,37 +21,37 @@
  Quadrature                 (SRCQDR_PNT_2)
  ALI                        (ALI_PNT_2)
 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
  FRSIZE_FREQ    =          401
  FRSIZE_MU      =           43
  FRSIZE_PHI     =           16
  FRSIZE_CHAR    =           24
  FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
+ FRSIZE_INF_R   =         2500
  FRSIZE_INF_X   =          120
  FRSIZE_INF_Y   =          120
 
  SZ_LINEPROFILE       =          401
  SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
  SZ_NCOLTRANS         =           30
  SZ_NCTTEMP           =           10
 
  DUST_SPECIES_MAX     =            2
  DUST_SIZE_MAX        =            1
  DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.00000000000000004E-002
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
  DUST_TEMP_MAX        =    3000.0000000000000     
- DUST_TEMP_ACCUR      =   1.00000000000000002E-002
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
  DUST ALI             : disabled
  
  ......................................
            SETUP OF PROBLEM:           
  metric             = S
  frsize radius      =          150
- frsize theta       =          400
+ frsize theta       =          320
  nr mu              =           41
  nr phi             =           16
  mu-grid type       =            2
@@ -4226,11 +73,11 @@
  isave electemp     =           -1
  ......................................
              SOME REMARKS:             
-     Max |mu|       :   0.98519179429059645        --> Error =   7.45933251990615886E-003
-     Min |mu|       :   0.11119384032638176     
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
  Nr of short SC     :            0
  Nr of extended SC  :            0
- Frac extended SC   :        +Infinity
+ Frac extended SC   :          Infinity
  Greatest DR/R      :   -1.0000000000000000     
  Nr of R-refine     :           -1
  
@@ -4247,7 +94,7 @@
  Transfer: MESC             (ESC_MINIMAL_EXTENSION)
  Long char: refined         (LONGCHAR_EXTRA_POINTS)
  Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.99999978E-03
+    Fraction of long ESC:    9.99999978E-03
  Mirror in Theta : yes      (MIRROR_THETA)
  Mirror in phi : yes        (MIRROR_PHI)
  Interpol                   (INTERPOL_PHI_3)
@@ -4257,37 +104,37 @@
  Quadrature                 (SRCQDR_PNT_2)
  ALI                        (ALI_PNT_2)
 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
  FRSIZE_FREQ    =          401
  FRSIZE_MU      =           43
  FRSIZE_PHI     =           16
  FRSIZE_CHAR    =           24
  FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
+ FRSIZE_INF_R   =         2500
  FRSIZE_INF_X   =          120
  FRSIZE_INF_Y   =          120
 
  SZ_LINEPROFILE       =          401
  SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
  SZ_NCOLTRANS         =           30
  SZ_NCTTEMP           =           10
 
  DUST_SPECIES_MAX     =            2
  DUST_SIZE_MAX        =            1
  DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.00000000000000004E-002
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
  DUST_TEMP_MAX        =    3000.0000000000000     
- DUST_TEMP_ACCUR      =   1.00000000000000002E-002
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
  DUST ALI             : disabled
  
  ......................................
            SETUP OF PROBLEM:           
  metric             = S
  frsize radius      =          150
- frsize theta       =          400
+ frsize theta       =          320
  nr mu              =           41
  nr phi             =           16
  mu-grid type       =            2
@@ -4309,11 +156,11 @@
  isave electemp     =           -1
  ......................................
              SOME REMARKS:             
-     Max |mu|       :   0.98519179429059645        --> Error =   7.45933251990615886E-003
-     Min |mu|       :   0.11119384032638176     
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
  Nr of short SC     :            0
  Nr of extended SC  :            0
- Frac extended SC   :        +Infinity
+ Frac extended SC   :          Infinity
  Greatest DR/R      :   -1.0000000000000000     
  Nr of R-refine     :           -1
  
@@ -4330,7 +177,7 @@
  Transfer: MESC             (ESC_MINIMAL_EXTENSION)
  Long char: refined         (LONGCHAR_EXTRA_POINTS)
  Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
-    Fraction of long ESC:   9.99999978E-03
+    Fraction of long ESC:    9.99999978E-03
  Mirror in Theta : yes      (MIRROR_THETA)
  Mirror in phi : yes        (MIRROR_PHI)
  Interpol                   (INTERPOL_PHI_3)
@@ -4340,37 +187,37 @@
  Quadrature                 (SRCQDR_PNT_2)
  ALI                        (ALI_PNT_2)
 
- FRSIZE_X       =          210
- FRSIZE_Y       =          420
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
  FRSIZE_FREQ    =          401
  FRSIZE_MU      =           43
  FRSIZE_PHI     =           16
  FRSIZE_CHAR    =           24
  FRSIZE_INF_PHI =          400
- FRSIZE_INF_R   =         1780
+ FRSIZE_INF_R   =         2500
  FRSIZE_INF_X   =          120
  FRSIZE_INF_Y   =          120
 
  SZ_LINEPROFILE       =          401
  SZ_LINEPROFILE_SMALL =           40
- SZ_NLINES            =           20
- SZ_NLEVELS           =           50
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
  SZ_NCOLTRANS         =           30
  SZ_NCTTEMP           =           10
 
  DUST_SPECIES_MAX     =            2
  DUST_SIZE_MAX        =            1
  DUST_TRANGE_MAX      =            1
- DUST_TEMP_MIN        =   2.00000000000000004E-002
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
  DUST_TEMP_MAX        =    3000.0000000000000     
- DUST_TEMP_ACCUR      =   1.00000000000000002E-002
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
  DUST ALI             : disabled
  
  ......................................
            SETUP OF PROBLEM:           
  metric             = S
  frsize radius      =          150
- frsize theta       =          400
+ frsize theta       =          320
  nr mu              =           41
  nr phi             =           16
  mu-grid type       =            2
@@ -4392,14 +239,1149 @@
  isave electemp     =           -1
  ......................................
              SOME REMARKS:             
-     Max |mu|       :   0.98519179429059645        --> Error =   7.45933251990615886E-003
-     Min |mu|       :   0.11119384032638176     
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
  Nr of short SC     :            0
  Nr of extended SC  :            0
- Frac extended SC   :        +Infinity
+ Frac extended SC   :          Infinity
  Greatest DR/R      :   -1.0000000000000000     
  Nr of R-refine     :           -1
  
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  * During Short Characteristic integration     
+    there were overshoots in the quadrature.    
+    These have been corrected automatically,    
+    but they indicate poor grid resolution!     
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  * During Short Characteristic integration     
+    there were overshoots in the quadrature.    
+    These have been corrected automatically,    
+    but they indicate poor grid resolution!     
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+
+
+
+ =========== RUN OF RADICAL ===========
+ Action       : spectrum/image
+ ......................................
+       COMPILATION OF CODE:            
+ Dimension = 2              (RADGRID_TWODIM)
+ Include lines              (INCLUDE_LINES)
+ Include dust continuum     (INCLUDE_DUST)
+ Transfer: MESC             (ESC_MINIMAL_EXTENSION)
+ Long char: refined         (LONGCHAR_EXTRA_POINTS)
+ Compact ESC arrays         (SHORCHAR_COMPACT_ARRAYS)
+    Fraction of long ESC:    9.99999978E-03
+ Mirror in Theta : yes      (MIRROR_THETA)
+ Mirror in phi : yes        (MIRROR_PHI)
+ Interpol                   (INTERPOL_PHI_3)
+ Interpol                   (INTERPOL_THETA_3)
+ Interpol                   (INTERPOL_SRC_1)
+ Interpol                   (INTERPOL_FREQ_1)
+ Quadrature                 (SRCQDR_PNT_2)
+ ALI                        (ALI_PNT_2)
+
+ FRSIZE_X       =          300
+ FRSIZE_Y       =          400
+ FRSIZE_FREQ    =          401
+ FRSIZE_MU      =           43
+ FRSIZE_PHI     =           16
+ FRSIZE_CHAR    =           24
+ FRSIZE_INF_PHI =          400
+ FRSIZE_INF_R   =         2500
+ FRSIZE_INF_X   =          120
+ FRSIZE_INF_Y   =          120
+
+ SZ_LINEPROFILE       =          401
+ SZ_LINEPROFILE_SMALL =           40
+ SZ_NLINES            =         1000
+ SZ_NLEVELS           =         1000
+ SZ_NCOLTRANS         =           30
+ SZ_NCTTEMP           =           10
+
+ DUST_SPECIES_MAX     =            2
+ DUST_SIZE_MAX        =            1
+ DUST_TRANGE_MAX      =            1
+ DUST_TEMP_MIN        =    2.0000000000000000E-002
+ DUST_TEMP_MAX        =    3000.0000000000000     
+ DUST_TEMP_ACCUR      =    1.0000000000000000E-002
+ DUST ALI             : disabled
+ 
+ ......................................
+           SETUP OF PROBLEM:           
+ metric             = S
+ frsize radius      =          150
+ frsize theta       =          320
+ nr mu              =           41
+ nr phi             =           16
+ mu-grid type       =            2
+ mu-grid allow err  =   0.10000000000000001     
+ mu-grid coarseness =    1.0000000000000000     
+ mu-grid extra mu=0 =            3
+ bound cond inner   =            2
+ bound cond outer   =            0
+ telescope nphi     =          150
+ telescope dbdr     =            1
+ telescope extra b  =          -60
+ isave physvar      =            1
+ isave scatnonlte   =            1
+ isave intensity    =            0
+ isave source       =           -1
+ isave meanint      =            0
+ isave dusttemp     =           -1
+ isave levpop       =           -1
+ isave electemp     =           -1
+ ......................................
+             SOME REMARKS:             
+     Max |mu|       :   0.98519179670490198        --> Error =    7.4593312946782397E-003
+     Min |mu|       :   0.11119384260649536     
+ Nr of short SC     :            0
+ Nr of extended SC  :            0
+ Frac extended SC   :          Infinity
+ Greatest DR/R      :   -1.0000000000000000     
+ Nr of R-refine     :           -1
+ 
+ ......................................
+ Warnings:
+  <none>
+ ......................................
+ ========= END OF RUN RADLITE =========
  ......................................
  Warnings:
   <none>

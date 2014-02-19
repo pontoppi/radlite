@@ -59,7 +59,7 @@ case istar of
       rstar = 2.0d0 * RS        ; Radius of star
       mstar = 1.0d0 * MS        ; Mass of star
       tstar = 4275d0            ; Temperature of star
-      kurucz = 1
+      kurucz = 0
    end
    else: stop
 endcase
@@ -93,12 +93,12 @@ run       = 0           ; Do a run within IDL? If 0, then only setup.
 ;                         The spatial grid 
 ;--------------------------------------------------------------------------
 nr     = 150            ; number of points in radius
-nt     = 200             ; Number of points in theta for main theta grid
-ntex   = 10             ; Extra points in theta 
+nt     = 100             ; Number of points in theta for main theta grid
+ntex   = 50             ; Extra points in theta 
 rin    = 0.0*AU         ; Inner radius of radial grid (--> tin is computed)
 tin    = 1500.d0        ; Inner temperature (--> rin is computed)
 rout   = 10000.d0*AU      ; Outer radius of radial grid
-hrgrid = 0.48            ; Main grid span in Theta (measured negatively from equator)
+hrgrid = 0.33            ; Main grid span in Theta (measured negatively from equator)
 hrgmax = 0.9*!pi/2.d0   ; Total grid span in Theta (measured negatively from equator)
 thintin= 0              ; If 0, use DDN01 model for calc Rin from Tin, else
                         ; use real opacity for doing so.
@@ -114,9 +114,9 @@ drsm   = 0.03           ; smoothing radius
 ;--------------------------------------------------------------------------
 ;                    The Sigma(R) setup parameters
 ;--------------------------------------------------------------------------
-rdisk  = 1 * AU       ; Pivot of power law definitions (often used as rdisk)
+rdisk  = 50 * AU       ; Pivot of power law definitions (often used as rdisk)
 sig0   = 0.0            ; Sigma at rdisk (either sig0 or mdisk)
-mdmstr = 1d-10           ; Mass of the disk (gas+dust) in units of Mstar
+mdmstr = 1d-4           ; Mass of the disk (gas+dust) in units of Mstar
 mdisk  = mdmstr * mstar ; Mass of the disk (gas+dust) (either sig0 or mdisk)
 plsig1 = -1.0d0		; Powerlaw for Sigma(R) for R<Rdisk
 plsig2 = -12.0d0	; Powerlaw for Sigma(R) for R>Rdisk
@@ -151,13 +151,14 @@ hrpuff = 0.0            ; Puffing-up H/R
 ;--------------------------------------------------------------------------
 env    = 1              ;Turn on the envelope
 csenv  = 0.2d5          ;Sound speed in the envelope (in cm/s)
-time   = 6d4            ;Age of the envelope (in years)
-
+time   = 5d5            ;Age of the envelope (in years)
+cav    = 1
+opening = 30*AU
 ;--------------------------------------------------------------------------
 ;           Parameters for RADMC : The radiative transfer part
 ;--------------------------------------------------------------------------
 nphot  = 400000         ; Nr of photons for RADMC
-npdiff = 15             ; Minimum nr of photons per cell --> diffusion alg
+npdiff = 5             ; Minimum nr of photons per cell --> diffusion alg
 errtol = 1d-6           ; Error tolerance for diffusion alg
 ifast  = 1              ; >0 (1 or 2)--> Approx to make RADMC even faster
 
@@ -204,7 +205,7 @@ bindir=maindir+'/bin/'
 ;; Paths to the Kurucz data, the dust opacity code and the dust 
 ;; optical constants
 ;;
-kuruczdir = '~/WORK/RADLITE_V1.1/KURUCZ/'
+kuruczdir = '/KURUCZ/'
 src_dust  = maindir+'/sources/makeopac/src/'
 dustdata  = maindir+'/sources/makeopac/optconst/'
 ;;

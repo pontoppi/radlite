@@ -161,7 +161,7 @@ FOR iii=0,ncores-1 DO BEGIN
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log&'
-       wait, 3.
+       wait, 5.
     ENDIF ELSE BEGIN
        print, 'spawning foreground process for core: ',iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3

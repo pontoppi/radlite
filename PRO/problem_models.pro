@@ -34,15 +34,10 @@
 @problem_kurucz.pro
 ;*NOENV*
 ;@problem_shuulrich.pro
+@problem_makeshu.pro
 @problem_grid.pro
 @problem_radmc_files.pro
 @problem_disk.pro
-
-
-; ********* IN THIS VERSION THE ENVELOPE IS SWITCHED OFF *********
-; (By simply uncommenting the regions marked with *NOENV* you can 
-; reactivate it)
-
 
 
 ;------------------------------------------------------------------------
@@ -81,8 +76,6 @@
 ;  hrgrid            Height (pi/2-theta) of main Theta grid 
 ;  hrgmax            Height (pi/2-theta) of total Theta grid 
 ;  ntex              Extra grid points in between hrgrid and hrgmax
-;  zrref             (For refinement near the midplane): refinement parameter
-;  nrzef             (For refinement near the midplane): nr of extra z points
 ;  chop              Upper limit to vertical optical depth at 0.55 micron
 ;                    (the chopping routine simply removes mass from the 
 ;                    equator until tau<=chop. this is necessary in order 
@@ -122,18 +115,9 @@
 ;
 ; ARGUMENTS FOR THE SHU/ULRICH INFALL MODEL:
 ;  time              Time after onset of collapse of the cloud core [s]
-;  menv              Mass of the envelope BEFORE collapse (i.e. the 
-;                    present envelope mass may be smaller).
-;  omenv             Rigid body rotation of the cloud core
 ;  csenv             Sound speed in the cloud core (see Shu model!)
-;  tail              (if non-zero) Adds massloss tail after the main
-;                    Shu infall phase, with Mdot propto time^(-tail).
-;  multmenv          HACK FOR EASY FITTING: change the mass of the envelope
 ;
 ; RETURNS:
-;  info              The information from the envelope() routine, i.e. 
-;                    the current values of the Shu model at the 
-;                    present time (see arg. `time').
 ;
 ; NOTE:
 ;  - In this routine, for backward compatilibity reasons, the ntt is
@@ -146,18 +130,20 @@
 ;   this routine is called multiple times!!!!
 ;   This is now fixed!!
 ;------------------------------------------------------------------------
-pro diskenv_radmc,mstar,rstar,tstar,rdisk,sigmagasdisk,hpdisk,$
-               omenv=omenv,csenv=csenv,menv=menv,time=time,$
-               rrim=rrim,nrr=nrr,ntt=ntt,ntex=ntex,chop=chop,$
-               gastodust=gastodust,zref=zrref,nref=nzref,$
-               rhofloor=rhofloor,qpldisk=qpldisk,tail=tail,$
-               hrgrid=hrgrid,hrgmax=hrgmax,info=info,tdec=tdec,$
-               nib=nib,nphot=nphot,qsig=qsig,multmenv=multmenv,$
-               rrefine=rrefine,ifinstar=ifinstar,zrefine=zrefine,$
-               opacname=opacname,pllongs=pllongs,npdiff=npdiff,$
-               scat=scat,nvstr=nvstr,run=run,fresmd=fresmd,$
-               kurucz=kurucz,kurdir=kurdir,bindir=bindir,$
-               ref2=ref2,ifast=ifast
+pro diskenv_radmc, rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
+			       fresmd=fresmd,scat=scat,ntex=ntex,nrr=nrr,ntt=ntt,rin=rin,tin=tin,$
+			       out=rout,hrgrid=hrgrid,hrgmax=hrgmax,rrefine=rrefine,drsm=drsm,$
+			       rdisk=rdisk,sigdust0=sig0,mdisk=mdisk,$
+	               plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kuruczdir,$
+        	       opacnames=opacnames,pllongs=pllongs,$
+			       gastodust=gastodust,hrdisk=hrdisk,hrmin=hrmin,$
+			       plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$
+	               nphot=nphot,npdiff=npdiff,errtol=errtol,tauchop=tauchop,lmbchop=lmbchop,$
+			       idxchop=idxchop,rhofloor=rhofloor,pnc=pnc,pnh=pnh,pz=pz,ref2=ref2,bindir=bindir,$
+				   tt=tt,radius=r,theta=theta,csenv=csenc,time=time,env=env,cav=cav,opening=opening
+				   
+				   
+				          
 @problem_natconst.pro
 ;
 ; Set default parameters
@@ -170,19 +156,7 @@ if n_elements(rhofloor) eq 0 then rhofloor = 1d-90
 if n_elements(hrgrid) eq 0 then hrgrid = 0.6  
 if n_elements(hrgmax) eq 0 then hrgmax = 0.9*!pi/2.d0
 if n_elements(nib) eq 0 then nib = 4
-;
-; Check
-;
-if nvstr gt 0 and chop gt 0.d0 then begin
-   print,'ERROR: The vertical structure iteration module is'
-   print,'       at present not compatible with vertical structure'
-   print,'       iteration. Either put nvstr or chop to 0.'
-   stop
-endif
-;
-; BUGFIX 08.12.06
-; Copy nr and nt to local variables
-;
+
 ; NOTE: Internally the nt is always the full theta array size,
 ;       hence the nt = ntt+ntex
 ;
@@ -194,31 +168,42 @@ nt = ntt+ntex
 if not keyword_set(rrefine) then begin
     rrefine={nlevr:3,nspanr:2,nstepr:2}
 endif
+
+;
+; Install the opacities
+;
+useopac,opacnames,pllongs,fresmd=fresmd,scat=scat,$
+        nf=nf,pnc=pnc,pnh=pnh,pz=pz,$
+        nspec=nspec,npah=npah,ntherm=ntherm
+;
+; Write the star spectrum and info
+;
+write_star,mstar,rstar,tstar,kurucz=kurucz,kurdir=kurdir,$
+         inupk=inupk,lampk=lampk
+
+;
+; Find the opacity at the peak of the stellar spectrum
+;
+kappa = dblarr(nspec)
+for i=0,nspec-1 do begin
+    o = readopac(nr=strcompress(string(i+1),/remove_all))
+    kappa[i] = o.cabs(inupk) + o.csca(inupk)
+endfor
+print,"lambda_peak = ",lampk," micron,  kappa = ",kappa
+
 ;
 ; Find the outer radius of the disk
 ;
-rin  = min(rdisk)
-rout = max(rdisk)
-;
-; If requested, include the Shu infall model
-;
-;*NOENV*
-;if n_elements(menv) ne 0 then begin
-;   if n_elements(time) ne 1 or n_elements(csenv) ne 1 or $
-;      n_elements(csenv) ne 1 then begin
-;      print,'ERROR: If you include the envelope, you must also define'
-;      print,'   time, csenv and omenv...'
-;      stop
-;   endif
-;   q    = shumodel([rin,rout],menv,csenv,time)
-;   rout = q.rcloud
-;endif
-;
-;               SET UP THE 2-D RADIATIVE TRANSFER STUFF
+if keyword_set(tin) then begin
+    rin  = rstar*(tstar/tin)^2
+endif
+
 ;
 ; Make the R-grid
 ;
+
 r      = make_rgrid(rin,rout,nr,rrefine=rrefine)
+
 ;
 ; If requested, then make another radius of extra R-refinement.
 ; This is useful if you have a "second wall" somewhere, or 
@@ -233,108 +218,86 @@ endif
 ;
 theta  = make_tgrid(hrgrid,nt,hrgmax=hrgmax,ntex=ntex,$
                     hrlg=hrlg,zrefine=zrefine)
+
+
+if keyword_set(sigdust0) then begin
+     ;;
+     ;; Directly from sigdust0
+	 ;;
+     rhodusttot = disk_model_1(r,theta,rdisk,sigdust0,plsig1,plsig2,$
+                   hrdisk,plh,hrmin=hrmin,hrstore=hrstore,$
+                   hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdust)
+endif else begin
+     ;;
+     ;; Compute sigdust0 from mdisk
+     ;;
+     sigdust00  = 1.d0
+     rhodusttot = disk_model_1(r,theta,rdisk,sigdust00,plsig1,plsig2,$
+                     hrdisk,plh,hrmin=hrmin,hrstore=hrstore,$
+                     hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdusttot)
+     mddum      = integrate(r,2*pi*r*sigdusttot)*gastodust
+     sigdust00  = mdisk / mddum
+     rhodusttot = disk_model_1(r,theta,rdisk,sigdust00,plsig1,plsig2,$
+                  hrdisk,plh,hrmin=hrmin,hrstore=hrstore,$
+                  hrpuff=hrpuff,rpuff=rpuff,sigdust=sigdusttot)
+endelse
+
 ;
-; Check the grid sizes
+;Make the Shu infalling envelope
 ;
-;if nr ne n_elements(r) then stop
-nr = n_elements(r)
-if nt ne n_elements(theta) then stop
-;
-; Create the dust surface density belonging to sigmagasdisk
-;
-sigmadustdisk = sigmagasdisk / gastodust
-;
-; Now create the disk model using the routines of problem_disk.pro
-; NOTE: Single dust species here, and we convert back to gas density
-;       because this is what we are interested in here.
-;
-rhodisk = disk_model_2(r,theta,rdisk,sigmadustdisk,hpdisk,$
-                   sigmadust=sigmadust)
-rhodisk = rhodisk * gastodust
-;
-; Compute the local qplus from the vertically integrated qpldisk
-;
-if keyword_set(qpldisk) then begin
-   qloc   = dblarr(nr,nt)
-   for ir=0,irdisk do begin
-      ;;
-      ;; Get the z coordinate
-      ;;
-      z          = (!dpi/2-theta)*r[ir]
-      ;;
-      ;; Basically take the qloc to follow the shape of the 
-      ;; density profile
-      ;;
-      qloc[ir,*] = rhodisk[ir,*]
-      if keyword_set(qsig) then begin
-         ;;
-         ;; If qsig is set, then require all the energy release to be
-         ;; in a surface layer of the disk down to sigma=qsig. This 
-         ;; can be useful to speed up the MC code.
-         ;;
-         sig= integrate(z,rhodisk[ir,*],/prim)
-         ii = where(sig gt qsig and max(sig)-sig gt qsig)
-         if ii[0] ne -1 then qloc[ir,ii] = 0.d0
-      endif
-      ;;
-      ;; Find the qplus here
-      ;;
-      qpld = interpol(qpldisk,rdisk,r[ir])
-      ;;
-      ;; Normalize the qloc such that the total released 
-      ;; energy equals qpldisk
-      ;;
-      qq         = 2*integrate(z,transpose(qloc[ir,*]))
-      qloc[ir,*] = qloc[ir,*] * ( qpld / qq )
-   endfor
+if keyword_set(env) then begin
+	if ~keyword_set(cav_dens) then cav_dens=0.
+    envelope = make_shu(r,time*3600.*24.*365.,csenv=csenv)
+	env_subs = WHERE(r GT rdisk)
+	for i=0,nt-1 do begin
+		envelope_at_theta = envelope.rho
+		;
+		;Carve out a cavity, if requested
+		;
+		;In polar coordinates:
+		;r = 2a/(1+cos(theta))
+		;
+		if keyword_set(cav) then begin
+			cav_subs = WHERE(r LT 2.*opening/(1.+cos(!pi-theta[i])))
+			envelope_at_theta[cav_subs] = cav_dens
+		endif	
+
+		rhodusttot[env_subs,i] += envelope_at_theta[env_subs]/gastodust
+	endfor
 endif
+
 ;
-; Add the floor density
+; Compute the mass
 ;
-rhodisk = rhodisk + rhofloor
+md = mass(rhodusttot,r,theta)
+print,'Mdisk = ',md/MS*(gastodust/100),' Msun'
 ;
-; Set up the envelope
+; Now convert this into dustdens
 ;
-;*NOENV*
-;if n_elements(menv) ne 0 then begin
-;   ;;
-;   ;; The Shu model with rotation according to Ulrich
-;   ;;
-;   q = envelope(time,csenv,menv,omenv,r,theta,tail=tail)
-;   ;;
-;   ;; HACK: MODIFY THE ENVELOPE
-;   ;;
-;   if n_elements(multmenv) ne 0 then begin
-;      print,'**** WARNING: MODIFIED THE ENVELOPE A-POSTERIORI ****'
-;      q.rho = q.rho * multmenv
-;   endif
-;   ;;
-;   ;; Mutually exclude the densities
-;   ;;
-;   ii = where( rhodisk gt q.rho ) 
-;   if ii[0] ge 0 then q.rho[ii] = 0.d0
-;   ii = where( rhodisk le q.rho ) 
-;   if ii[0] ge 0 then rhodisk[ii] = 0.d0
-;endif
+if keyword_set(abun) then begin
+    rhodust = dblarr(nnr,nt,nspec)
+    for ispec=0,nspec-1 do begin
+        rhodust[*,*,ispec] = rhodusttot * abun[*,*,ispec]
+    endfor
+endif else begin
+    rhodust = rhodusttot
+endelse
+;;
+;; Now smooth the inner rim if necessary
+;;
+if keyword_set(drsm) then begin
+    smooth_rim,r,theta,rhodust,kappa,sigdust=sigdust,$
+            drsm=drsm,tautol=tautol
+endif
+
+;; Add the density background
+rhodust += rhofloor
+
 ;
-;---------------------------------------------------------------------
-;             NOW ASSEMBLE EVERYTHING AND WRITE IT OUT
-;---------------------------------------------------------------------
-;
-; Now create the full density profile with all species
-; (when envelope is switched off, this is same as rhodisk/gastodust)
-;
-nspec    = 1
-rhodust  = dblarr(nr,nt,nspec)
-rhodust[*,*,0] = rhodisk / gastodust
-;
-; Write the grid and the density profiles for RADMC
+; Write the dust density to the input files of RADMC
 ;
 write_radmc_density,r,theta,rhodust
-;
-; Write the star spectrum and info for RADMC
-;
-write_star,mstar,rstar,tstar,kurucz=kurucz,kurdir=kurdir
+
 ;
 ; If chopping is active, then write the chop file, else delete
 ;
@@ -361,6 +324,24 @@ if keyword_set(qpldisk) then begin
 endif else begin
    spawn,'rm -f qplus.inp'
 endelse
+
+;
+;
+; Make optical depth array
+;
+b  = {r:r,theta:theta,rho:rhodust}
+tt =maketau(b,kappa)
+;
+; Check the optical depth at the inner edge
+;
+tr0 = tt.taur(1,nt-1)
+if tr0 gt 1.d0 then begin
+    print,'Optical depth error! Inner grid cell at equator optically thick'
+    print,' Is this okay? (type 1)'
+    read,i
+    if i ne 1 then stop
+endif
+
 ;
 ; Write the raytrace.inp for the ray-tracing (spectra and images)
 ;
@@ -368,180 +349,10 @@ write_raytrace,nextra=nextra,nrref=nrref
 ;
 ; Write the radmc.inp file
 ;
-; ADDED 09.01.07: ifinstar
-;
-write_radmc,tdec=tdec,nphot=nphot,ifinstar=ifinstar,npdiff=npdiff,$
+write_radmc,nphot=nphot,ifinstar=ifinstar,npdiff=npdiff,$
             nvstr=nvstr,ivstrt=ivstrt,vserrtol=vserrtol,ifast=ifast
-;
-; If requested, install an opacity
-;
-if keyword_set(opacname) then begin
-    if not keyword_set(pllongs) then pllongs=[-2]
-    useopac,[opacname],pllongs,fresmd=fresmd,scat=scat
-endif
-;
-; Return some information concerning the envelope
-;
-if n_elements(q) ne 0 then info = q
-;
-; If we want to run this, then do it
-;
-if keyword_set(run) then begin
-    spawn,'radmc'
-    spawn,'raytrace spectrum'
-endif
-;
+
 end
-
-
-
-;------------------------------------------------------------------------
-;      MAKE 2-D VERTICAL STRUCTURE MODEL OF 1-D RADIAL DISK MODEL
-;
-;               ***** COMPATIBILITY ROUTINE ******
-;
-; Given a 1-D radial disk model, this routine produces a 2-D disk setup,
-; runs RADICAL and VERTSTRUCT to produce the vertical structure of the
-; disk, and then re-converts (upon request) back to 1+1D structure.
-;
-; (This routine must at some point be simplified or integrated with
-; the diskenvsed or so; But for now it is needed for the coupling
-; to dustcoag.F)
-;
-; ARGUMENTS:
-;  mstar             Mass of the star [g]
-;  rstar             Radius of the star [cm]
-;  tstar             Effective temperature of the star [K]
-;  rdisk             Array of radial grid for the input disk model [cm]
-;  sigmagasdisk      Array of Sigma_gas(R) of the disk [g/cm^2]
-;  qpldisk           The viscous dissipation (vert.integr; both sides) 
-;                    [erg/cm^2/s]
-;  qsig              If set, then release all Qplus energy in surface
-;                    layer of DeltaSigma=qsig
-;  rrim              Radius within which the dust is assumed evaporated [cm]
-;  nnr               Nr of radial grid points for 2-D/3-D RT problem
-;  nnt               Basic nr of theta grid points for 2-D/3-D RT problem
-;  hrgrid            Height (pi/2-theta) of main Theta grid 
-;  hrgmax            Height (pi/2-theta) of total Theta grid 
-;  ntex              Extra grid points in between hrgrid and hrgmax
-;  zrref             (For refinement near the midplane): refinement parameter
-;  nrzef             (For refinement near the midplane): nr of extra z points
-;  gastodust         Gas-to-dust mass ratio. Default 100.
-;  rhofloor          The density floor value
-;  nib               [Technical] Number of rays inward of Rin for SED.
-;                    Normally put this to 4 or so. But sometimes this
-;                    causes problems when the star radius is not too much
-;                    smaller than Rin. Then put it to 0.
-;  nphot             Nr of photon packages
-;  flang             If set: flaring angle to take for initial guess
-;  mugas             Mean molecular weight of gas
-;  save              If set, then save all intermediate VET results
-;                    (all vertical structure density results are always
-;                    saved)
-;  ifinstar          =1 -> Use finite-size star
-;  zrefine           A structure for making a very refined grid in 
-;                    theta near the midplane. See problem_grid.pro the
-;                    routine make_tgrid(). Note that if this option
-;                    is used, the nr of theta grid points will exceed
-;                    the value ntt+ntex.
-; (For returned array:)
-;  zdisk             The full z-coordinates (for each rdisk) of the disk
-;  nzdisk            If not defined zdisk, then define nr of z points
-;  rrefine           R-grid refinement structure
-;  maindir           Where can we find the codes? Default ../
-;  run               =1 --> Run the RADMC code
-;                    =0 --> Write a dorun script to do this
-;  ifast             [Careful!!] When this is 1 or 2 then the calculations
-;                    of the dust temperature are not done upon each
-;                    interaction of the photon with a grid cell, but only if
-;                    the energy in the cell is appreciable larger than the
-;                    last update. NOTE: This is not related to the new
-;                    improved RADMC version, which is anyway much faster
-;                    than the old one. Perhaps the ifast is even no longer
-;                    necessary, but that remains to be seen.
-;
-; RETURNS:
-;  struct            The 1+1D structure of the disk in r,z, but with
-;                    interpolation of z along theta.
-;
-; NOTE:
-;  - In this routine, for backward compatilibity reasons, the ntt is
-;    the basic nr of theta points. The total nr is ntt+ntex.
-;
-;------------------------------------------------------------------------
-pro makedisk_vertstruct,mstar,rstar,tstar,rdisk,sigmagasdisk,$
-               rrim=rrim,nrr=nrr,ntt=ntt,ntex=ntex,$
-               gastodust=gastodust,zref=zrref,nref=nzref,$
-               rhofloor=rhofloor,qpldisk=qpldisk,zrefine=zrefine,$
-               hrgrid=hrgrid,hrgmax=hrgmax,info=info,$
-               nib=nib,nphot=nphot,qsig=qsig,flang=flang,mugas=mugas,$
-               nvstr=nvstr,save=save,struct=struct,$
-               nzdisk=nzdisk,zdisk=zdisk,rrefine=rrefine,maindir=maindir,$
-               ifinstar=ifinstar,ifast=ifast,ref2=ref2
-@problem_natconst.pro
-;
-; Default
-;
-if not keyword_set(flang) then flang=0.05
-if not keyword_set(mugas) then mugas=2.3
-if not keyword_set(nvstr) then nvstr=3
-if not keyword_set(gastodust) then gastodust=100.
-if not keyword_set(maindir) then maindir='../'
-;
-; First make an estimate of the temperature
-;
-tgas0  = flang^0.25 * tstar * (rstar/rdisk)^0.5 / sqrt(2.0)
-hpdisk = sqrt(kk*tgas0*rdisk^3/(mugas*mp*GG*mstar))
-;
-; Set up the initial 2-D setup
-;
-diskenv_radmc,mstar,rstar,tstar,rdisk,sigmagasdisk,hpdisk,$
-               rrim=rrim,nrr=nrr,ntt=ntt,ntex=ntex,$
-               gastodust=gastodust,zref=zrref,nref=nzref,$
-               rhofloor=rhofloor,qpldisk=qpldisk,$
-               hrgrid=hrgrid,hrgmax=hrgmax,info=info,$
-               nib=nib,nphot=nphot,qsig=qsig,rrefine=rrefine,$
-               zrefine=zrefine,npdiff=npdiff,ref2=ref2,$
-               ifinstar=ifinstar,nvstr=nvstr,/run
-;
-; Now read the final structure
-;
-a=read_dustdens()
-b=read_dusttemp()
-;
-; Retrieve nr and nt
-;
-nr = n_elements(a.r)
-nt = n_elements(a.theta)/2
-;
-; Make z-grid, if not given
-;
-nrdisk=n_elements(rdisk)
-if not keyword_set(zdisk) then begin
-    if not keyword_set(hrgrid) then hrgrid = 0.6
-    if not keyword_set(nzdisk) then nzdisk = 60
-    zdisk = dblarr(nzdisk,nrdisk)
-    for irdisk=0,nrdisk-1 do begin
-        zdisk[*,irdisk]=hrgrid*rdisk[irdisk]*dindgen(nzdisk)/(nzdisk-1.d0)
-    endfor
-endif
-nzdisk=n_elements(zdisk[*,0])
-;
-; Interpolate onto 1+1D disk grid, using standard routine
-;
-from_2d_to_11d,a.r,a.theta,a.rho,rdisk,transpose(zdisk),rhogas
-from_2d_to_11d,b.r,b.theta,b.temp,rdisk,transpose(zdisk),tgas
-rhogas = rhogas * gastodust
-rhogas = transpose(rhogas)
-tgas   = transpose(tgas)
-;
-; Return...
-;
-struct={rdisk:rdisk,zdisk:zdisk,rhogas:rhogas,tgas:tgas}
-;
-end
-
-
 
 
 ;------------------------------------------------------------------------

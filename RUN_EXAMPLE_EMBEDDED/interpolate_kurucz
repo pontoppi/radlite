@@ -10,7 +10,7 @@ getopts("q");
 
 #$dir = "/home/dominik/dkerb/KURUCZ";
 #$dir = "/scratch/dullemon/kurucz";
-$dir = "/Users/pontoppi/WORK/RADTRANS_LINE_05_09_06/kurucz";
+$dir = "../KURUCZ";
 
 use POSIX qw(ceil floor);
 
@@ -37,6 +37,7 @@ $T = shift;
 $logg = shift;
 $met0 = shift;
 $met = $met0*10;
+$dir = @ARGV[0];
 
 ($T_low,$T_high,$delta_t) = find_in_table($T,\@temperatures);
 ($logg_low,$logg_high,$delta_logg) = find_in_table($logg,\@loggs);
@@ -98,7 +99,7 @@ sub interpolate_flux {
 	$_ = <KURUCZ>;
 	@F = split;
 	foreach (@F) {$_ *= 1e-7}
-	push lambda,@F;
+	push @lambda,@F;
     }
     print "@lambda" if $debug;
 
@@ -140,7 +141,7 @@ sub interpolate_flux {
 	    @flux22 = @flux;
 	    @fluxcont22 = @fluxcont;
 	} else {
-	    die "shit";
+	    die "fatal";
 	}
 	@flux = @fluxcont = ();
 	last if $nfound == 4;
