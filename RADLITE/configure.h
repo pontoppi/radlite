@@ -10,7 +10,7 @@ c#define LINE_FREQDEP_DUST
 #define ESC_MINIMAL_EXTENSION 
 #define FRSIZE_X      300
 #define FRSIZE_Y      400
-#define FRSIZE_FREQ      401
+#define FRSIZE_FREQ      1601
 #define FRSIZE_MU   43
 #define FRSIZE_PHI  16
 #define FRSIZE_CHAR 24
@@ -24,7 +24,7 @@ c#define LINE_FREQDEP_DUST
 #define DUST_TRANGE_MAX  1
 #define DUST_OPAC_TEMPDEP
 #define MOLECULAR_DATA_DIR   '.'
-#define SZ_LINEPROFILE       401
+#define SZ_LINEPROFILE       1601
 #define SZ_LINEPROFILE_SMALL 40
 #define SZ_NLINES            1000
 #define SZ_NLEVELS           1000

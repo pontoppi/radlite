@@ -3,23 +3,24 @@ PRO genspec,obsres=obsres,maxnfile=maxnfile,xrange=xrange,$
               scale_spec=scale_spec,sedcomp=sedcomp,sampling=sampling,$
               multiruns=multiruns,noise=noise,dist=dist
 
-LMAX = 50000
-n_x_max = 1d7
-c=2.99792458d14
+LMAX = 500000
+n_x_max = 1d8
+c = 2.99792458d14
 
 IF NOT KEYWORD_SET(dist) THEN dist = 150. ;pc
-
 IF NOT KEYWORD_SET(obsres) THEN obsres=3.
 IF NOT KEYWORD_SET(scale_spec) THEN scale_spec = 1d0
 
 IF NOT KEYWORD_SET(sampling) THEN BEGIN
-   reswidth = 1.0              ;km/s
+   reswidth = obsres/2.              ;km/s
 ENDIF ELSE BEGIN
    reswidth = sampling
 ENDELSE
 
+print, 'Spectral resolving power set to: ', STRTRIM(STRING(obsres),2), ' km/s (change with keyword *obsres*)'
+print, 'Spectral sampling set to: ', STRTRIM(STRING(reswidth),2), ' km/s (change with keyword *sampling*)'
+
 obsres   = obsres/reswidth
-max_vel  = 500. ;km/s : extend the box width to this
 
 IF KEYWORD_SET(sedcomp) THEN BEGIN
 ;For testing purposes only
@@ -65,6 +66,8 @@ nlines = fltarr(nfiles)
 
 test_read = read_line(linefiles[0])
 nfreq  = test_read.nfreq
+
+max_vel  = MAX([3.*ABS(test_read.velo[0,0]),obsres*3.]) ;km/s : extend the box width to this
 
 lines   = dblarr(LMAX,nfreq)
 velos   = dblarr(LMAX,nfreq)
@@ -188,7 +191,9 @@ FOR i=0,lcount-1 DO BEGIN
    
 ENDFOR
 
-gauss=exp(-(findgen(3001)-1500.)^2./obsres^2.*2./alog(2.))
+ngauss = CEIL(max_vel/reswidth)
+
+gauss=exp(-(findgen(ngauss)-(ngauss-1)/2.)^2./obsres^2.*2./alog(2.))
 ssubs = sort(c/cfreqs)
 
 c_all = interpol(c_lines[ssubs],c/cfreqs[ssubs],x_all)

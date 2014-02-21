@@ -59,11 +59,16 @@ CASE vtype OF
            PRINT, 'ERROR: If you want to have an infalling envelope, you must define an envelope in problem_params.pro!'
            stop
         ENDELSE
-;        readcol, 'shu_endstage.asc',r_shu,dens_shu,v_shu
-;        vr = INTERPOL(v_shu,r_shu,a.rr)*(a.rr gt 20*1.5d13)*1d5
+
         vr   = q.v
-        dsubs = WHERE(a.rr LT rdisk)
+        dsubs = WHERE(a.rr LE rdisk)
+		esubs = WHERE(a.rr GT rdisk)
+
+		;No infall within the disk.
         vr[dsubs] = 0.d0
+		;No rotation within the envelope.
+		vphi[esubs] = 0.d0
+		
         vth  = fltarr(nr,nt) 
         IF KEYWORD_SET(lefthand) THEN vphi = -vphi
     END

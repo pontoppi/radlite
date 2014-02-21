@@ -30,6 +30,11 @@ IF ~KEYWORD_SET(outname) THEN BEGIN
 ENDIF
 
 CASE telescope OF
+   'VLT_K' : BEGIN
+      eltpix  = 0.020           ;arcsec
+      eltres  = 0.056           ;arcsec
+      sigma   = 0.6e-6           ;Jy/beam
+   END
    'VLT' : BEGIN
       eltpix  = 0.043           ;arcsec
       eltres  = 0.120           ;arcsec
