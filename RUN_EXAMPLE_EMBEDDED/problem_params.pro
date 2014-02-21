@@ -114,9 +114,9 @@ drsm   = 0.03           ; smoothing radius
 ;--------------------------------------------------------------------------
 ;                    The Sigma(R) setup parameters
 ;--------------------------------------------------------------------------
-rdisk  = 50 * AU       ; Pivot of power law definitions (often used as rdisk)
+rdisk  = 30 * AU       ; Pivot of power law definitions (often used as rdisk)
 sig0   = 0.0            ; Sigma at rdisk (either sig0 or mdisk)
-mdmstr = 1d-4           ; Mass of the disk (gas+dust) in units of Mstar
+mdmstr = 1d-3           ; Mass of the disk (gas+dust) in units of Mstar
 mdisk  = mdmstr * mstar ; Mass of the disk (gas+dust) (either sig0 or mdisk)
 plsig1 = -1.0d0		; Powerlaw for Sigma(R) for R<Rdisk
 plsig2 = -12.0d0	; Powerlaw for Sigma(R) for R>Rdisk
@@ -151,9 +151,9 @@ hrpuff = 0.0            ; Puffing-up H/R
 ;--------------------------------------------------------------------------
 env    = 1              ;Turn on the envelope
 csenv  = 0.2d5          ;Sound speed in the envelope (in cm/s)
-time   = 5d5            ;Age of the envelope (in years)
+time   = 5d4            ;Age of the envelope (in years)
 cav    = 1
-opening = 30*AU
+opening = 20*AU
 ;--------------------------------------------------------------------------
 ;           Parameters for RADMC : The radiative transfer part
 ;--------------------------------------------------------------------------
