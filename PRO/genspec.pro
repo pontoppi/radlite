@@ -115,6 +115,13 @@ glower  = glower[0:lcount-1]
 
 uniqsubs  = UNIQ(cfreqs, SORT(cfreqs))
 cfreqs    = cfreqs[uniqsubs]
+trans   = trans[uniqsubs]
+eupper  = eupper[uniqsubs]
+aud     = aud[uniqsubs]
+species = species[uniqsubs]
+gupper  = gupper[uniqsubs]
+glower  = glower[uniqsubs]
+
 velos     = velos[uniqsubs,*]
 lines     = lines[uniqsubs,*]
 lcount    = N_ELEMENTS(uniqsubs)
@@ -130,7 +137,7 @@ line_fluxes = fltarr(lcount)
 
 specx = dblarr(lcount*N_vel)
 specy = dblarr(lcount*N_vel)
- 
+
 FOR i=0L,lcount-1 DO BEGIN
     line = fltarr(nfreq)
     line[*] = lines[i,*] 
