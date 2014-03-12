@@ -234,6 +234,6 @@ set_plot, 'x'
 mwrfits, dum, 'model.fits',/create
 mwrfits, {wave:x_all,spec:y_all,lines:l_only},'model.fits'
 mwrfits, {fluxes:line_fluxes,trans:trans,species:species,eupper:eupper,$
-          aud:aud,gupper:gupper,glower:glower},'model.fits'
+          aud:aud,gupper:gupper,glower:glower,wavelength:c/cfreqs},'model.fits'
 
 END

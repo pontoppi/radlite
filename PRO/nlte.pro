@@ -5,7 +5,7 @@ PRO nlte,  z_col, tgas_col, rhogas_col, abun_col, JSED_col, J_col, $
 
 @natconst
 
-niter   = 20
+niter   = 10
 frac    = 0.0001
 minlam  = 0.1
 ALF     = 1d-4
@@ -129,7 +129,7 @@ FOR k=0,niter-1 DO BEGIN
       conv = ABS(MAX((npop_new[highsubs]-npop[highsubs])/npop[highsubs]))
       print, conv
       npop = npop_new
-      IF conv LT 1d-3 THEN BEGIN
+      IF conv LT 1d-2 THEN BEGIN
          PRINT, 'Converged in ' + STRTRIM(STRING(k+1),2) + ' iterations' 
          BREAK
       ENDIF

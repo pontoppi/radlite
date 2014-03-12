@@ -11,22 +11,23 @@
 PRO grid_radmc, clobber=clobber, save_radmc=save_radmc, run_table=run_table, obsres=obsres
 
 IF KEYWORD_SET(clobber) THEN spawn, 'rm -rf grid_*'
-IF ~KEYWORD_SET(obsres) THEN obsres=300
+IF ~KEYWORD_SET(obsres) THEN obsres=3.
 IF ~KEYWORD_SET(run_table) THEN run_table='run_table.fits'
 
 ;fr_temps = [1.,50.,100.,150.,200.,250.]
 
-mdisk=[1d-1,1d-2,1d-3,1d-4]
-g2d=[1d2,1d3,1d4]
-hrgrid=[.5,.43,.38,.32]
-nphot=[2500000,2000000,1000000,1000000]
-hrpl=[0,1./7.,2./7.]
-mstar=[0.1,0.5,1.0]
-rstar=[1.0,1.5,2.0]
-tstar=[2935.0,3765.0,4275.0]
-isot=[51]
-maxabun=[1d-4]
-minabun=[1d-4]
+mdisk   = [1d-1,1d-2,1d-3,1d-4]
+g2d     = [1d2,1d3,1d4]
+hrgrid  = [.5,.43,.38,.32]
+nphot   = [200000,200000,200000,200000]
+hrpl    = [0,1./7.,2./7.]
+mstar   = [0.5,1.0,2.0,3.5]
+rstar   = [1.5,2.0,2.85,2.7]
+tstar   = [3765.0,4275.0,4820.0,12045.0]
+
+isot    = [51,52]
+maxabun = [1d-4,1d-4/70.]
+minabun = [1d-6,1d-6/70.]
 
 nx = N_ELEMENTS(mdisk)
 ny = N_ELEMENTS(g2d)
@@ -60,17 +61,18 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
                   line_run, run_name='grid',rundir=rundir
                   run_par = {dir:rundir,mdisk:mdisk[i],g2d:g2d[j],plh:hrpl[k],mstar:mstar[l]}
                   IF count EQ 1 THEN run_pars=run_par ELSE run_pars = [run_pars,run_par]
-                  ;cd, rundir
-                  ;genspec, obsres=obsres
-                  ;cd, '..'
+                  cd, rundir
+                  genspec, obsres=obsres
+                  cd, '..'
                ENDIF
             ENDFOR
+			
             IF KEYWORD_SET(save_radmc) THEN BEGIN
-               spawn, 'cp problem_params.pro '+rundir
-               spawn, 'mv meanint_radmc.dat '+rundir
-               spawn, 'mv scatsource.dat '+rundir
-               spawn, 'mv dusttemp_final.dat '+rundir
-               spawn, 'mv spectrum_all.dat '+rundir
+			   spawn, 'cp problem_params.pro '+rundir
+               spawn, 'cp meanint_radmc.dat '+rundir
+               spawn, 'cp scatsource.dat '+rundir
+               spawn, 'cp dusttemp_final.dat '+rundir
+               spawn, 'cp spectrum_all.dat '+rundir
             ENDIF
 
          ENDFOR

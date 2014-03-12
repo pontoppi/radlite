@@ -67,22 +67,12 @@ printf, lun, 'plsig1 = '+STRING(plsig1)
 printf, lun, 'plsig2 = '+STRING(plsig2)
 printf, lun, 'bgdens = '+STRING(bgdens)
 printf, lun, ';-----------------------------------------'
-printf, lun, 'schm = '+STRING(schm)
-printf, lun, 'ab_r0 = '+STRING(ab_r0)
-printf, lun, 'ab_ab0 = [1.0]'  ;HARD CODED
-printf, lun, 'ab_pl  = [-3.*schm/2.]'  ;HARD CODED
-printf, lun, 'ab_min = [1d-6]'  ;HARD CODED
-printf, lun, ';-----------------------------------------'
 printf, lun, 'hrdisk = '+STRING(hrdisk)
 printf, lun, 'hrmin = '+STRING(hrmin)
 printf, lun, 'plh = '+STRING(plh)
 printf, lun, ';-----------------------------------------'
 printf, lun, 'rpfrin = '+STRING(rpfrin)
 printf, lun, 'hrpuff = '+STRING(hrpuff)
-printf, lun, ';-----------------------------------------'
-printf, lun, 'env = '+STRING(env)
-printf, lun, 'csenv = '+STRING(csenv)
-printf, lun, 'time = '+STRING(time)
 printf, lun, ';-----------------------------------------'
 printf, lun, 'nphot = '+STRING(nphot)
 printf, lun, 'npdiff = '+STRING(npdiff)
@@ -94,6 +84,10 @@ printf, lun, 'vserrt = '+STRING(vserrt)
 printf, lun, 'ivstrt = '+STRING(ivstrt)
 printf, lun, 'dostr  = [1, 1]'  ;HARD CODED
 printf, lun, ';-----------------------------------------'
+printf, lun, 'tauchop= 5.d3' 
+printf, lun, 'lmbchop= 0.55d0'
+printf, lun, 'idxchop= 1.d0'
+printf, lun, ';-----------------------------------------'
 printf, lun, 'xlevel   = 1'
 printf, lun, 'cd,current=current'
 printf, lun, "for i=1,xlevel do cd,'../'"
@@ -103,7 +97,9 @@ printf, lun, 'cd,current=homedir'
 printf, lun, 'cd,current'
 printf, lun, "bindir=maindir+'/bin/'"
 printf, lun, ';-----------------------------------------'
-printf, lun, "kuruczdir = '~/radlite/KURUCZ/'"
+printf, lun, "maindir = '/Users/pontoppi/WORK/RADLITE'"
+
+printf, lun, "kuruczdir = maindir+'/KURUCZ/'"
 printf, lun, "src_dust  = maindir+'/sources/makeopac/src/'"
 printf, lun, "dustdata  = maindir+'/sources/makeopac/optconst/'"
 printf, lun, "src_rayt  = maindir+'/sources/raytrace/src'"
