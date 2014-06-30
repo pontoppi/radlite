@@ -14,8 +14,12 @@ IF KEYWORD_SET(clobber) THEN spawn, 'rm -rf grid_*'
 IF ~KEYWORD_SET(obsres) THEN obsres=300
 IF ~KEYWORD_SET(run_table) THEN run_table='run_table.fits'
 
+Ng2d = 6
+g2d_max = alog10(10000.)
+g2d_min = alog10(10.)
 fr_temps = [1.,50.,100.,150.,200.,250.]
-g2d      = [100.,1000.,10000.]
+log_g2d      = (g2d_max-g2d_min)*FINDGEN(Ng2d)/(Ng2d-1)+g2d_min
+g2d = 10^log_g2d
 
 nx = N_ELEMENTS(fr_temps)
 ny = N_ELEMENTS(g2d)

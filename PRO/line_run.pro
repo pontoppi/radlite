@@ -173,8 +173,12 @@ ENDFOR
 IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
    WHILE 1 DO BEGIN
       spawn, 'ps cax | grep RADlite', radlite_running
+	  writeu,-1,string(13b)
       print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
-      IF radlite_running[0] EQ '' THEN BREAK
+      IF radlite_running[0] EQ '' THEN BEGIN
+		  wait, 5.
+		  BREAK
+	  ENDIF
       wait, 2.0
    ENDWHILE
 ENDIF ELSE BEGIN

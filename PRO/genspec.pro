@@ -1,26 +1,23 @@
 PRO genspec,obsres=obsres,maxnfile=maxnfile,xrange=xrange,$
               psym=psym,yrange=yrange,xlog=xlog,ylog=ylog,$
               scale_spec=scale_spec,sedcomp=sedcomp,sampling=sampling,$
-              multiruns=multiruns,noise=noise,dist=dist
+              multiruns=multiruns,noise=noise,dist=dist,plotit=plotit
 
 LMAX = 500000
 n_x_max = 1d8
 c = 2.99792458d14
+obsres = obsres[0] ;make sure this is a scalar
 
 IF NOT KEYWORD_SET(dist) THEN dist = 150. ;pc
 IF NOT KEYWORD_SET(obsres) THEN obsres=3.
 IF NOT KEYWORD_SET(scale_spec) THEN scale_spec = 1d0
 
 IF NOT KEYWORD_SET(sampling) THEN BEGIN
-   reswidth = obsres/2.              ;km/s
-ENDIF ELSE BEGIN
-   reswidth = sampling
-ENDELSE
+   sampling = obsres/2.              ;km/s
+ENDIF 
 
 print, 'Spectral resolving power set to: ', STRTRIM(STRING(obsres),2), ' km/s (change with keyword *obsres*)'
-print, 'Spectral sampling set to: ', STRTRIM(STRING(reswidth),2), ' km/s (change with keyword *sampling*)'
-
-obsres   = obsres/reswidth
+print, 'Spectral sampling set to: ', STRTRIM(STRING(sampling),2), ' km/s (change with keyword *sampling*)'
 
 IF KEYWORD_SET(sedcomp) THEN BEGIN
 ;For testing purposes only
@@ -171,14 +168,13 @@ max_mu = max_mu + max_vel*1d9*max_mu/c
 min_mu = MIN(c/cfreqs[gsubs])
 min_mu = min_mu - max_vel*1d9*min_mu/c
 ;
-;Define new wavelength grid
-x_all   = dblarr(n_x_max)
-
+;Define wavelength grid with constant velocity resolution
+x_all    = dblarr(n_x_max)
 x_all[0] = min_mu
-n_x_all = 0d0
-i       = 0L
+n_x_all  = 0d0
+i        = 0L
 WHILE x_all[i] LT max_mu DO BEGIN
-   x_all[i+1] = x_all[i] * (1d0 + reswidth / 2.99792458d5)
+   x_all[i+1] = x_all[i] * (1d0 + res_el / 2.99792458d5)
    n_x_all = n_x_all + 1
    IF n_x_all GT n_x_max THEN BEGIN
       PRINT, 'Too many wavelength points!!!'
@@ -189,57 +185,81 @@ ENDWHILE
 x_all   = x_all[0:n_x_all-1]
 y_all   = fltarr(n_x_all)
 
+;
+;Define wavelength grid on requested output velocity sampling
+x_out    = dblarr(n_x_max)
+x_out[0] = min_mu
+n_x_out  = 0d0
+i        = 0L
+WHILE x_out[i] LT max_mu DO BEGIN
+   x_out[i+1] = x_out[i] * (1d0 + sampling / 2.99792458d5)
+   n_x_out = n_x_out + 1
+   IF n_x_out GT n_x_max THEN BEGIN
+      PRINT, 'Too many wavelength points!!!'
+      stop
+   ENDIF
+   i = i+1
+ENDWHILE
+x_out   = x_out[0:n_x_out-1]
+
 FOR i=0,lcount-1 DO BEGIN
-   
    x_mu = new_vel*1d9/cfreqs[i]+c/cfreqs[i]
    y_Jy = lines_int[i,*,1]
    gsubs = where(x_all ge min(x_mu) and x_all le max(x_mu))   
    y_all[gsubs] = y_all[gsubs] + INTERPOL(y_jy,x_mu,x_all[gsubs])
-   
 ENDFOR
 
-ngauss = CEIL(max_vel/reswidth)
+ngauss = (CEIL(3.*obsres/res_el))[0]  ;At some IDL version CEIL began returning an array, rather than a scalar. Extremely dangerous.
+obsres_sampling = obsres/res_el
 
-gauss=exp(-(findgen(ngauss)-(ngauss-1)/2.)^2./obsres^2.*2./alog(2.))
+gauss = exp(-(FINDGEN(ngauss)-(ngauss-1)/2.)^2./obsres_sampling^2.*2./alog(2.))
 ssubs = sort(c/cfreqs)
 
-c_all = interpol(c_lines[ssubs],c/cfreqs[ssubs],x_all)
+c_all = INTERPOL(c_lines[ssubs],c/cfreqs[ssubs],x_all)
 l_only = y_all * 1d23/dist^2 
+
 ;
 ;Remember to add the continuum back
 y_all = (y_all+c_all) * 1d23/dist^2.
+
 ;
 ;and convolve to requested resolving power
 y_all = CONVOL(y_all,gauss,total(gauss),/edge_truncate)
 
+;
+;Resample to requested output grid
+y_out = INTERPOL(y_all,x_all,x_out)
 
-IF NOT KEYWORD_SET(xrange) THEN xrange = [MIN(x_all),MAX(x_all)]
-rsubs = where(x_all gt xrange[0] and x_all lt xrange[1])
+IF NOT KEYWORD_SET(xrange) THEN xrange = [MIN(x_out),MAX(x_out)]
+rsubs = where(x_out gt xrange[0] and x_out lt xrange[1])
 
-IF NOT KEYWORD_SET(yrange) THEN yrange=[min(y_all[rsubs]),max(y_all[rsubs])]
+IF NOT KEYWORD_SET(yrange) THEN yrange=[min(y_out[rsubs]),max(y_out[rsubs])]
 
 IF KEYWORD_SET(noise) THEN BEGIN
-   ns = randomn(seed,N_ELEMENTS(x_all))*noise
-   y_all = y_all+ns
+   ns = randomn(seed,N_ELEMENTS(x_out))*noise
+   y_out = y_out+ns
 ENDIF
 
-plot, x_all,y_all, xtitle='Wavelength [micron]', ytitle='Flux [Jy]',$
-  yrange=yrange,xrange=xrange,psym=psym,/xs,ylog=ylog,xlog=xlog
-
-IF KEYWORD_SET(sedcomp) THEN $
-   oplot, x,y/dist^2d0*scale_spec,color=56300
-
-@plot_setup.h
-set_plot, 'ps'
-device, filename='model.eps',xsize=20,ysize=16,/encapsulated
-plot, x_all,y_all, xtitle='Wavelength [micron]', ytitle='Flux [Jy]',$
-  yrange=yrange,xrange=xrange,/xs,ylog=ylog,xlog=xlog
-device,/close
-set_plot, 'x'
-@plot_clear.h
+IF KEYWORD_SET(plotit) THEN BEGIN	
+	@plot_setup.h
+	set_plot, 'ps'
+	device, filename='model.eps',xsize=20,ysize=16,/encapsulated
+	plot, x_out,y_out, xtitle='Wavelength [micron]', ytitle='Flux [Jy]',$
+  	  yrange=yrange,xrange=xrange,/xs,ylog=ylog,xlog=xlog
+	device,/close
+	set_plot, 'x'
+	@plot_clear.h
+	
+	plot, x_out,y_out, xtitle='Wavelength [micron]', ytitle='Flux [Jy]',$
+  	  yrange=yrange,xrange=xrange,psym=psym,/xs,ylog=ylog,xlog=xlog
+	
+	IF KEYWORD_SET(sedcomp) THEN $
+   	 oplot, x,y/dist^2d0*scale_spec,color=56300
+	
+ENDIF
 
 mwrfits, dum, 'model.fits',/create
-mwrfits, {wave:x_all,spec:y_all,lines:l_only},'model.fits'
+mwrfits, {wave:x_out,spec:y_out,lines:l_only},'model.fits'
 mwrfits, {fluxes:line_fluxes,trans:trans,species:species,eupper:eupper,$
           aud:aud,gupper:gupper,glower:glower,wavelength:c/cfreqs},'model.fits'
 
