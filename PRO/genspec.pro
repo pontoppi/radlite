@@ -216,6 +216,7 @@ gauss = exp(-(FINDGEN(ngauss)-(ngauss-1)/2.)^2./obsres_sampling^2.*2./alog(2.))
 ssubs = sort(c/cfreqs)
 
 c_all = INTERPOL(c_lines[ssubs],c/cfreqs[ssubs],x_all)
+
 l_only = y_all * 1d23/dist^2 
 
 ;
@@ -260,7 +261,14 @@ ENDIF
 
 mwrfits, dum, 'model.fits',/create
 mwrfits, {wave:x_out,spec:y_out,lines:l_only},'model.fits'
-mwrfits, {fluxes:line_fluxes,trans:trans,species:species,eupper:eupper,$
-          aud:aud,gupper:gupper,glower:glower,wavelength:c/cfreqs},'model.fits'
+table = REPLICATE({fluxes:line_fluxes[0],trans:trans[0],species:species[0],eupper:eupper[0],$
+    	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0]},N_ELEMENTS(line_fluxes))
+FOR i=1,N_ELEMENTS(line_fluxes)-1 DO BEGIN
+	table[i] = {fluxes:line_fluxes[i],trans:trans[i],species:species[i],eupper:eupper[i],$
+    	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i]}
+ENDFOR
+
+mwrfits, table,'model.fits'
+
 
 END
