@@ -23,7 +23,7 @@
 @lamda_extract_levels
 @make_levelpop
 
-PRO line_run, run_name=run_name, wait_time=wait_time, look_for_lpop_file=look_for_lpop_file, rundir=rundir
+PRO line_run, run_name=run_name, wait_time=wait_time, look_for_lpop_file=look_for_lpop_file, rundir=rundir, save_levelpop=save_levelpop
 @natconst.pro
 @line_params.ini
 
@@ -192,7 +192,11 @@ ENDELSE
 
 spawn, 'cp problem_params.pro '+rundir+'/.'
 spawn, 'cp line_params.ini '+rundir+'/.'
-spawn, 'cp levelpop_nlte.fits '+rundir+'/.'
+
+IF KEYWORD_SET(save_levelpop) THEN BEGIN
+   spawn, 'cp levelpop_nlte.fits '+rundir+'/.'
+ENDIF
+
 FOR iii=0,ncores-1 DO BEGIN
    ;
    ;Save the molecular file to a unique name

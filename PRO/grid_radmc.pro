@@ -67,8 +67,8 @@ FOR i=0,N_ELEMENTS(mdisk)-1 DO BEGIN
                ENDIF
             ENDFOR
 			
+            spawn, 'cp problem_params.pro '+rundir
             IF KEYWORD_SET(save_radmc) THEN BEGIN
-			   spawn, 'cp problem_params.pro '+rundir
                spawn, 'cp meanint_radmc.dat '+rundir
                spawn, 'cp scatsource.dat '+rundir
                spawn, 'cp dusttemp_final.dat '+rundir
