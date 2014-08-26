@@ -65,21 +65,21 @@ IF NOT KEYWORD_SET(lambdarange) THEN lambdarange=[12,13]
 CASE isotop OF
    51:BEGIN
       molweight=28. 
-      molecule='CO'
+      molecule='12CO'
       hitran_file=hitran_path+'05_hit08.par'
    END
    52:BEGIN
-      molweight=28. 
+      molweight=29. 
       molecule='13CO'
       hitran_file=hitran_path+'05_hit08.par'
    END
    53:BEGIN
-      molweight=28. 
+      molweight=30. 
       molecule='C18O'
       hitran_file=hitran_path+'05_hit08.par'
    END
    54:BEGIN
-      molweight=28. 
+      molweight=29. 
       molecule='C17O'
       hitran_file=hitran_path+'05_hit08.par'
    END
