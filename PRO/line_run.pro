@@ -179,7 +179,7 @@ IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
 		  wait, 5.
 		  BREAK
 	  ENDIF
-      wait, 2.0
+      wait, 5.0
    ENDWHILE
 ENDIF ELSE BEGIN
    wait, wait_time
@@ -192,18 +192,18 @@ ENDELSE
 
 spawn, 'cp problem_params.pro '+rundir+'/.'
 spawn, 'cp line_params.ini '+rundir+'/.'
+spawn, 'mv RADLite_core*.log '+rundir+'/.'
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
    spawn, 'cp levelpop_nlte.fits '+rundir+'/.'
 ENDIF
+
 
 FOR iii=0,ncores-1 DO BEGIN
    ;
    ;Save the molecular file to a unique name
    spawn, 'mv moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
    spawn, 'mv levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
-   spawn, 'mv RADLite_core*.log '+rundir+'/.'
-   spawn, 'mv parallel*.log '+rundir+'/.'
    ;
    ;And save the lines to a unique name
    IF image eq 0 THEN BEGIN
