@@ -182,11 +182,8 @@ IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
 	  writeu,-1,string(13b)
       print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
       IF radlite_running[0] EQ '' THEN BEGIN
-		 IF image EQ 0 THEN BEGIN
-	        spawn, 'ls moldata*.dat', moldata_files
-		    spawn, 'ls linespectrum*.dat', linespectrum_files		  
-		    IF N_ELEMENTS(moldata_files) EQ N_ELEMENTS(linespectrum_files) THEN BREAK
-		 ENDIF
+		  wait, 5.0
+		  BREAK
 	  ENDIF
       wait, 5.0
    ENDWHILE
@@ -199,12 +196,12 @@ ENDELSE
 ;
 ;Copy the model setup parameters
 
-file_move, 'problem_params.pro', rundir+'/.'
-file_move, 'line_params.ini', rundir+'/.'
+file_copy, 'problem_params.pro', rundir+'/.'
+file_copy, 'line_params.ini', rundir+'/.'
 file_move, 'RADLite_core*.log', rundir+'/.'
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
-   file_move, 'levelpop_nlte.fits', rundir+'/.'
+   file_copy, 'levelpop_nlte.fits', rundir+'/.'
 ENDIF
 
 
