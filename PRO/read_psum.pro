@@ -29,7 +29,7 @@ READS, row, molmass
 i=0
 floatrow = FLTARR(nspecies)
 gsub = WHERE(mol.species EQ species)
-stop
+
 IF gsub[0] EQ -1 THEN BEGIN
    PRINT, 'No partition sum table found for the requested molecule!'
    STOP

@@ -106,7 +106,7 @@ CASE isotop OF
    131:BEGIN
       molweight=17.
       molecule='OH'
-      hitran_file=hitran_path+'13_hit08.par'
+      hitran_file=hitran_path+'13_HITEMP2010.par'
    END
    231:BEGIN
       molweight=29.
