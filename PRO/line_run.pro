@@ -23,7 +23,7 @@
 @lamda_extract_levels
 @make_levelpop
 
-PRO line_run, run_name=run_name, wait_time=wait_time, look_for_lpop_file=look_for_lpop_file, rundir=rundir, save_levelpop=save_levelpop
+PRO line_run, run_name=run_name, wait_time=wait_time, look_for_lpop_file=look_for_lpop_file, rundir=rundir, save_levelpop=save_levelpop, nodate=nodate
 @natconst.pro
 @line_params.ini
 
@@ -81,7 +81,12 @@ subN   = CEIL(nlines/FLOAT(ncores))
 ;Setting up the results directory
 time = systime(0)
 
-rundir = run_name+'_'+strmid(time,4,3)+'_'+STRTRIM(strmid(time,8,2),2)+'_'+strmid(systime(),11,5)
+IF KEYWORD_SET(nodate) THEN BEGIN
+	rundir = run_name+'_'+strmid(time,4,3)+'_'+STRTRIM(strmid(time,8,2),2)
+ENDIF ELSE BEGIN
+	rundir = run_name+'_'+strmid(time,4,3)+'_'+STRTRIM(strmid(time,8,2),2)+'_'+strmid(systime(),11,5)	
+ENDELSE
+
 spawn, 'mkdir '+ rundir
 
 PRINT, 'Rendering lines on ',ncores, ' processor cores'
