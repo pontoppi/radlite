@@ -50,6 +50,7 @@ ENDIF ELSE BEGIN
 ENDELSE
 
 IF NOT KEYWORD_SET(run_name) THEN run_name='run'
+IF NOT KEYWORD_SET(wait_time) THEN wait_time = 5.
 
 ;First make a test run with hitran_extract (for LTE) or
 ;lamda_extract_lines (for NLTE) to determine the total
@@ -181,8 +182,11 @@ IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
 	  writeu,-1,string(13b)
       print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
       IF radlite_running[0] EQ '' THEN BEGIN
-		  wait, 5.
-		  BREAK
+		 IF image EQ 0 THEN BEGIN
+	        spawn, 'ls moldata*.dat', moldata_files
+		    spawn, 'ls linespectrum*.dat', linespectrum_files		  
+		    IF N_ELEMENTS(moldata_files) EQ N_ELEMENTS(linespectrum_files) THEN BREAK
+		 ENDIF
 	  ENDIF
       wait, 5.0
    ENDWHILE
@@ -195,32 +199,32 @@ ENDELSE
 ;
 ;Copy the model setup parameters
 
-spawn, 'cp problem_params.pro '+rundir+'/.'
-spawn, 'cp line_params.ini '+rundir+'/.'
-spawn, 'mv RADLite_core*.log '+rundir+'/.'
+file_move, 'problem_params.pro', rundir+'/.'
+file_move, 'line_params.ini', rundir+'/.'
+file_move, 'RADLite_core*.log', rundir+'/.'
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
-   spawn, 'cp levelpop_nlte.fits '+rundir+'/.'
+   file_move, 'levelpop_nlte.fits', rundir+'/.'
 ENDIF
 
 
 FOR iii=0,ncores-1 DO BEGIN
    ;
    ;Save the molecular file to a unique name
-   spawn, 'mv moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
-   spawn, 'mv levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
+   file_move, 'moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
+   file_move, 'levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
    ;
    ;And save the lines to a unique name
    IF image eq 0 THEN BEGIN
-      spawn, 'mv linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
+      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
    ENDIF
    IF image EQ 2 THEN BEGIN
-      spawn, 'mv lineposvelcirc_moldata*.dat '+rundir+'/.'
-      spawn, 'mv linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat '+rundir+'/.'
+      file_move, 'lineposvelcirc_moldata*.dat', rundir+'/.'
+      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
    ENDIF
    IF image EQ 1 THEN BEGIN
       FOR lj=1,nlines DO BEGIN
-         spawn, 'mv lineposvel_moldata_'+STRTRIM(STRING(iii),2)+'_'+STRTRIM(STRING(lj),2)+'.dat '+rundir+$
+         file_move, 'lineposvel_moldata_'+STRTRIM(STRING(iii),2)+'_'+STRTRIM(STRING(lj),2)+'.dat', rundir+$
                 '/lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat'           
       ENDFOR
       IF KEYWORD_SET(dat2fits) THEN BEGIN
