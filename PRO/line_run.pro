@@ -50,7 +50,6 @@ ENDIF ELSE BEGIN
 ENDELSE
 
 IF NOT KEYWORD_SET(run_name) THEN run_name='run'
-IF NOT KEYWORD_SET(wait_time) THEN wait_time = 5.
 
 ;First make a test run with hitran_extract (for LTE) or
 ;lamda_extract_lines (for NLTE) to determine the total
@@ -188,7 +187,7 @@ IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
       wait, 5.0
    ENDWHILE
 ENDIF ELSE BEGIN
-   wait, wait_time
+   wait, 5.0
 ENDELSE
 
 ;
