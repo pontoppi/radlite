@@ -34,12 +34,12 @@ printf, lun, 'kurucz ='+STRING(kurucz)
 printf, lun, 'ifinstar = '+STRING(ifinstar)
 printf, lun, ';-----------------------------------------'
 printf, lun, 'abunc = '+STRING(abunc)
-printf, lun, "mixnames = ['amorph_mix.Kappa', 'cryst_mix.Kappa']"  ;HARD CODED
-printf, lun, "mixspecs = [['carbon.Kappa','silicate.Kappa'],['carbon.Kappa','forsterite.Kappa']]"  ;HARD CODED
-printf, lun, 'mixabun  = [[abunc,(1.0-abunc)], [abunc,(1.0-abunc)]]'  ;HARD CODED
+printf, lun, "mixnames = ['amorph_mix.Kappa']"  ;HARD CODED
+printf, lun, "mixspecs = ['carbon.Kappa','silicate.Kappa']"  ;HARD CODED
+printf, lun, 'mixabun  = [abunc,(1.0-abunc)]'  ;HARD CODED
 printf, lun, 'fresmd = '+STRING(fresmd)
-printf, lun, "infile =  ['amorph_mix.Kappa','cryst_mix.Kappa']"  ;HARD CODED
-printf, lun, 'pll =[-1,-1]'
+printf, lun, "infile =  ['amorph_mix.Kappa']"  ;HARD CODED
+printf, lun, 'pll =[-1]'
 printf, lun, 'scat =  '+STRING(scat)
 printf, lun, ';-----------------------------------------'
 printf, lun, 'gastodust = '+STRING(gastodust)

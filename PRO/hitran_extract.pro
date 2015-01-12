@@ -66,42 +66,42 @@ CASE isotop OF
    51:BEGIN
       molweight=28. 
       molecule='12CO'
-      hitran_file=hitran_path+'05_hit08.par'
+      hitran_file=hitran_path+'05_hit12.par'
    END
    52:BEGIN
       molweight=29. 
       molecule='13CO'
-      hitran_file=hitran_path+'05_hit08.par'
+      hitran_file=hitran_path+'05_hit12.par'
    END
    53:BEGIN
       molweight=30. 
       molecule='C18O'
-      hitran_file=hitran_path+'05_hit08.par'
+      hitran_file=hitran_path+'05_hit12.par'
    END
    54:BEGIN
       molweight=29. 
       molecule='C17O'
-      hitran_file=hitran_path+'05_hit08.par'
+      hitran_file=hitran_path+'05_hit12.par'
    END
    11:BEGIN
       molweight=18. 
       molecule='H2O'
-      hitran_file=hitran_path+'01_hit08.par'
+      hitran_file=hitran_path+'01_hit12.par'
    END
    12:BEGIN
       molweight=20. 
       molecule='H218O'
-      hitran_file=hitran_path+'01_hit08.par'
+      hitran_file=hitran_path+'01_hit12.par'
    END
    13:BEGIN
       molweight=19. 
       molecule='H217O'
-      hitran_file=hitran_path+'01_hit08.par'
+      hitran_file=hitran_path+'01_hit12.par'
    END
    14:BEGIN
       molweight=19. 
       molecule='HDO'
-      hitran_file=hitran_path+'01_hit08.par'
+      hitran_file=hitran_path+'01_hit12.par'
    END
    131:BEGIN
       molweight=17.
@@ -111,62 +111,62 @@ CASE isotop OF
    231:BEGIN
       molweight=29.
       molecule='HCN'
-      hitran_file=hitran_path+'23_hit08.par'
+      hitran_file=hitran_path+'23_hit12.par'
    END
    21:BEGIN
       molweight=48.
       molecule='CO2'
-      hitran_file=hitran_path+'02_hit08.par'
+      hitran_file=hitran_path+'02_hit12.par'
    END
    61:BEGIN
       molweight=16.
       molecule='CH4'
-      hitran_file=hitran_path+'06_hit08.par'
+      hitran_file=hitran_path+'06_hit12.par'
    END
    111:BEGIN
       molweight=17.
       molecule='NH3'
-      hitran_file=hitran_path+'11_hit08.par'
+      hitran_file=hitran_path+'11_hit12.par'
    END
    141:BEGIN
       molweight=15.
       molecule='HF'
-      hitran_file=hitran_path+'14_hit08.par'
+      hitran_file=hitran_path+'14_hit12.par'
    END
    201:BEGIN
       molweight=30.
       molecule='H2CO'
-      hitran_file=hitran_path+'20_hit08.par'
+      hitran_file=hitran_path+'20_hit12.par'
    END
    221:BEGIN
       molweight=28.
       molecule='N2'
-      hitran_file=hitran_path+'22_hit08.par'
+      hitran_file=hitran_path+'22_hit12.par'
    END
    261:BEGIN
       molweight=26.
       molecule='C2H2'
-      hitran_file=hitran_path+'26_hit08.par'
+      hitran_file=hitran_path+'26_hit12.par'
    END
    341:BEGIN
       molweight=16.
       molecule='O'
-      hitran_file=hitran_path+'34_hit08.par'
+      hitran_file=hitran_path+'34_hit12.par'
    END
    391:BEGIN
       molweight=32.
       molecule='CH3OH'
-      hitran_file=hitran_path+'39_hit08.par'
+      hitran_file=hitran_path+'39_hit12.par'
    END
    321:BEGIN
       molweight=46.
       molecule='HCOOH'
-      hitran_file=hitran_path+'32_hit08.par'
+      hitran_file=hitran_path+'32_hit12.par'
    END
    381:BEGIN
       molweight=28.
       molecule='C2H4'
-      hitran_file=hitran_path+'38_hit08.par'
+      hitran_file=hitran_path+'38_hit12.par'
    END
    422:BEGIN
       molweight=3.
@@ -176,7 +176,7 @@ CASE isotop OF
    151:BEGIN
       molweight=36.
       molecule='HCL'
-      hitran_file=hitran_path+'15_hit08.par'
+      hitran_file=hitran_path+'15_hit12.par'
    END
 ENDCASE
 ;
