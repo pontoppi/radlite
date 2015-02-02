@@ -59,6 +59,7 @@ IF tel eq 'SUPEROWL' THEN BEGIN
    nside   = 40.
 ENDIF
 
+
 nsegs = nside^2
 
 xcen = fltarr(nside,nside)

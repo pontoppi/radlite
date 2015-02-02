@@ -29,11 +29,13 @@ IF ~KEYWORD_SET(outname) THEN BEGIN
    outname = 'telescope_image'
 ENDIF
 
+fidelity = 500.
+
 CASE telescope OF
    'VLT_K' : BEGIN
       eltpix  = 0.020           ;arcsec
       eltres  = 0.056           ;arcsec
-      sigma   = 0.6e-6           ;Jy/beam
+      sigma   = 0.6e-6          ;Jy/beam
    END
    'VLT' : BEGIN
       eltpix  = 0.043           ;arcsec
@@ -65,6 +67,11 @@ CASE telescope OF
       eltres  = 0.20             ;arcsec
       sigma   = 7.0*1d-6        ;Jy/beam (6d-21 W/m^2 at 22.5)
    END
+   'ATLAST' : BEGIN
+     eltpix  = 0.005            ;arcsec
+     eltres  = 0.010             ;arcsec
+     sigma   = 7.*1d-9        ;Jy/beam 
+  	END   
     'SUPER_OWL' : BEGIN
       eltpix  = 0.0005
       eltres  = 0.0010
@@ -210,8 +217,8 @@ ENDELSE
 ;original purpose was to add a planet calculation. It is the users
 ;responsibility that the added model flux cube actually makes sense.
 IF KEYWORD_SET(add_model) THEN BEGIN
-   xoff = 30
-   yoff = 5
+   xoff = 13
+   yoff = -3
    fsh  = -2
    add_data = MRDFITS(add_model)
    add_data = SHIFT(add_data,0,0,fsh)
@@ -232,7 +239,7 @@ FOR i=0,nf-1 DO BEGIN
    ;Add noise
    IF ~KEYWORD_SET(noiseless) THEN BEGIN
       ns = randomn(seed,n_elt_pix,n_elt_pix) * $
-           sigma/(!pi*(eltres/2.)^2)
+           (sigma/(!pi*(eltres/2.)^2)+im_elt[*,*,i]/fidelity)
       im_elt[*,*,i] = im_elt[*,*,i] + ns
    ENDIF
 
