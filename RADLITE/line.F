@@ -4602,10 +4602,10 @@ c     Very occasionally you may want to figure out how the
 c     integration along the characteristics has proceeded
 c     For this, we can dump the intermediate result to a file
 c
-#     ifdef MONITOR_CHARINT
-         write(4,'(11(E11.4,1X))') intensity,src0,src1,alp0,alp1,
-     %        char_tau,char_emis,r,theta,tr_s_is,ds
-#     endif
+c#     ifdef MONITOR_CHARINT
+c         write(4,'(11(E11.4,1X))') intensity,src0,src1,alp0,alp1,
+c     %        char_tau,char_emis,r,theta,tr_s_is,ds
+c#     endif
 
 c
 c     Swap srcl1->srcl0 etc

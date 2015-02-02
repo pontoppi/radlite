@@ -340,7 +340,7 @@ c     --------------------------------------------------------
       implicit none
 c
       integer inu
-      doubleprecision charintline
+      doubleprecision charintline,dummy
 c
 #include "common_grid.h"
 #include "common_telescope.h"
@@ -406,15 +406,15 @@ c     we must open file.
 c
 
 #     ifdef MONITOR_CHARINT
-      if(inu.eq.MONITOR_INU) then
-      write(*,*) '!!!!! WRITING THE BIG FILE !!!!!!'
-      open(unit=4,file='charmonitor_radlite.dat',status='unknown')
-      write(4,*) TRMAXFIL,imcir_nrphi*imcir_nrr
-      if(imcir_nrphi*imcir_nrr.gt.50000) then
-          write(*,*) 'safety stop in telescope.F'
-          stop 1
-      endif
-      endif
+         write(*,*) '!!!!! WRITING THE BIG FILE !!!!!!'
+         open(unit=4,file='charmonitor_radlite.dat',
+     %        form='unformatted',
+     %        access='stream')
+         write(4) TRMAXFIL,imcir_nrphi*imcir_nrr
+         if(imcir_nrphi*imcir_nrr.gt.500000) then
+            write(*,*) 'safety stop in telescope.F'
+            stop 1
+         endif
 #     endif
 
 c
@@ -502,6 +502,16 @@ c
 #     endif
       
       do inu=1,freq_nr
+		  
+#        ifdef MONITOR_CHARINT
+            if (inu.eq.2.or.inu.eq.freq_nr/2) then
+               write(4) inu
+		       write(4) iphi
+		       write(4) imcir_ri(ir)
+            endif
+#        endif
+		  
+		  
          imcir_int(inu,1,0) = 
      %        charintline(ispec_currentline,inu,iray,imcir_ri(1))
 c
@@ -521,6 +531,7 @@ c
       iray = 2
       do ir=1,imcir_nrr
           do iphi=1,rays_nrphi
+
 
              
 #            ifndef TELESCOPE_TRAJARR
@@ -544,31 +555,60 @@ c            and if the line does not cross the ray, then also mark it as contin
                 
 c            Now we can do the rest of the frequencies without wasting precious CPU cycles
              do inu=2,freq_nr
+				 
 #ifdef NONREDUNDANT
 c               Now check: is the line velocity within the velocity boundaries of the ray? 
                 if(velo(inu).le.maxvel(iray)+2.*aksmax_c.and.
      %               velo(inu).ge.minvel(iray)-2.*aksmax_c) then
+	 
+#                  ifdef MONITOR_CHARINT
+	                  if (inu.eq.2.or.inu.eq.freq_nr/2) then
+						  write(4) inu
+	                      write(4) iphi
+	 	                  write(4) imcir_ri(ir)
+	 		          endif
+#                  endif
+	 
                    imcir_int(inu,iphi,ir) = 
      %                  charintline(ispec_currentline,inu,iray,-1.d0)
 c                  set the mask to show that the ray has been integrated (for diagnostic reasons).     
                    imcir_cmask(inu,iphi,ir) = 1
-                else
+
 c               If the line does not cross the ray in a high density region, 
 c               then use the continuum (if it has already been calculated). 
 c               Note that this currently assumes that the continuum is the same across the line.
 c               If the user wishes this to be done better - turn off the NONREDUNDANT switch and accept
 c               the much longer processing times. 
+                else
                    if(imcir_cont(iphi,ir).ne.0) then
 c                  The continuum has already been calculated for this ray, so just copy it
                       imcir_int(inu,iphi,ir) = imcir_cont(iphi,ir) 
+c                     Although we do need it if we are saving the full integration
+#                     ifdef MONITOR_CHARINT
+					     if (inu.eq.2.or.inu.eq.freq_nr/2) then
+					  		write(4) inu
+					  		write(4) iphi
+					  		write(4) imcir_ri(ir)
+					  	    dummy = charintline(ispec_currentline,inu,iray,-1.d0)
+					  	 endif
+#                     endif
+					  
                    else
-c                  The continuum has not yet been calculated for the ray, so do it now
+c                     The continuum has not yet been calculated for the ray, so do it now
+#                     ifdef MONITOR_CHARINT
+					     if (inu.eq.2.or.inu.eq.freq_nr/2) then
+					   	    write(4) inu
+					   		write(4) iphi
+					   		write(4) imcir_ri(ir)
+					   	 endif
+#                     endif
+
                       imcir_int(inu,iphi,ir) = 
      %                     charintline(ispec_currentline,inu,iray,-1.d0)
 c                     And save it for later use
                       imcir_cont(iphi,ir) = 
      %                     imcir_int(inu,iphi,ir)                      
-                   endif
+                   endif				   
                 endif
                 
 #else
@@ -584,9 +624,7 @@ c
 c     Close the debugging monitor file
 c
 #     ifdef MONITOR_CHARINT
-      if(inu.eq.MONITOR_INU) then
          close(4)
-      endif
 #     endif
 c
 c
@@ -2909,7 +2947,7 @@ c        |  \_.__
 c        |     . \____ 
 c        |      ..    \____ 
 c        |        ..       \____
-c        |          ...         \   
+c        |          ..          \   
 c
 c
 c     Okay, now let's go... First we make a loop over theta, 
@@ -4000,9 +4038,11 @@ c     The loop along the ray
 c
       amount = tr_amount
 c
-#ifdef MONITOR_CHARINT
-      write(4,*) amount
-#endif
+#     ifdef MONITOR_CHARINT
+         if (inu.eq.2.or.inu.eq.freq_nr/2) then
+   	        write(4) amount
+         endif
+#     endif
       do is=2,amount
 c
 c         Compute the length of the line element
@@ -4256,11 +4296,12 @@ c
              maserflag = 1
           ENDIF
 
-c          IF (iray.eq.14000) THEN
-c             write(*,'(i,e,e,e,e,e,e,e,e)') is,charintline,srcd0,alpd0,
-c     %            r,theta
-c          endif
-c         88888
+#         ifdef MONITOR_CHARINT
+             if (inu.eq.2.or.inu.eq.freq_nr/2) then
+		        write(4) r, theta, charintline
+			 endif
+#         endif
+
       enddo
 c
 c     If the density never gets above the threshold, make sure that
