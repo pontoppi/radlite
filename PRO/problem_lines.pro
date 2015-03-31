@@ -35,7 +35,9 @@ IF gas_decoup EQ 0 THEN BEGIN
    endfor
    close,lunt
    free_lun, lunt
-ENDIF ELSE BEGIN
+ENDIF
+IF gas_decoup EQ 1 THEN BEGIN
+	   
   ;In this case the gas
   ;temperature is calculated
   ;using Rowin's phenomenological
@@ -48,8 +50,11 @@ ENDIF ELSE BEGIN
   ;with abun_str = 5
    spawn, 'rm temperature.inp'
    xray_abundance, abun=abun,tgas=tgas
-   
-ENDELSE
+ENDIF
+IF gas_decoup EQ 2 THEN BEGIN
+    spawn, 'rm temperature.inp'
+	parameterized_decoup,tgas=tgas,mol_destruct=mol_destruct
+ENDIF
 ;
 ;Some times the gas temperature comes
 ;out 0.0000 - have to check what goes wrong...
@@ -97,22 +102,7 @@ free_lun, lund
 ;======================================
 ;Make an abundance file
 ;======================================
-IF gas_decoup NE 0 THEN BEGIN
-;   IF isot NE 11 THEN BEGIN
-;      PRINT, 'WARNING: You are attempting to use Rowins phenomenological abundance + gas temperature model. This'
-;      PRINT, 'is intended for H2O only, but you are running some other molecule. '
-;      stop
-;   ENDIF
-;   IF abun_str NE 5 THEN BEGIN
-;      PRINT, 'WARNING: We are using Rowins phenomenological gas temperature structure. This also includes'
-;      PRINT, 'an H2O abundance that is density dependent and is destroyed in the upper layers of the disk.'
-;      PRINT, 'This usually overrides any other abundance structure!'
-;      PRINT, 'Are you sure you want to use gas temp NE dust temp, but with some other abundance structure?'
-;      stop
-;   ENDIF
-ENDIF ELSE BEGIN
-   make_abundance,abun_str,PT_rel=PT_rel,abun=abun
-ENDELSE
+	make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct
 
 ;====================================
 ;Test the velocity

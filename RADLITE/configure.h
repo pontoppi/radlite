@@ -57,5 +57,5 @@ c#define LINE_FREQDEP_DUST
 c#define SAVE_IMCIR
 
 #define TRMAXFIL 500
-#define MONITOR_CHARINT
+c#define MONITOR_CHARINT
 c#define MONITOR_INU 1

@@ -7,7 +7,7 @@
 ;1) Alpha-viscosity turbulence
 ;
 
-PRO make_abundance,atype, PT_rel=PT_rel,abun=abun,tgas=tgas
+PRO make_abundance,atype, PT_rel=PT_rel,abun=abun,tgas=tgas,mol_destruct=mol_destruct
 
 @natconst.pro
 @line_params.ini
@@ -106,7 +106,13 @@ CASE atype OF
        xray_abundance,abun=abun,tgas=tgas, ion_param=ion_param
        abun_collpartner = 0d0
     END
- ENDCASE
+ENDCASE
+
+IF KEYWORD_SET(mol_destruct) THEN BEGIN
+	dsubs = WHERE(mol_destruct EQ 1)
+	abun[dsubs] = 1e-90
+ENDIF
+
 
 
 openw,1,'abundance.inp'

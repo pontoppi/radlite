@@ -8,7 +8,7 @@
 PRO hitran_extract, isotop=isotop,lambdarange=lambdarange,$
                     cutoff=cutoff,FREQ=FREQ,molfile=molfile,$
                     hitran_path=hitran_path, H2O_OP=H2O_OP, max_energy=max_energy,$
-                    vmax=vmax
+                    vmax=vmax,verbose=verbose
 
 IF NOT KEYWORD_SET(molfile) THEN molfile = 'moldata.dat'
 IF NOT KEYWORD_SET(hitran_path) THEN hitran_path = './'
@@ -206,7 +206,7 @@ d18 = 1.d0
 
 i=0L
 openr,lun, hitran_file,/GET_LUN
-WHILE ~ EOF(lun) DO BEGIN
+WHILE ~EOF(lun) DO BEGIN
     readf,lun,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11, $
       d12,d13,d14,d15,d16,d17,d18,FORMAT=FORMAT
     ISOT[i]        = d1
@@ -228,10 +228,6 @@ WHILE ~ EOF(lun) DO BEGIN
     star[i]        = d16
     gu[i]          = d17
     gl[i]          = d18
-    IF d17 EQ 0 THEN BEGIN
-       PRINT, 'Warning: incomplete molecular data in the HITRAN table - higher frequency lines suppressed'
-       break
-    ENDIF
 
     ;
     ;If the molecule is water and the user
@@ -257,8 +253,13 @@ WHILE ~ EOF(lun) DO BEGIN
        KAdo[i] = d2
        KCdo[i] = d3
     ENDIF
- 
-    i = i+1
+
+    IF d17 EQ 0 THEN BEGIN
+		IF KEYWORD_SET(verbose) THEN PRINT, 'Warning: incomplete molecular data in the HITRAN table at frequency: ', freq[i]
+    ENDIF ELSE BEGIN
+	   i = i+1
+    ENDELSE
+	   
 ENDWHILE
 close,1
 free_lun,lun
@@ -292,7 +293,6 @@ ENDIF ELSE BEGIN
                       AND vu LE vmax)
    ENDELSE
 ENDELSE
-
 
 ISOT   = ISOT[outsubs]
 FREQ   = FREQ[outsubs]
