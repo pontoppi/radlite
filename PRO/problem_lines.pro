@@ -102,7 +102,7 @@ free_lun, lund
 ;======================================
 ;Make an abundance file
 ;======================================
-	make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct
+make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct
 
 ;====================================
 ;Test the velocity

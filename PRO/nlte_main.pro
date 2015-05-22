@@ -155,6 +155,10 @@ IF KEYWORD_SET(parallel) THEN BEGIN
    npop_all     = (*p_npop_all)
    npop_ini_all = (*p_npop_ini_all)
    npop_lte_all = (*p_npop_lte_all)
+   ptr_free, p_npop_all
+   ptr_free, p_npop_ini_all
+   ptr_free, p_npop_lte_all
+   burn_bridges, bridges
 ENDIF
 
 PRINT, ' '

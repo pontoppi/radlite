@@ -110,7 +110,7 @@ ENDCASE
 
 IF KEYWORD_SET(mol_destruct) THEN BEGIN
 	dsubs = WHERE(mol_destruct EQ 1)
-	abun[dsubs] = 1e-90
+	abun[dsubs] = 1e-30
 ENDIF
 
 

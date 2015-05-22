@@ -1,5 +1,4 @@
 function get_idle_bridge, bridges
-COMPILE_OPT hidden
 	ncpus = n_elements(bridges)
 	found = -1
 	repeat begin
