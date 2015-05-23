@@ -15,19 +15,24 @@ def read_grid(path):
     
     mdata = []
     count = 0
-    increment = nsegments/20
-    point = nsegments/100
+    increment = nsegments/2
+    point = nsegments/10
     
     sys.stdout.write("Reading the RADLite grid\n")
     for parameter in parameters:    
         resolutions = glob.glob(path+'/'+parameter[0]+'/model_*.fits')
+        #There could be models without a resolution tag
+        resolutions = resolutions + glob.glob(path+'/'+parameter[0]+'/model.fits')
         words = parameter[0].split('_')
         ID = words[1]
 
         for resolution in resolutions:
             words = resolution.split('_')
-            width = float(words[-1][0:-5])
-            
+            try:
+                width = float(words[-1][0:-5])
+            except:
+                width = None
+                
             model = pf.getdata(resolution)
         
             mwave = model['wave'].flatten()
@@ -41,7 +46,6 @@ def read_grid(path):
             sys.stdout.write("\r[" + "=" * (count / increment) +  " " * ((nsegments - count)/ increment) + "]" +  str(count / point) + "%")
             sys.stdout.flush()
         count += 1
-        
     return mdata
 
 def chi2(dwave, dflux, dstddev, mwave, mflux,wbound=None):
