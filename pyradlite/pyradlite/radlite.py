@@ -1,11 +1,17 @@
 import os
 import numpy as np
 import matplotlib.pylab as plt
+import matplotlib.ticker as ticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from scipy.integrate import cumtrapz
 
 import radmc as radmc
+
+def cbfmt(x, pos):
+    a, b = '{:.1e}'.format(10**x).split('e')
+    b = int(b)
+    return r'${} \times 10^{{{}}}$'.format(a, b)
 
 class radlite_model(radmc.radmc_model):
     def __init__(self,path):
@@ -157,7 +163,7 @@ class radlite_model(radmc.radmc_model):
  
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.1)
-        fig.colorbar(fc,orientation='vertical',cax=cax,label=clabel)
+        fig.colorbar(fc,orientation='vertical',cax=cax,label=clabel, format=ticker.FuncFormatter(cbfmt))
 
         fig.tight_layout()
        

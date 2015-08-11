@@ -27,7 +27,7 @@ ENDFOR
 
 ;
 ;Read the phenomenological vertical structure
-readcol, 'gd.dat', gd_025, gd_05, gd_1, gd_4, gd_10, gd_20
+readcol, 'gd.dat', gd_nh, gd_025, gd_05, gd_1, gd_4, gd_10, gd_20
 
 gd_r = [0.01,0.25,0.5,1.,4.,10.,20.,2000.]
 gd_arr = [[gd_025],[gd_025],[gd_05],[gd_1],[gd_4],[gd_10],[gd_20],[gd_20]]
@@ -42,7 +42,7 @@ FOR i=1,ddens.nr -1 DO BEGIN
 	  r_AU = ddens.r[i]/AU
 	  NH = column_density[i,j]
 	  FOR k=0,N_ELEMENTS(fac_r)-1 DO BEGIN
-		  fac_r[k] = INTERPOL(gd_arr[*,k],gd_arr[*,0],alog10(NH+1e-20))
+		  fac_r[k] = INTERPOL(gd_arr[*,k],gd_nh,alog10(NH+1e-20))
 	  ENDFOR
 	  
 	  fac = INTERPOL(fac_r,gd_r,ddens.r[i]/AU)
