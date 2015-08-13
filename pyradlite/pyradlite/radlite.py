@@ -107,7 +107,7 @@ class radlite_model(radmc.radmc_model):
                 clabel = 'Gas density [$cm^{-3}$]'
             
         if type is 'abundance':
-            clabel = 'H$_2$O abundance [100/g2d H$^{-1}$]'
+            clabel = 'H$_2$O abundance [100/g2d H${_2}^{-1}$]'
             quantity = self.abundance
 
         if type is 'dusttemperature':
