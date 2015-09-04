@@ -116,7 +116,9 @@ class radlite_model(radmc.radmc_model):
 
         if type is 'gastemperature':
             clabel = 'Gas temperature [K]'
+            self.gastemperature[self.abundance<1e-10] = np.nan
             quantity = self.gastemperature
+            
             
         
         if vmax is None:
