@@ -131,6 +131,7 @@ new_vel   = 2*Max_vel*findgen(N_vel)/(N_vel-1)-Max_vel
 
 c_lines     = fltarr(lcount)
 line_fluxes = fltarr(lcount)
+line_widths = fltarr(lcount)
 
 specx = dblarr(lcount*N_vel)
 specy = dblarr(lcount*N_vel)
@@ -158,6 +159,9 @@ FOR i=0L,lcount-1 DO BEGIN
     
     line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
     line_fluxes[i] = line_flux
+	
+	line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
+	
 ENDFOR
 
 ;
@@ -262,10 +266,11 @@ ENDIF
 mwrfits, dum, 'model.fits',/create
 mwrfits, {wave:x_out,spec:y_out,lines:l_only},'model.fits'
 table = REPLICATE({fluxes:line_fluxes[0],trans:trans[0],species:species[0],eupper:eupper[0],$
-    	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0]},N_ELEMENTS(line_fluxes))
+    	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0],width:line_widths[0]},$
+				   N_ELEMENTS(line_fluxes))
 FOR i=1,N_ELEMENTS(line_fluxes)-1 DO BEGIN
 	table[i] = {fluxes:line_fluxes[i],trans:trans[i],species:species[i],eupper:eupper[i],$
-    	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i]}
+    	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i],width:line_widths[i]}
 ENDFOR
 
 mwrfits, table,'model.fits'
