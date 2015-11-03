@@ -195,33 +195,34 @@ ENDELSE
 ;
 ;Copy the model setup parameters
 
-file_copy, 'problem_params.pro', rundir+'/.'
-file_copy, 'line_params.ini', rundir+'/.'
-file_move, 'RADLite_core*.log', rundir+'/.'
+file_copy, 'problem_params.pro', rundir+'/.', /overwrite
+file_copy, 'line_params.ini', rundir+'/.', /overwrite
+file_move, 'RADLite_core*.log', rundir+'/.', /overwrite
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
-   file_copy, 'levelpop_nlte.fits', rundir+'/.'
+   file_copy, 'levelpop_nlte.fits', rundir+'/.', /overwrite
 ENDIF
 
 
+;
+;Save the molecular file to a unique name
+file_move, 'moldata_*.dat', rundir+'/.', /overwrite
+file_move, 'levelpop_moldata_*.dat', rundir+'/.', /overwrite
+;
+;And save the lines to a unique name
+IF image eq 0 THEN BEGIN
+   file_move, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+ENDIF
+IF image EQ 2 THEN BEGIN
+   file_move, 'lineposvelcirc_moldata_*.dat', rundir+'/.', /overwrite
+   file_move, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+ENDIF
+   
 FOR iii=0,ncores-1 DO BEGIN
-   ;
-   ;Save the molecular file to a unique name
-   file_move, 'moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
-   file_move, 'levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
-   ;
-   ;And save the lines to a unique name
-   IF image eq 0 THEN BEGIN
-      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
-   ENDIF
-   IF image EQ 2 THEN BEGIN
-      file_move, 'lineposvelcirc_moldata*.dat', rundir+'/.'
-      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.'
-   ENDIF
    IF image EQ 1 THEN BEGIN
       FOR lj=1,nlines DO BEGIN
          file_move, 'lineposvel_moldata_'+STRTRIM(STRING(iii),2)+'_'+STRTRIM(STRING(lj),2)+'.dat', rundir+$
-                '/lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat'           
+                '/lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat', /overwrite   
       ENDFOR
       IF KEYWORD_SET(dat2fits) THEN BEGIN
          cd, rundir
@@ -232,5 +233,34 @@ FOR iii=0,ncores-1 DO BEGIN
       ENDIF
    ENDIF
 ENDFOR
+
+;FOR iii=0,ncores-1 DO BEGIN
+;   ;
+;   ;Save the molecular file to a unique name
+;   file_move, 'moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
+;   file_move, 'levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
+;   ;
+;   ;And save the lines to a unique name
+;   IF image eq 0 THEN BEGIN
+;      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
+;   ENDIF
+;   IF image EQ 2 THEN BEGIN
+;      file_move, 'lineposvelcirc_moldata*.dat', rundir+'/.', /overwrite
+;      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
+;   ENDIF
+;   IF image EQ 1 THEN BEGIN
+;      FOR lj=1,nlines DO BEGIN
+;         file_move, 'lineposvel_moldata_'+STRTRIM(STRING(iii),2)+'_'+STRTRIM(STRING(lj),2)+'.dat', rundir+$
+;                '/lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat', /overwrite   
+;      ENDFOR
+;      IF KEYWORD_SET(dat2fits) THEN BEGIN
+;         cd, rundir
+;         FOR lj=1,nlines DO BEGIN
+;            read_posvel, 'lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat', molecule=molecule
+;         ENDFOR
+;         cd, '..'
+;      ENDIF
+;   ENDIF
+;ENDFOR
 
 END
