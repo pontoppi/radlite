@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pylab as plt
-import asciitable as at
+import astropy.io.ascii as at
 
 from scipy.integrate import simps
 import scipy.constants as cst
