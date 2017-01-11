@@ -12,6 +12,7 @@ import find_continuum as fc
 def read_grid(path):
     parameters = pf.getdata(path+'/run_table.fits')
     nsegments = len(parameters)
+    keys = parameters.names
     
     mdata = []
     count = 0
@@ -39,8 +40,11 @@ def read_grid(path):
             mflux = model['spec'].flatten()
             mcontinuum = fc.find_continuum(mwave,mflux,nan=True)
             mlines = mflux-mcontinuum
-            mdata.append({'path':resolution,'wave':mwave,'flux':mflux,'continuum':mcontinuum,'lines':mlines,
-                          'parameter':np.array(parameter),'resolution':width, 'ID':ID})
+            mdict = {'path':resolution,'wave':mwave,'flux':mflux,'continuum':mcontinuum,'lines':mlines,
+                     'resolution':width, 'ID':ID}
+            for key in keys:
+                mdict[key.lower()] = parameter[key]
+            mdata.append(mdict)
 
         if (count % (5*point) == 0):
             sys.stdout.write("\r[" + "=" * (count / increment) +  " " * ((nsegments - count)/ increment) + "]" +  str(count / point) + "%")
