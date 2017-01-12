@@ -60,11 +60,21 @@ ENDIF
 IF KEYWORD_SET(maxnfile) THEN nfiles = maxnfile
 
 nlines = fltarr(nfiles)
+nfreqs = FLTARR(nfiles)
+max_vels = FLTARR(nfiles) 
 
-test_read = read_line(linefiles[0])
-nfreq  = test_read.nfreq
 
-max_vel  = MAX([3.*ABS(test_read.velo[0,0]),obsres*3.]) ;km/s : extend the box width to this
+FOR ff=0,nfiles-1 DO BEGIN
+	test_read = read_line(linefiles[ff])
+	nfreqs[ff]  = test_read.nfreq
+	max_vels[ff]  = MAX([3.*ABS(test_read.velo[0,0]),obsres*3.]) ;km/s : extend the box width to this
+ENDFOR
+
+max_vel = MAX(max_vels)
+highest_res = (WHERE(nfreqs EQ max(nfreqs)))[0]
+high_read = read_line(linefiles[highest_res])
+nfreq  = high_read.nfreq
+velo_master = high_read.velo[*,1]
 
 lines   = dblarr(LMAX,nfreq)
 velos   = dblarr(LMAX,nfreq)
@@ -83,7 +93,7 @@ FOR ff=0,nfiles-1 DO BEGIN
    dum_mol = read_molecule_lambda(molfiles[ff])
    dum_str = read_line(linefiles[ff])
    dum_nl  = dum_str.nlines
-   nfreq   = dum_str.nfreq
+   nfreq_file = dum_str.nfreq
    cfreqs[lcount:lcount+dum_nl-1] = dum_str.cfreqs
    trans[lcount:lcount+dum_nl-1]  = 'v='+STRCOMPRESS(dum_mol.lin_vib)+$
                                     ' J='+STRCOMPRESS(dum_mol.lin_rot)
@@ -93,8 +103,8 @@ FOR ff=0,nfiles-1 DO BEGIN
    glower[lcount:lcount+dum_nl-1] = dum_mol.g[dum_mol.idown-1]
 
    FOR i=0,dum_nl-1 DO BEGIN
-      velos[lcount+i,0:nfreq-1]  = dum_str.velo[*,i]
-      lines[lcount+i,0:nfreq-1]  = dum_str.flux[*,i]
+      velos[lcount+i,0:nfreq-1]  = velo_master
+      lines[lcount+i,0:nfreq-1]  = INTERPOL(dum_str.flux[*,i],dum_str.velo[*,i],velo_master)
       species[lcount+i]          = dum_mol.species
    ENDFOR
    lcount = lcount + dum_nl
@@ -160,7 +170,7 @@ FOR i=0L,lcount-1 DO BEGIN
     line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
     line_fluxes[i] = line_flux
 	
-	line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
+	 line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
 	
 ENDFOR
 
@@ -222,7 +232,6 @@ ssubs = sort(c/cfreqs)
 c_all = INTERPOL(c_lines[ssubs],c/cfreqs[ssubs],x_all)
 
 l_only = y_all * 1d23/dist^2 
-
 ;
 ;Remember to add the continuum back
 y_all = (y_all+c_all) * 1d23/dist^2.
