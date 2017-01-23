@@ -6,7 +6,6 @@ import matplotlib.pylab as plt
 import scipy.interpolate as ip
 
 import astropy.io.fits as pf
-import readcol as rc
 import find_continuum as fc
 
 def read_grid(path):
