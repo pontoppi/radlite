@@ -272,7 +272,11 @@ IF KEYWORD_SET(plotit) THEN BEGIN
 	
 ENDIF
 
-mwrfits, dum, 'model.fits',/create
+mkhdr, header, 2, 0, /extend
+sxaddpar, header, 'WAVEUNIT', 'micron'
+sxaddpar, header, 'FLUXUNIT', 'Jy'
+
+mwrfits, dum, 'model.fits',header,/create
 mwrfits, {wave:x_out,spec:y_out,lines:l_only},'model.fits'
 table = REPLICATE({fluxes:line_fluxes[0],trans:trans[0],species:species[0],eupper:eupper[0],$
     	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0],width:line_widths[0]},$
