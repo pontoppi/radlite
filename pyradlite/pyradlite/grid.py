@@ -44,10 +44,9 @@ def read_grid(path):
             for key in keys:
                 mdict[key.lower()] = parameter[key]
             mdata.append(mdict)
-
-        if (count % (5*point) == 0):
-            sys.stdout.write("\r[" + "=" * (count / increment) +  " " * ((nsegments - count)/ increment) + "]" +  str(count / point) + "%")
-            sys.stdout.flush()
+        percent = 100*(count/(nsegments-1))
+        sys.stdout.write("Progress: %d%%   \r" % percent)
+        sys.stdout.flush()
         count += 1
     return mdata
 
