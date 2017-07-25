@@ -148,6 +148,11 @@ CASE isotop OF
       molecule='C2H2'
       hitran_file=hitran_path+'26_hit12.par'
    END
+   271:BEGIN
+      molweight=30.
+      molecule='C2H6'
+      hitran_file=hitran_path+'27_hit12.par'
+   END
    341:BEGIN
       molweight=16.
       molecule='O'
