@@ -1,7 +1,7 @@
 PRO genspec,obsres=obsres,maxnfile=maxnfile,xrange=xrange,$
               psym=psym,yrange=yrange,xlog=xlog,ylog=ylog,$
               scale_spec=scale_spec,sedcomp=sedcomp,sampling=sampling,$
-              multiruns=multiruns,noise=noise,dist=dist,plotit=plotit
+              multiruns=multiruns,noise=noise,dist=dist,plotit=plotit,outfile=outfile
 
 LMAX = 500000
 n_x_max = 1d8
@@ -11,6 +11,7 @@ obsres = obsres[0] ;make sure this is a scalar
 IF NOT KEYWORD_SET(dist) THEN dist = 150. ;pc
 IF NOT KEYWORD_SET(obsres) THEN obsres=3.
 IF NOT KEYWORD_SET(scale_spec) THEN scale_spec = 1d0
+IF NOT KEYWORD_SET(outfile) THEN outfile = 'model'
 
 IF NOT KEYWORD_SET(sampling) THEN BEGIN
    sampling = obsres/2.              ;km/s
@@ -286,7 +287,7 @@ FOR i=1,N_ELEMENTS(line_fluxes)-1 DO BEGIN
     	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i],width:line_widths[i]}
 ENDFOR
 
-mwrfits, table,'model.fits'
+mwrfits, table,outfile+'.fits'
 
 
 END
