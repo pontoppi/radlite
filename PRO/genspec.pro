@@ -171,7 +171,7 @@ FOR i=0L,lcount-1 DO BEGIN
     line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
     line_fluxes[i] = line_flux
 	
-	 line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
+	line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
 	
 ENDFOR
 
@@ -240,10 +240,13 @@ y_all = (y_all+c_all) * 1d23/dist^2.
 ;
 ;and convolve to requested resolving power
 y_all = CONVOL(y_all,gauss,total(gauss),/edge_truncate)
+l_only = CONVOL(l_only,gauss,total(gauss),/edge_truncate)
 
 ;
 ;Resample to requested output grid
-y_out = INTERPOL(y_all,x_all,x_out)
+y_out = INTERPOL(y_all,x_all,x_out) ;Total spectrum
+l_only = INTERPOL(l_only,x_all,x_out) ;Lines only
+c_all = INTERPOL(c_all,x_all,x_out) * 1d23/dist^2. ;Continuum only
 
 IF NOT KEYWORD_SET(xrange) THEN xrange = [MIN(x_out),MAX(x_out)]
 rsubs = where(x_out gt xrange[0] and x_out lt xrange[1])
@@ -278,7 +281,7 @@ sxaddpar, header, 'WAVEUNIT', 'micron'
 sxaddpar, header, 'FLUXUNIT', 'Jy'
 
 mwrfits, dum, outfile+'.fits',header,/create
-mwrfits, {wave:x_out,spec:y_out,lines:l_only},outfile+'.fits'
+mwrfits, {wave:x_out,spec:y_out,lines:l_only,continuum:c_all},outfile+'.fits'
 table = REPLICATE({fluxes:line_fluxes[0],trans:trans[0],species:species[0],eupper:eupper[0],$
     	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0],width:line_widths[0]},$
 				   N_ELEMENTS(line_fluxes))
