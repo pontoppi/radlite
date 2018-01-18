@@ -1,3 +1,4 @@
+import os
 import sys
 import glob
 
@@ -8,8 +9,10 @@ import scipy.interpolate as ip
 import astropy.io.fits as pf
 import find_continuum as fc
 
-def read_grid(path):
+def read_grid(path, gridroot=None):
+    
     parameters = pf.getdata(path+'/run_table.fits')
+    
     nsegments = len(parameters)
     keys = parameters.names
     
