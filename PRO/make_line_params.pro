@@ -1,4 +1,4 @@
-PRO make_line_params,var_max_abun=var_max_abun,var_min_abun=var_min_abun,var_fr_temp=var_fr_temp,var_gtd=var_gtd,var_isot=var_isot,var_coldfinger=var_coldfinger,var_min_mu=var_min_mu,var_max_mu=var_max_mu,var_vsampling=var_vsampling,var_passband=var_passband
+PRO make_line_params,var_max_abun=var_max_abun,var_min_abun=var_min_abun,var_fr_temp=var_fr_temp,var_gtd=var_gtd,var_isot=var_isot,var_coldfinger=var_coldfinger,var_min_mu=var_min_mu,var_max_mu=var_max_mu,var_vsampling=var_vsampling,var_passband=var_passband,var_incl=var_incl
 
 IF file_test('line_params_fixed.ini') THEN BEGIN
    @line_params_fixed.ini
@@ -16,6 +16,7 @@ IF KEYWORD_SET(var_min_mu) THEN min_mu=var_min_mu
 IF KEYWORD_SET(var_max_mu) THEN max_mu=var_max_mu
 IF KEYWORD_SET(var_vsampling) THEN vsampling=var_vsampling
 IF KEYWORD_SET(var_passband) THEN passband=var_passband
+IF KEYWORD_SET(var_incl) THEN incl=var_incl
 
 openw,lun,'line_params.ini',/get_lun
 printf, lun, 'main_path = "'+main_path+'"'
