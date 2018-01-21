@@ -59,6 +59,13 @@ if rdisk gt rout then begin
    stop
 endif
 ;
+;
+; kuruczdir conflicts with the kurucz keyword because of IDL disambiguation
+if KEYWORD_SET(kuruczdir) then begin
+	kurdir = kuruczdir
+endif
+;
+;
 ; Mix dust opacities
 ;
 if keyword_set(mixspecs) then begin
@@ -75,7 +82,7 @@ IF keyword_set(csenv) THEN BEGIN
        fresmd=fresmd,scat=scat,ntex=ntex,nrr=nr,ntt=nt,rin=rin,tin=tin,$
        out=rout,hrgrid=hrgrid,hrgmax=hrgmax,rrefine=rrefine,drsm=drsm,$
        rdisk=rdisk,sigdust0=sig0,mdisk=mdisk,$
-       plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kuruczdir,$
+       plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kurdir,$
        opacnames=infile,pllongs=pll,$
        gastodust=gastodust,hrdisk=hrdisk,hrmin=hrmin,$
        plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$
@@ -87,7 +94,7 @@ ENDIF ELSE BEGIN
        fresmd=fresmd,scat=scat,ntex=ntex,nrr=nr,ntt=nt,rin=rin,tin=tin,$
        rout=rout,hrgrid=hrgrid,hrgmax=hrgmax,rrefine=rrefine,drsm=drsm,$
        rdisk=rdisk,sigdust0=sig0,mdisk=mdisk,$
-       plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kuruczdir,$
+       plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kurdir,$
        opacnames=infile,pllongs=pll,$
        schmidt=schmidt,ab_r0=ab_r0,ab_ab0=ab_ab0,ab_pl=ab_pl,$
        gastodust=gastodust,ab_min=ab_min,hrdisk=hrdisk,hrmin=hrmin,$

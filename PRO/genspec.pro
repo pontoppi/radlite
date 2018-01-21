@@ -75,7 +75,7 @@ max_vel = MAX(max_vels)
 highest_res = (WHERE(nfreqs EQ max(nfreqs)))[0]
 high_read = read_line(linefiles[highest_res])
 nfreq  = high_read.nfreq
-velo_master = high_read.velo[*,1]
+velo_master = high_read.velo[*,0]
 
 lines   = dblarr(LMAX,nfreq)
 velos   = dblarr(LMAX,nfreq)
