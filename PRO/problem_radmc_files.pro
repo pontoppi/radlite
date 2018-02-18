@@ -52,7 +52,7 @@ end
 ; KEYWORDS:
 ;   kurucz        If set, then use Kurucz model (see the files
 ;                   'interpolate_kurucz' and problem_kurucz.pro)
-;   kuruczdir     Location of the kurucz database
+;   kurdir        Location of the kurucz database
 ; 
 ; RETURNS:
 ;   inupk         Index of the peak of the spectrum
@@ -72,7 +72,7 @@ nf     = n_elements(o.freq)
 ;
 if keyword_set(kurucz) then begin
    lstar = LS * (rstar/RS)^2 * (tstar/TS)^4
-   kurucz,tstar,lstar,mstar,/worig,kuruczdir=kurdir
+   kurucz,tstar,lstar,mstar,/worig,kurdir=kurdir
 endif else begin
    openw,1,'starspectrum.inp'
    printf,1,nf

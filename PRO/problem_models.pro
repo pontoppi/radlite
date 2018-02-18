@@ -60,7 +60,7 @@
 ;  rstar             Radius of the star [cm]
 ;  tstar             Effective temperature of the star [K]
 ;  kurucz            If set, then use Kurucz model
-;  kurdir            The directory where the Kurucz models are located
+;  kurdir           The directory where the Kurucz models are located
 ;  rdisk             Array of radial grid for the input disk model [cm]
 ;  sigmagasdisk      Array of Sigma_gas(R) of the disk [g/cm^2]
 ;  hpdisk            Array of pressure scale heigh H_p(R) of disk [cm]
@@ -134,7 +134,7 @@ pro diskenv_radmc, rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
 			       fresmd=fresmd,scat=scat,ntex=ntex,nrr=nrr,ntt=ntt,rin=rin,tin=tin,$
 			       out=rout,hrgrid=hrgrid,hrgmax=hrgmax,rrefine=rrefine,drsm=drsm,$
 			       rdisk=rdisk,sigdust0=sig0,mdisk=mdisk,$
-	               plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kuruczdir,$
+	               plsig1=plsig1,plsig2=plsig2,kurucz=kurucz,kurdir=kurdir,$
         	       opacnames=opacnames,pllongs=pllongs,$
 			       gastodust=gastodust,hrdisk=hrdisk,hrmin=hrmin,$
 			       plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$

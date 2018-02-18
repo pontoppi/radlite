@@ -13,13 +13,13 @@
 ; blackbody curve, this can be done with 'silent=0'.
 ;-------------------------------------------------------------------------
 pro kurucz,tstar,lstar,mstar,model=model,silent=silent,worig=worig,$
-               kuruczdir=kuruczdir
+               kurdir=kurdir
 ;
 ; Defaults
 ;
 
-if n_elements(kuruczdir) eq 0 then begin
-   kuruczdir = '/home/dullemon/science/kurucz/'
+if n_elements(kurdir) eq 0 then begin
+   kurdir = 'KURUCZ'
 endif
 if n_elements(silent) eq 0 then silent = 1
 ;
@@ -55,12 +55,12 @@ spawn,'rm -f flux.dat >& /dev/null'
 ;
 ; Copy the interpolator here
 ;
-spawn,'cp -f '+kuruczdir+'interpolate_kurucz ./ >& /dev/null' 
+spawn,'cp -f '+kurdir+'interpolate_kurucz ./ >& /dev/null' 
 ;
 ; Command line for the kurucz interpolator
 ;
 cmd = "./interpolate_kurucz -q "+string(format='(F6.0,1x,F5.1,1x,F5.1,1x,A10,A100)', $
-                 Tstar,logg,0.0, "> flux.dat")+' '+kuruczdir
+                 Tstar,logg,0.0, "> flux.dat")+' '+kurdir
 spawn,cmd,out
 ;
 ; Read the flux from the Kurucz interpolator

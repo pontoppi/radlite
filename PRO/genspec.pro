@@ -174,7 +174,7 @@ FOR i=0L,lcount-1 DO BEGIN
     line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
     line_fluxes[i] = line_flux
 	
-	line_widths[i] = 2.*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width
+	line_widths[i] = 2.35482*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width -> FWHM
 	
 ENDFOR
 
