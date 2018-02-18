@@ -6,7 +6,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from scipy.integrate import cumtrapz
 
-import radmc as radmc
+from . import radmc 
 
 def cbfmt(x, pos):
     a, b = '{:.1e}'.format(10**x).split('e')
@@ -136,7 +136,7 @@ class radlite_model(radmc.radmc_model):
         
         levels = np.linspace(np.log10(vmin),np.log10(vmax),nlevels)
         fc = ax.contourf(self.x/scale_length,self.y/scale_length,np.log10(quantity),levels=levels,\
-                    extend='both',cmap=plt.cm.jet,aspect='equal')
+                    extend='both',cmap=plt.cm.magma,aspect='equal')
         cc = ax.contour(self.x/scale_length,self.y/scale_length,np.log10(quantity),levels=[np.log10(1e4)],\
                     extend='both')
 
