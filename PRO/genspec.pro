@@ -143,6 +143,7 @@ new_vel   = 2*Max_vel*findgen(N_vel)/(N_vel-1)-Max_vel
 c_lines     = fltarr(lcount)
 line_fluxes = fltarr(lcount)
 line_widths = fltarr(lcount)
+l2cs        = fltarr(lcount)
 
 specx = dblarr(lcount*N_vel)
 specy = dblarr(lcount*N_vel)
@@ -171,8 +172,11 @@ FOR i=0L,lcount-1 DO BEGIN
     line_flux = INT_TABULATED(fnus,line,/DOUBLE,/SORT)/dist^2.
     line_fluxes[i] = line_flux
 	
-	line_widths[i] = 2.35482*SQRT(TOTAL(line*vel^2)/TOTAL(line))  ;Moment width -> FWHM
 	
+	 gsubs = WHERE(abs(line) gt MAX(abs(line)*0.2)) ;Avoid extended line wings
+	 line_widths[i] = 2.35482*SQRT(TOTAL(line[gsubs]*vel[gsubs]^2)/TOTAL(line[gsubs]))  ;Moment width -> FWHM
+	
+	 l2cs[i] = MAX(line)/MEAN(cont)
 ENDFOR
 
 ;
@@ -283,11 +287,11 @@ sxaddpar, header, 'FLUXUNIT', 'Jy'
 mwrfits, dum, outfile+'.fits',header,/create
 mwrfits, {wave:x_out,spec:y_out,lines:l_only,continuum:c_all},outfile+'.fits'
 table = REPLICATE({fluxes:line_fluxes[0],trans:trans[0],species:species[0],eupper:eupper[0],$
-    	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0],width:line_widths[0]},$
+    	  		   aud:aud[0],gupper:gupper[0],glower:glower[0],wavelength:c/cfreqs[0],freq:cfreqs[0],width:line_widths[0],l2c:l2cs[0]},$
 				   N_ELEMENTS(line_fluxes))
 FOR i=1,N_ELEMENTS(line_fluxes)-1 DO BEGIN
 	table[i] = {fluxes:line_fluxes[i],trans:trans[i],species:species[i],eupper:eupper[i],$
-    	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i],width:line_widths[i]}
+    	        aud:aud[i],gupper:gupper[i],glower:glower[i],wavelength:c/cfreqs[i],freq:cfreqs[i],width:line_widths[i],l2c:l2cs[i]}
 ENDFOR
 
 mwrfits, table,outfile+'.fits'
