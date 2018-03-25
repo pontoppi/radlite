@@ -121,7 +121,9 @@ species = species[0:lcount-1]
 gupper  = gupper[0:lcount-1]
 glower  = glower[0:lcount-1]
 
-uniqsubs  = UNIQ(cfreqs, SORT(cfreqs))
+total_name = species+trans+string(gupper)+string(glower)+string(eupper)
+;uniqsubs  = UNIQ(cfreqs, SORT(cfreqs))
+uniqsubs  = UNIQ(total_name, SORT(total_name))
 cfreqs    = cfreqs[uniqsubs]
 trans   = trans[uniqsubs]
 eupper  = eupper[uniqsubs]
@@ -132,6 +134,7 @@ glower  = glower[uniqsubs]
 
 velos     = velos[uniqsubs,*]
 lines     = lines[uniqsubs,*]
+print, 'removed', lcount- N_ELEMENTS(uniqsubs), ' duplicate lines'
 lcount    = N_ELEMENTS(uniqsubs)
 
 vel       = velos[0,*]
