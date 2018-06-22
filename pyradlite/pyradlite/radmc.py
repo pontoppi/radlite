@@ -1,4 +1,5 @@
 import os
+from itertools import islice
 import numpy as np
 import matplotlib.pylab as plt
 import astropy.io.ascii as at
@@ -6,15 +7,19 @@ import astropy.io.ascii as at
 from scipy.integrate import simps
 import scipy.constants as cst
 
+from scipy.integrate import cumtrapz
+
 class radmc_model():
     def __init__(self,path):
         self.path = path
         self.radius = self.read_radius()
         self.theta = self.read_theta()
         self.frequency = self.read_freq()
+        self.wavelength = cst.c*1e6/self.frequency # micron
         self.gasdensity = self.read_gasdensity()
         self.dustdensity = self.read_dustdensity()
         self.dusttemperature = self.read_dusttemperature()
+        self.dustopac = self.read_opacity()
         self.pars = self.read_parameters()
                 
         self.nr = self.radius.shape[0]
@@ -40,8 +45,7 @@ class radmc_model():
         mass = simps(2*np.pi*self.radius*cols,self.radius)
         return mass
 
-    def dustmass(self):
-        
+    def dustmass(self):       
         masses = []
         for j in np.arange(nspecies):        
             cols = np.zeros(self.nr)
@@ -113,6 +117,39 @@ class radmc_model():
         
         return freq
         
+    def read_opacity(self):
+        filename = 'dustopac.inp'
+        fullpath = os.path.join(self.path,filename)
+        file = open(fullpath,'r')
+        file_format = int(file.readline().split()[0])
+        nspecies = int(file.readline().split()[0])
+        if nspecies>1:
+            raise ValueError('Currently only models with one dust species are supported for this method')
+        file.close()
+        
+        filename = 'dustopac_1.inp'
+        fullpath = os.path.join(self.path,filename)
+        file = open(fullpath,'r')
+        nfreq, ispecies = file.readline().split()
+        nfreq = int(nfreq)
+        
+        dustopac = {'cabs':np.zeros(int(nfreq)),'csca':np.zeros(int(nfreq))}
+
+        empty = file.readline()
+
+        lines = list(islice(file, nfreq))
+        for i,l in enumerate(lines):
+            dustopac['cabs'][i] = float(l)
+            
+        empty = file.readline()
+            
+        lines = list(islice(file, nfreq))
+        for i,l in enumerate(lines):
+            dustopac['csca'][i] = float(l)
+
+        file.close()
+        return dustopac        
+             
     def read_gasdensity(self):
         filename = 'density.inp'
         fullpath = os.path.join(self.path,filename)
@@ -234,6 +271,24 @@ class radmc_model():
             pars[key] = value
             
         return pars
+
+    def surface_at_tau(self,tau,wave=0.55,au=False):
+        
+        freq = (cst.c*1e6)/wave
+        cabs_at_wave = np.interp(freq,self.frequency,self.dustopac['cabs'])
+        csca_at_wave = np.interp(freq,self.frequency,self.dustopac['csca'])
+        opac_at_wave = cabs_at_wave+csca_at_wave
+
+        cum = cumtrapz(self.dustdensity[:,:,0],-self.y,initial=0.)*opac_at_wave  # only using first dust species
+        ys = np.zeros(self.nr)
+        for i in np.arange(self.nr):
+            csub = np.argmin(np.abs(cum[i,:].flatten()-tau))
+            ys[i] = self.y[i,csub]
+        
+        if au:
+            return (self.radius/self.au,ys/self.au)        
+        else:
+            return (self.radius,ys)
         
         
         

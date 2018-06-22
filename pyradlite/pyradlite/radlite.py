@@ -79,8 +79,13 @@ class radlite_model(radmc.radmc_model):
         
         return gastemperature
         
-    def surface_at_column(self,column,au=False):
-        cum = cumtrapz(self.gasdensity*self.abundance/(1.66053892e-24*2.3),-self.y,initial=0.)
+    def surface_at_column(self,column,au=False,total=False):
+        # Total column is the H2+He column
+        if total:
+            cum = cumtrapz(self.gasdensity/(1.66053892e-24*2.3),-self.y,initial=0.)        
+        # Else it is the column of the molecular species
+        else:
+            cum = cumtrapz(self.gasdensity*self.abundance/(1.66053892e-24*2.3),-self.y,initial=0.)
         ys = np.zeros(self.nr)
         for i in np.arange(self.nr):
             csub = np.argmin(np.abs(cum[i,:].flatten()-column))
@@ -93,7 +98,8 @@ class radlite_model(radmc.radmc_model):
     
     def plot_quantity(self,type='gasdensity',plotfile=None,vmax=None,vmin=None,
                       length_unit='au',dens_unit='number',xlim=None,xlog=False,ylog=False,
-                      ylim=None,nlevels=50,curves=None,isotropic=False,colors=None,linestyles=None):
+                      ylim=None,nlevels=50,curves=None,isotropic=False,colors=None,linestyles=None,
+                      zoverr=False):
         
         if length_unit is 'au':
             scale_length = self.au
@@ -107,7 +113,7 @@ class radlite_model(radmc.radmc_model):
                 clabel = 'Gas density [$cm^{-3}$]'
             
         if type is 'abundance':
-            clabel = 'H$_2$O abundance [100/g2d H${_2}^{-1}$]'
+            clabel = 'Abundance [H${_2}^{-1}$]'
             quantity = self.abundance
 
         if type is 'dusttemperature':
@@ -116,10 +122,8 @@ class radlite_model(radmc.radmc_model):
 
         if type is 'gastemperature':
             clabel = 'Gas temperature [K]'
-            self.gastemperature[self.abundance<1e-10] = np.nan
+            self.gastemperature[self.abundance<1e-30] = np.nan
             quantity = self.gastemperature
-            
-            
         
         if vmax is None:
             vmax = np.max(quantity)
@@ -132,12 +136,25 @@ class radlite_model(radmc.radmc_model):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_xlabel('Disk radius [AU]')
-        ax.set_ylabel('Disk height [AU]')
+        
+        if zoverr:
+            ax.set_ylabel('Z/R')
+        else:
+            ax.set_ylabel('Disk height [AU]')
         
         levels = np.linspace(np.log10(vmin),np.log10(vmax),nlevels)
-        fc = ax.contourf(self.x/scale_length,self.y/scale_length,np.log10(quantity),levels=levels,\
+        
+        # Plot as z/r?
+        if zoverr:
+            xx = self.x/scale_length
+            yy = self.y/self.x
+        else:
+            xx = self.x/scale_length
+            yy = self.y/scale_length
+        
+        fc = ax.contourf(xx,yy,np.log10(quantity),levels=levels,\
                     extend='both',cmap=plt.cm.magma,aspect='equal')
-        cc = ax.contour(self.x/scale_length,self.y/scale_length,np.log10(quantity),levels=[np.log10(1e4)],\
+        cc = ax.contour(xx,yy,np.log10(quantity),levels=[np.log10(1e4)],\
                     extend='both')
 
         plt.clabel(cc,inline=True)
@@ -158,10 +175,13 @@ class radlite_model(radmc.radmc_model):
                 ncurves = len(curves)
                 colors = ['darkred'] * ncurves
             if linestyles is None:
-                nl = len(linestyles)
+                nl = len(curves)
                 linestyles = ['-'] * nl
             for curve,color,linestyle in zip(curves,colors,linestyles):
-                ax.plot(curve[0],curve[1],lw=2., color=color, linestyle=linestyle)
+                if zoverr:
+                    ax.plot(curve[0],curve[1]/curve[0],lw=2., color=color, linestyle=linestyle)                    
+                else:
+                    ax.plot(curve[0],curve[1],lw=2., color=color, linestyle=linestyle)
  
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.1)
