@@ -81,7 +81,9 @@ endif else begin
     theta = !pi/2.d0-exp(-A*findgen(nt)+B)
 endelse
 if keyword_set(zrefine) then begin
-    hunt,theta[*],!pi/2-zrefine.zrref,iz
+    stop
+	 ; Missing routine "hunt"?
+    ;hunt,theta[*],!pi/2-zrefine.zrref,iz
     theta = [theta[0:iz-1],!pi/2-rotate(dindgen(zrefine.nzref)+0.5,2)*$
              (!pi/2-theta[iz-1])/(1.d0*zrefine.nzref+1.)]
 endif

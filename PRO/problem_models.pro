@@ -39,7 +39,9 @@
 @problem_radmc_files.pro
 @problem_disk.pro
 
-
+PRO problem_models
+   
+END
 ;------------------------------------------------------------------------
 ;           DO THE RADIATIVE TRANSFER FOR DISK + ENVELOPE
 ;
