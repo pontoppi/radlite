@@ -6,7 +6,7 @@
 @problem_models.pro
 @problem_mixopacities.pro
 ;
-PRO problem_setup
+PRO problem_setup, show=show
 @natconst.pro
 ;
 ; Checks

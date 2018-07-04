@@ -33,9 +33,9 @@ printf, lun, 'tstar = '+STRING(tstar)
 printf, lun, 'kurucz ='+STRING(kurucz)
 printf, lun, 'ifinstar = '+STRING(ifinstar)
 printf, lun, ';-----------------------------------------'
-printf, lun, 'abunc = '+STRING(abunc)
-printf, lun, "mixnames = ['amorph_mix.Kappa']"  ;HARD CODED
-printf, lun, "mixspecs = ['carbon.Kappa','silicate.Kappa']"  ;HARD CODED
+printf, lun, ';abunc = '+STRING(abunc)
+printf, lun, ";mixnames = ['amorph_mix.Kappa']"  ;HARD CODED
+printf, lun, ";mixspecs = ['carbon.Kappa','silicate.Kappa']"  ;HARD CODED
 printf, lun, 'mixabun  = [abunc,(1.0-abunc)]'  ;HARD CODED
 printf, lun, 'fresmd = '+STRING(fresmd)
 printf, lun, "infile =  ['amorph_mix.Kappa']"  ;HARD CODED
