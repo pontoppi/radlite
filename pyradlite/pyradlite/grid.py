@@ -36,14 +36,15 @@ def read_grid(path, gridroot=None):
             except:
                 width = None
                 
-            model = pf.getdata(resolution)
+            model   = pf.getdata(resolution,1)
+            moldata = pf.getdata(resolution,2)
         
             mwave = model['wave'].flatten()
             mflux = model['spec'].flatten()
             mcontinuum = fc.find_continuum(mwave,mflux,nan=True)
             mlines = mflux-mcontinuum
             mdict = {'path':resolution,'wave':mwave,'flux':mflux,'continuum':mcontinuum,'lines':mlines,
-                     'resolution':width, 'ID':ID}
+                     'resolution':width, 'ID':ID, 'moldata':moldata}
             for key in keys:
                 mdict[key.lower()] = parameter[key]
             mdata.append(mdict)
