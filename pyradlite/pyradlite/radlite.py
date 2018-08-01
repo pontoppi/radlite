@@ -52,6 +52,13 @@ class radlite_model(radmc.radmc_model):
         file.close()
         
         return abundance,abundance_collpartner
+        
+    def total_mass(self): #in progress
+        species_mass = 0.0
+        for ii,radius in enumerate(self.radius):
+            for jj,theta in enumerate(self.theta):
+                species_mass += 2.0 * np.pi * self.radius[ii+1]-self.radius[ii]
+        mass = np.sum(2.*np.pi*)
 
     def read_gastemperature(self):
         filename = 'temperature.inp'
