@@ -31,13 +31,15 @@ PRO rebuild_runtable, run_name=run_name
 			IF words[0] EQ 'plh' THEN plh = FLOAT(words[1])
 			IF words[0] EQ 'mstar' THEN mstar = FLOAT(words[1])
 			IF words[0] EQ 'mdmstr' THEN mdisk = mstar*FLOAT(words[1])
+			IF words[0] EQ 'rstar' THEN rstar = FLOAT(words[1])
+			IF words[0] EQ 'tstar' THEN tstar = FLOAT(words[1])
 			
 		ENDWHILE
 		close, lun
 		free_lun, lun
 		
 		run_par = {dir:run_list[i],coldfinger:coldfinger,min_abun:min_abun,max_abun:max_abun,linepos:min_mu+(max_mu-min_mu)/2.,$
-				   mdisk:mdisk, g2d:g2d, plh:plh, mstar:mstar}
+				     mdisk:mdisk, g2d:g2d, plh:plh, mstar:mstar, rstar:rstar, tstar:tstar}
 		run_pars = [run_pars,run_par]
 		print, run_par
 		cd, '..'
