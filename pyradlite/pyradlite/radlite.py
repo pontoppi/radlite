@@ -55,11 +55,13 @@ class radlite_model(radmc.radmc_model):
         
     def total_mass(self): #in progress
         species_mass = 0.0
-        for ii,radius in enumerate(self.radius):
-            for jj,theta in enumerate(self.theta):
-                species_mass += 2.0 * np.pi * (self.radius[ii+1]-self.radius[ii])*self.radius[ii]*(self.theta[jj]-self.theta[jj+1]) * \
-                                    self.abundance[ii,jj] * self.molweight
-
+        import pdb;pdb.set_trace()
+        
+        for ii,radius in enumerate(self.radius[:-1]):
+            for jj,theta in enumerate(self.theta[:-1]):
+                species_mass += 2.0 * np.pi * self.radius[ii] * (self.radius[ii+1]-self.radius[ii])*self.radius[ii]*(self.theta[jj+1]-self.theta[jj]) * \
+                                self.abundance[ii,jj] * self.gasdensity[ii,jj] / self.molweight
+                
         return species_mass
 
     def read_gastemperature(self):
