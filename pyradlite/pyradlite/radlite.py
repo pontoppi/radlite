@@ -53,10 +53,12 @@ class radlite_model(radmc.radmc_model):
         
         return abundance,abundance_collpartner
         
-    def total_mass(self): #in progress
+    def total_mass(self, abundance_cutoff=None): #in progress
         species_mass = 0.0
-        import pdb;pdb.set_trace()
         
+        if abundance_cutoff is not None:
+            self.abundance[self.abundance>abundance_cutoff] = 0.0
+            
         for ii,radius in enumerate(self.radius[:-1]):
             for jj,theta in enumerate(self.theta[:-1]):
                 species_mass += 2.0 * np.pi * self.radius[ii] * (self.radius[ii+1]-self.radius[ii])*self.radius[ii]*(self.theta[jj+1]-self.theta[jj]) * \

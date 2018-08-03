@@ -197,6 +197,17 @@ ENDELSE
 
 file_copy, 'problem_params.pro', rundir+'/.', /overwrite
 file_copy, 'line_params.ini', rundir+'/.', /overwrite
+file_copy, 'radius.inp', rundir+'/.', /overwrite
+file_copy, 'theta.inp', rundir+'/.', /overwrite
+file_copy, 'frequency.inp', rundir+'/.', /overwrite
+file_copy, 'density.inp', rundir+'/.', /overwrite
+file_copy, 'dustdens.inp', rundir+'/.', /overwrite
+file_copy, 'dusttemp_final.dat', rundir+'/.', /overwrite
+file_copy, 'dustopac.inp', rundir+'/.', /overwrite
+file_copy, 'dustopac_*.inp', rundir+'/.', /overwrite
+file_copy, 'abundance.inp', rundir+'/.', /overwrite
+file_copy, 'temperature.inp', rundir+'/.', /overwrite
+
 file_move, 'RADLite_core*.log', rundir+'/.', /overwrite
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
