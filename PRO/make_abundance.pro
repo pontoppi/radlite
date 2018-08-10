@@ -29,7 +29,15 @@ CASE atype OF
         IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting constant abundance'
         abun = fltarr(nr,nt) + max_abun
         abun_collpartner = 0.d0
-     END        
+    END        
+    2: BEGIN                    ;Freeze-out at some temperature
+        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to ~0 below T='+STRTRIM(STRING(fr_temp),2)+' K'
+        abun = fltarr(nr,nt)
+        abun[*] = max_abun
+        fsubs = WHERE(T lt fr_temp)
+        IF fsubs[0] NE -1 THEN abun[fsubs] = min_abun
+        abun_collpartner = 0.d0
+    END
     3: BEGIN                    ;Step abundance at AV=3 (as seen from the star).
         IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to 0 below AV=1...'
         abun = fltarr(nr,nt)
@@ -37,12 +45,11 @@ CASE atype OF
         abun = (1-exp(-tau)) * max_abun * (1-(Dstruct.rr/Dstruct.r[0])^(-2))
         abun_collpartner = 0.d0
     END
-    2: BEGIN                    ;Freeze-out at some temperature
-        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to ~0 below T='+STRTRIM(STRING(fr_temp),2)+' K'
+    5: BEGIN                    ;infall model
         abun = fltarr(nr,nt)
         abun[*] = max_abun
         fsubs = WHERE(T lt fr_temp)
-        IF fsubs[0] NE -1 THEN abun[fsubs] = min_abun
+        IF fsubs[0] NE -1 THEN abun[fsubs] = 10.0^(alog10(Dstruct.rr[fsubs]/min(Dstruct.rr[fsubs])))*min_abun
         abun_collpartner = 0.d0
     END
     4: BEGIN                    ;Density-dependent freeze-out temperature

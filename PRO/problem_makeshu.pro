@@ -28,7 +28,7 @@ H  = -X0/(Nx+1)
 ;Basic definitions
 
 IF NOT KEYWORD_SET(A) THEN A    = 2.003
-IF NOT KEYWORD_SET(csenv) THEN csenv = 0.2d5 ;km/s
+IF NOT KEYWORD_SET(csenv) THEN csenv = 0.2d5 ;cm/s
 
 m_av = mu*mp
 t0   = csenv                   ;s
