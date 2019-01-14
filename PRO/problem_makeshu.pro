@@ -10,7 +10,7 @@ FUNCTION DIFFERENTIAL, X, Y
 
 END
 
-FUNCTION make_shu,r,time,csenv=csenv,A=A
+FUNCTION make_shu,r,time,csenv=csenv,Aenv=Aenv
 
 @natconst.pro
 ;Make initial density structure, rho(r,0):
@@ -27,7 +27,12 @@ H  = -X0/(Nx+1)
 ;
 ;Basic definitions
 
-IF NOT KEYWORD_SET(A) THEN A    = 2.003
+IF NOT KEYWORD_SET(Aenv) THEN BEGIN
+   A    = 2.003
+ENDIF ELSE BEGIN
+   A    = Aenv
+ENDELSE   
+
 IF NOT KEYWORD_SET(csenv) THEN csenv = 0.2d5 ;cm/s
 
 m_av = mu*mp

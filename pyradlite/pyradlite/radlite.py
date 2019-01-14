@@ -124,7 +124,7 @@ class radlite_model(radmc.radmc_model):
                 scale_dens = self.molweight
                 quantity /= scale_dens
                 clabel = 'Gas density [$cm^{-3}$]'
-            
+                                    
         if type is 'abundance':
             clabel = 'Abundance [H${_2}^{-1}$]'
             quantity = self.abundance

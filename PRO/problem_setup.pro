@@ -88,7 +88,7 @@ IF keyword_set(csenv) THEN BEGIN
        plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$
        nphot=nphot,npdiff=npdiff,errtol=errtol,tauchop=tauchop,lmbchop=lmbchop,$
        idxchop=idxchop,rhofloor=rhofloor,bindir=bindir,tt=tt,radius=r,$
-	   theta=theta,csenv=csenv,time=time,env=env,cav=cav,opening=opening
+	   theta=theta,csenv=csenv,time=time,env=env,cav=cav,opening=opening, Aenv=Aenv
 ENDIF ELSE BEGIN
 	simpledisk_vertstruct,rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
        fresmd=fresmd,scat=scat,ntex=ntex,nrr=nr,ntt=nt,rin=rin,tin=tin,$

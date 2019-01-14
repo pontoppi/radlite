@@ -142,7 +142,7 @@ pro diskenv_radmc, rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
 			       plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$
 	               nphot=nphot,npdiff=npdiff,errtol=errtol,tauchop=tauchop,lmbchop=lmbchop,$
 			       idxchop=idxchop,rhofloor=rhofloor,pnc=pnc,pnh=pnh,pz=pz,ref2=ref2,bindir=bindir,$
-				   tt=tt,radius=r,theta=theta,csenv=csenc,time=time,env=env,cav=cav,opening=opening
+				   tt=tt,radius=r,theta=theta,csenv=csenv,time=time,env=env,cav=cav,opening=opening, Aenv=Aenv
 				   
 				   
 				          
@@ -249,7 +249,7 @@ endelse
 ;
 if keyword_set(env) then begin
 	if ~keyword_set(cav_dens) then cav_dens=0.
-    envelope = make_shu(r,time*3600.*24.*365.,csenv=csenv)
+   envelope = make_shu(r,time*3600.*24.*365.,csenv=csenv, Aenv=Aenv)
 	env_subs = WHERE(r GT rdisk)
 	for i=0,nt-1 do begin
 		envelope_at_theta = envelope.rho

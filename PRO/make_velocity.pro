@@ -54,7 +54,7 @@ CASE vtype OF
               print,'   time and csenv...'
               stop
            endif
-           q = make_shu(a.rr,time*3600.*24.*365.,csenv=csenv)
+           q = make_shu(a.rr,time*3600.*24.*365.,csenv=csenv, Aenv=Aenv)
         ENDIF ELSE BEGIN
            PRINT, 'ERROR: If you want to have an infalling envelope, you must define an envelope in problem_params.pro!'
            stop
@@ -62,15 +62,15 @@ CASE vtype OF
 		
         vr   = q.v
         dsubs = WHERE(a.rr LE rdisk)
-		esubs = WHERE(a.rr GT rdisk)
+		  esubs = WHERE(a.rr GT rdisk)
 
 		;No infall within the disk.
         vr[dsubs] = 0.d0
 		;Uncomment this to have no rotation within the envelope.
-		;vphi[esubs] = 0.d0
+	     ;vphi[esubs] = 0.d0
 		
         vth  = fltarr(nr,nt) 
-		
+		  
         IF KEYWORD_SET(lefthand) THEN vphi = -vphi
     END
     3: BEGIN   ;Magnetospheric accretion (Hartmann, Hewett and Calvet, 1994)
