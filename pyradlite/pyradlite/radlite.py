@@ -112,7 +112,7 @@ class radlite_model(radmc.radmc_model):
     def plot_quantity(self,type='gasdensity',plotfile=None,vmax=None,vmin=None,
                       length_unit='au',dens_unit='number',xlim=None,xlog=False,ylog=False,
                       ylim=None,nlevels=50,curves=None,isotropic=False,colors=None,linestyles=None,
-                      zoverr=False):
+                      zoverr=False,clabels=False):
         
         if length_unit is 'au':
             scale_length = self.au
@@ -171,11 +171,8 @@ class radlite_model(radmc.radmc_model):
         
         fc = ax.contourf(xx,yy,np.log10(quantity),levels=levels,\
                     extend='both',cmap=plt.cm.magma,aspect='equal')
-        cc = ax.contour(xx,yy,np.log10(quantity),levels=[np.log10(1e4)],\
-                    extend='both')
 
-        plt.clabel(cc,inline=True)
-
+        
         if xlim is not None:
             ax.set_xlim(xlim)
         if ylim is not None:
@@ -203,6 +200,12 @@ class radlite_model(radmc.radmc_model):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.1)
         fig.colorbar(fc,orientation='vertical',cax=cax,label=clabel, format=ticker.FuncFormatter(cbfmt))
+
+        if clabels:
+            fig.show()
+            fc.levels = 10**fc.levels
+            plt.clabel(fc,fc.levels,inline=False,colors='black',use_clabeltext=True,manual=True,fmt='%4.0f')
+        
 
         fig.tight_layout()
        
