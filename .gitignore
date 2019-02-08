@@ -3,3 +3,4 @@
 *.par
 build/
 pyradlite/build/
+HITRAN/
