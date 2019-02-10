@@ -1,6 +1,9 @@
 .DS_Store
 *.pyc
 *.par
+*.o
+RADlite
+RADlite_imcir
 build/
 pyradlite/build/
 HITRAN/
