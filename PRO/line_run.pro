@@ -208,7 +208,8 @@ file_copy, 'dustopac_*.inp', rundir+'/.', /overwrite
 file_copy, 'abundance.inp', rundir+'/.', /overwrite
 file_copy, 'temperature.inp', rundir+'/.', /overwrite
 
-file_move, 'RADLite_core*.log', rundir+'/.', /overwrite
+file_copy, 'RADLite_core*.log', rundir+'/.', /overwrite
+file_delete, 'RADLite_core*.log'
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
    file_copy, 'levelpop_nlte.fits', rundir+'/.', /overwrite
@@ -219,6 +220,8 @@ ENDIF
 ;Save the molecular file to a unique name
 file_copy, 'moldata_*.dat', rundir+'/.', /overwrite
 file_copy, 'levelpop_moldata_*.dat', rundir+'/.', /overwrite
+file_delete, 'moldata_*.dat'
+file_delete, 'levelpop_moldata_*.dat'
 ;
 ;And save the lines to a unique name
 IF image eq 0 THEN BEGIN
@@ -247,34 +250,5 @@ FOR iii=0,ncores-1 DO BEGIN
       ENDIF
    ENDIF
 ENDFOR
-
-;FOR iii=0,ncores-1 DO BEGIN
-;   ;
-;   ;Save the molecular file to a unique name
-;   file_move, 'moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
-;   file_move, 'levelpop_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
-;   ;
-;   ;And save the lines to a unique name
-;   IF image eq 0 THEN BEGIN
-;      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
-;   ENDIF
-;   IF image EQ 2 THEN BEGIN
-;      file_move, 'lineposvelcirc_moldata*.dat', rundir+'/.', /overwrite
-;      file_move, 'linespectrum_moldata_'+STRTRIM(STRING(iii),2)+'.dat', rundir+'/.', /overwrite
-;   ENDIF
-;   IF image EQ 1 THEN BEGIN
-;      FOR lj=1,nlines DO BEGIN
-;         file_move, 'lineposvel_moldata_'+STRTRIM(STRING(iii),2)+'_'+STRTRIM(STRING(lj),2)+'.dat', rundir+$
-;                '/lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat', /overwrite   
-;      ENDFOR
-;      IF KEYWORD_SET(dat2fits) THEN BEGIN
-;         cd, rundir
-;         FOR lj=1,nlines DO BEGIN
-;            read_posvel, 'lineposvel_moldata_'+STRTRIM(STRING(iii+lj),2)+'.dat', molecule=molecule
-;         ENDFOR
-;         cd, '..'
-;      ENDIF
-;   ENDIF
-;ENDFOR
 
 END
