@@ -217,16 +217,19 @@ ENDIF
 
 ;
 ;Save the molecular file to a unique name
-file_move, 'moldata_*.dat', rundir+'/.', /overwrite
-file_move, 'levelpop_moldata_*.dat', rundir+'/.', /overwrite
+file_copy, 'moldata_*.dat', rundir+'/.', /overwrite
+file_copy, 'levelpop_moldata_*.dat', rundir+'/.', /overwrite
 ;
 ;And save the lines to a unique name
 IF image eq 0 THEN BEGIN
-   file_move, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+   file_copy, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+   file_delete, 'linespectrum_moldata_*.dat'
 ENDIF
 IF image EQ 2 THEN BEGIN
-   file_move, 'lineposvelcirc_moldata_*.dat', rundir+'/.', /overwrite
-   file_move, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+   file_copy, 'lineposvelcirc_moldata_*.dat', rundir+'/.', /overwrite
+   file_copy, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
+   file_delete, 'lineposvelcirc_moldata_*.dat'
+   file_delete, 'linespectrum_moldata_*.dat'
 ENDIF
    
 FOR iii=0,ncores-1 DO BEGIN
