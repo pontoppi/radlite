@@ -7,7 +7,7 @@ import matplotlib.pylab as plt
 import scipy.interpolate as ip
 
 import astropy.io.fits as pf
-import find_continuum as fc
+from . import find_continuum as fc
 
 def read_grid(path, gridroot=None):
     
