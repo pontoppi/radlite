@@ -104,7 +104,7 @@ ENDIF ELSE BEGIN
        idxchop=idxchop,rhofloor=rhofloor,pnc=pnc,pnh=pnh,pz=pz,$
        imakedisk=imakedisk,run=run,hrstore=hrstore,$
        thintin=thintin,tt=tt,radius=r,theta=theta,bindir=bindir,$
-       dostr=dostr,ref2=ref2
+       dostr=dostr,ref2=ref2,snowline=snowline
 ENDELSE
 ;
 ;Added the accretion description of Nikoletta Sipos. If there is time
