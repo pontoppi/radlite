@@ -44,9 +44,9 @@ print, ' '
 print, ' '
 
 IF image EQ 2 THEN BEGIN
-   executable = 'time '+exe_path+'RADlite_imcir'
+   executable = exe_path+'RADlite_imcir'
 ENDIF ELSE BEGIN
-   executable = 'time '+exe_path+'RADlite'
+   executable = exe_path+'RADlite'
 ENDELSE
 
 IF NOT KEYWORD_SET(run_name) THEN run_name='run'
@@ -163,10 +163,19 @@ FOR iii=0,ncores-1 DO BEGIN
     
     problem_lines, molfile, run_nlte=run_nlte
 
+	; Check that the setup has completed before proceeding (IO may not complete otherwise)
+	WHILE FILE_TEST('levelpop_'+molfile) NE 1 DO BEGIN
+		wait, 1.0
+	ENDWHILE
+	
     IF iii LT ncores-1 THEN BEGIN
        print, 'spawning background process for core: ', iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log&'
-       wait, 5.
+	   ; Check that we are done launching radlite before proceeding
+   	   WHILE FILE_TEST('linespectrum'+'_'+molfile) NE 1 DO BEGIN
+   	      wait, 1.0
+   	   ENDWHILE
+	   
     ENDIF ELSE BEGIN
        print, 'spawning foreground process for core: ',iii+1
        spawn, executable+' > RADLite_core'+STRTRIM(STRING(iii+1),2)+'.log',exit_status=exit3
@@ -178,8 +187,8 @@ ENDFOR
 IF ncores GT 1 and ~KEYWORD_SET(wait_time) THEN BEGIN
    WHILE 1 DO BEGIN
       spawn, 'ps cax | grep RADlite', radlite_running
-	  writeu,-1,string(13b)
       print, 'Waiting for all RADLite threads to finish', N_ELEMENTS(radlite_running), ' threads left'
+	  writeu,-1,string(13b)
       IF radlite_running[0] EQ '' THEN BEGIN
 		  wait, 5.0
 		  BREAK
@@ -209,7 +218,7 @@ file_copy, 'abundance.inp', rundir+'/.', /overwrite
 file_copy, 'temperature.inp', rundir+'/.', /overwrite
 
 file_copy, 'RADLite_core*.log', rundir+'/.', /overwrite
-file_delete, 'RADLite_core*.log'
+spawn, 'rm RADLite_core*.log'
 
 IF KEYWORD_SET(save_levelpop) THEN BEGIN
    file_copy, 'levelpop_nlte.fits', rundir+'/.', /overwrite
@@ -220,19 +229,19 @@ ENDIF
 ;Save the molecular file to a unique name
 file_copy, 'moldata_*.dat', rundir+'/.', /overwrite
 file_copy, 'levelpop_moldata_*.dat', rundir+'/.', /overwrite
-file_delete, 'moldata_*.dat'
-file_delete, 'levelpop_moldata_*.dat'
+spawn, 'rm moldata_*.dat'
+spawn, 'rm levelpop_moldata_*.dat'
 ;
 ;And save the lines to a unique name
 IF image eq 0 THEN BEGIN
    file_copy, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
-   file_delete, 'linespectrum_moldata_*.dat'
+   spawn, 'rm linespectrum_moldata_*.dat'
 ENDIF
 IF image EQ 2 THEN BEGIN
    file_copy, 'lineposvelcirc_moldata_*.dat', rundir+'/.', /overwrite
    file_copy, 'linespectrum_moldata_*.dat', rundir+'/.', /overwrite
-   file_delete, 'lineposvelcirc_moldata_*.dat'
-   file_delete, 'linespectrum_moldata_*.dat'
+   spawn, 'rm lineposvelcirc_moldata_*.dat'
+   spawn, 'rm linespectrum_moldata_*.dat'
 ENDIF
    
 FOR iii=0,ncores-1 DO BEGIN
