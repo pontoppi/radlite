@@ -45,6 +45,14 @@ CASE atype OF
         abun = (1-exp(-tau)) * max_abun * (1-(Dstruct.rr/Dstruct.r[0])^(-2))
         abun_collpartner = 0.d0
     END
+    6: BEGIN                    ;Step abundance at col=5x10^18 cm-1
+        IF N_ELEMENTS(VERBOSE) THEN PRINT, 'Setting abundance to 0 above a vertical H2 column of 5x10^18 cm-2'
+        abun = fltarr(nr,nt)+max_abun
+        make_tau, cc*1d4/0.12, tau=tau,column=column
+		low_subs = WHERE(column*gtd/(2.4*1.66e-24) LT 5e18)
+        abun[low_subs] = min_abun
+        abun_collpartner = 0.d0
+    END
     5: BEGIN                    ;infall model
         abun = fltarr(nr,nt)
         abun[*] = max_abun
@@ -109,7 +117,7 @@ CASE atype OF
 
 
     END
-    5: BEGIN           ;Rowin's Xray temperature + destruction. In this case, the H2O abundance is calculated coupled with the gas temperature.
+    7: BEGIN           ;Rowin's Xray temperature + destruction. In this case, the H2O abundance is calculated coupled with the gas temperature.
        xray_abundance,abun=abun,tgas=tgas, ion_param=ion_param
        abun_collpartner = 0d0
     END
