@@ -20,7 +20,7 @@ column_density = DBLARR(ddens.nr,ddens.ntheta)
 
 FOR i=1, ddens.nr-1 DO BEGIN
 	FOR j=1,ddens.ntheta/2-1 DO BEGIN
-    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*sin(ddens.theta[0:j]), density[i,0:j], /sort, /double)
+    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*ddens.theta[0:j], density[i,0:j], /sort, /double)
 		  column_density[i,ddens.ntheta-1-j] = column_density[i,j]
    	ENDFOR
 ENDFOR

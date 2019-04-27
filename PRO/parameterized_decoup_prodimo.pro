@@ -21,7 +21,7 @@ column_density = DBLARR(ddens.nr,ddens.ntheta)
 
 FOR i=1, ddens.nr-1 DO BEGIN
 	FOR j=1,ddens.ntheta/2-1 DO BEGIN
-    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*sin(ddens.theta[0:j]), density[i,0:j], /sort, /double)
+    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*ddens.theta[0:j], density[i,0:j], /sort, /double)
 		  column_density[i,ddens.ntheta-1-j] = column_density[i,j]
    	ENDFOR
 ENDFOR
@@ -51,11 +51,14 @@ FOR i=1,ddens.nr -1 DO BEGIN
 	  r_AU = ddens.r[i]/AU
 	  NH = column_density[i,j]
 	  FOR k=0,N_ELEMENTS(fac_r)-1 DO BEGIN
-		  fac_r[k] = INTERPOL(gd_arr[*,k],gd_nh[*,k],NH)
+        IF NH LT MAX(gd_nh[k,*]) AND NH GT MIN(gd_nh[k,*]) THEN BEGIN
+           fac_r[k] = INTERPOL(gd_arr[k,*],gd_nh[k,*],NH)
+        ENDIF ELSE BEGIN
+           fac_r[k] = 1
+        ENDELSE
 	  ENDFOR
-
 	  fac = INTERPOL(fac_r,gd_r,ddens.r[i]/AU)
-	  IF alog10(NH) LT 24. AND alog10(NH) GT 15 THEN BEGIN
+	  IF alog10(NH) LT 24. AND alog10(NH) GT 20 THEN BEGIN
 		  gastemp[i,j] = gastemp[i,j] * fac
 	  ENDIF
 	  IF fac GT 4. THEN BEGIN
@@ -63,7 +66,7 @@ FOR i=1,ddens.nr -1 DO BEGIN
 	  ENDIF
    ENDFOR
 ENDFOR
-stop
+
 ;
 ;Write the gas temperature.       
 openw,lun,'temperature.inp',/get_lun
