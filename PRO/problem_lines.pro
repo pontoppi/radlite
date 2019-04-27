@@ -53,7 +53,11 @@ IF gas_decoup EQ 1 THEN BEGIN
 ENDIF
 IF gas_decoup EQ 2 THEN BEGIN
     spawn, 'rm temperature.inp'
-	parameterized_decoup,tgas=tgas,mol_destruct=mol_destruct
+	parameterized_decoup_najita,tgas=tgas,mol_destruct=mol_destruct
+ENDIF
+IF gas_decoup EQ 3 THEN BEGIN
+    spawn, 'rm temperature.inp'
+	parameterized_decoup_prodimo,tgas=tgas,mol_destruct=mol_destruct
 ENDIF
 ;
 ;Some times the gas temperature comes

@@ -1,9 +1,10 @@
 @analyze.pro
-PRO parameterized_decoup, tgas=tgas, mol_destruct=mol_destruct
+PRO parameterized_decoup_prodimo, tgas=tgas, mol_destruct=mol_destruct
 @natconst.pro
 @line_params.ini
 
-PRINT, 'Calculating enhanced gas temperatures by scaling the Najita et al. 2011 gas temperatures'
+PRINT, 'Calculating enhanced gas temperatures by scaling the typical ProDiMo gas temperature'
+;from http://dianaproject.wp.st-andrews.ac.uk/data-results-downloads/an-example-disc-model/
 
 ;
 ;Read model
@@ -27,10 +28,18 @@ ENDFOR
 
 ;
 ;Read the phenomenological vertical structure
-readcol, 'gd.dat', gd_nh, gd_025, gd_05, gd_1, gd_4, gd_10, gd_20
+gd_xx = MRDFITS('gd_prodimo.fits',1, /silent)
+gd_nh = MRDFITS('gd_prodimo.fits',3, /silent)
+gd_td = MRDFITS('gd_prodimo.fits',4, /silent)
+gd_tg = MRDFITS('gd_prodimo.fits',5, /silent)
+nh2 = MRDFITS('gd_prodimo.fits',6, /silent)
+gd_arr = gd_tg/gd_td
 
-gd_r = [0.01,0.25,0.5,1.,4.,10.,20.,2000.]
-gd_arr = [[gd_025],[gd_025],[gd_05],[gd_1],[gd_4],[gd_10],[gd_20],[gd_20]]
+bsubs = WHERE(gd_td EQ 0)
+gd_arr[bsubs] = 1
+
+gd_r = gd_xx[*,0]
+
 fac_r = FLTARR(N_ELEMENTS(gd_r))
 
 gastemp = dusttemp
@@ -42,11 +51,11 @@ FOR i=1,ddens.nr -1 DO BEGIN
 	  r_AU = ddens.r[i]/AU
 	  NH = column_density[i,j]
 	  FOR k=0,N_ELEMENTS(fac_r)-1 DO BEGIN
-		  fac_r[k] = INTERPOL(gd_arr[*,k],gd_nh,alog10(NH+1e-20))
+		  fac_r[k] = INTERPOL(gd_arr[*,k],gd_nh[*,k],NH)
 	  ENDFOR
-	  
+
 	  fac = INTERPOL(fac_r,gd_r,ddens.r[i]/AU)
-	  IF alog10(NH) LT 24. AND alog10(NH) GT 20 THEN BEGIN
+	  IF alog10(NH) LT 24. AND alog10(NH) GT 15 THEN BEGIN
 		  gastemp[i,j] = gastemp[i,j] * fac
 	  ENDIF
 	  IF fac GT 4. THEN BEGIN
@@ -54,7 +63,7 @@ FOR i=1,ddens.nr -1 DO BEGIN
 	  ENDIF
    ENDFOR
 ENDFOR
-
+stop
 ;
 ;Write the gas temperature.       
 openw,lun,'temperature.inp',/get_lun
