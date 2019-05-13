@@ -57,7 +57,7 @@ IF gas_decoup EQ 2 THEN BEGIN
 ENDIF
 IF gas_decoup EQ 3 THEN BEGIN
     spawn, 'rm temperature.inp'
-	parameterized_decoup_prodimo,tgas=tgas,mol_destruct=mol_destruct
+	parameterized_decoup_prodimo,tgas=tgas,molfrac=molfrac
 ENDIF
 ;
 ;Some times the gas temperature comes
@@ -106,7 +106,7 @@ free_lun, lund
 ;======================================
 ;Make an abundance file
 ;======================================
-make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct
+make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct,molfrac=molfrac
 
 ;====================================
 ;Test the velocity
