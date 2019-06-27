@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+from collections import OrderedDict
 
 import numpy as np
 import matplotlib.pylab as plt
@@ -9,8 +10,33 @@ import scipy.interpolate as ip
 import astropy.io.fits as pf
 from . import find_continuum as fc
 
-def read_grid(path, gridroot=None):
+def grid_to_mapping(grid):
     
+    fields = grid['grid_pars'].dtype.names[1:]
+    pars_asdict = OrderedDict()
+    pars_asdict['wave'] = grid['spectra'][0]['wave']
+    shape = pars_asdict['wave'].shape
+    for field in fields:
+        pars_asdict[field.lower()] = np.unique(grid['grid_pars'][field])
+        shape += (pars_asdict[field.lower()].shape[0],)
+    
+    map_values = np.zeros((pars_asdict['wave'].shape[0],len(grid['spectra'])))
+    for ii,model in enumerate(grid['spectra']):
+        map_values[:,ii] = model['flux']
+        
+    map_values = map_values.reshape(shape)
+    import pdb;pdb.set_trace()
+    
+    return mapping
+
+def read_grid(path, gridroot=None):
+    '''
+    Method to read a radlite grid, including spectra and metadata. 
+    
+    Returns: Dictionary
+        Containing a list of individual radlite model dictionaries and the input grid parameters.
+    
+    '''
     parameters = pf.getdata(path+'/run_table.fits')
     
     nsegments = len(parameters)
@@ -52,7 +78,7 @@ def read_grid(path, gridroot=None):
         sys.stdout.write("Progress: %d%%   \r" % percent)
         sys.stdout.flush()
         count += 1
-    return mdata
+    return {'spectra':mdata,'grid_pars':parameters}
 
 def chi2(dwave, dflux, dstddev, mwave, mflux,wbound=None):
     
