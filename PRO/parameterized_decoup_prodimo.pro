@@ -17,14 +17,25 @@ nt = ddens.ntheta
 density  = ddens.rho * gtd / (mp * mu) 
 dusttemp = dtemp.temp(*,*,0,0)
 
-column_density = DBLARR(ddens.nr,ddens.ntheta)
-
-FOR i=1, ddens.nr-1 DO BEGIN
-	FOR j=1,ddens.ntheta/2-1 DO BEGIN
-    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*ddens.theta[0:j], density[i,0:j], /sort, /double)
-		  column_density[i,ddens.ntheta-1-j] = column_density[i,j]
-   	ENDFOR
+column_density = dblarr(ddens.nr,ddens.ntheta)
+FOR ir=0,ddens.nr-1 DO BEGIN
+    FOR it=1,ddens.ntheta/2-1 DO BEGIN
+        column_density[ir,it] = column_density[ir,it-1] + $
+          0.5 * ( density[ir,it] + density[ir,it-1] ) *$
+          ( cos(ddens.theta[it-1]) - cos(ddens.theta[it]) ) * ddens.r[ir]
+        ;
+        ;Mirror
+        column_density[ir,ddens.ntheta-it-1] = column_density[ir,it]
+    ENDFOR
 ENDFOR
+
+;column_density = DBLARR(ddens.nr,ddens.ntheta)
+;FOR i=1, ddens.nr-1 DO BEGIN
+;	FOR j=1,ddens.ntheta/2-1 DO BEGIN
+;    	  column_density[i,j] = INT_TABULATED(ddens.r[i]*ddens.theta[0:j], density[i,0:j], /sort, /double)
+;		  column_density[i,ddens.ntheta-1-j] = column_density[i,j]
+;   	ENDFOR
+;ENDFOR
 
 ;
 ;Read the phenomenological vertical structure
