@@ -1,10 +1,12 @@
 @analyze.pro
-PRO parameterized_decoup_prodimo, tgas=tgas, mol_destruct=mol_destruct,molfrac=molfrac
+PRO parameterized_decoup_prodimo, tgas=tgas, mol_destruct=mol_destruct,speciesfrac=speciesfrac,mol_or_atom=mol_or_atom
 @natconst.pro
 @line_params.ini
 
 PRINT, 'Calculating enhanced gas temperatures by scaling the typical ProDiMo gas temperature'
 ;from http://dianaproject.wp.st-andrews.ac.uk/data-results-downloads/an-example-disc-model/
+
+IF ~KEYWORD_SET(mol_or_atom) THEN mol_or_atom = 'mol'
 
 ;
 ;Read model
@@ -56,7 +58,7 @@ gd_arr[bsubs] = 1
 gd_r = gd_xx[*,0]
 
 gastemp = dusttemp
-molfrac = FLTARR(ddens.nr,ddens.ntheta)
+speciesfrac = FLTARR(ddens.nr,ddens.ntheta)
 
 FOR i=1,ddens.nr-1 DO BEGIN
    r_AU = ddens.r[i]/AU
@@ -76,7 +78,12 @@ FOR i=1,ddens.nr-1 DO BEGIN
       LINTERP, gd_r, molfrac_r[*,j], ddens.r[i]/AU, molfrac_pt
 
 	  gastemp[i,j] = gastemp[i,j] * MAX([fac,1])
-	  molfrac[i,j] = molfrac_pt
+     ; Is the species molecular or atomic?
+     IF mol_or_atom EQ 'mol' THEN BEGIN
+        speciesfrac[i,j] = molfrac_pt
+     ENDIF ELSE BEGIN
+        speciesfrac[i,j] = 1.0 - molfrac_pt
+     ENDELSE
    ENDFOR
 ENDFOR
 
