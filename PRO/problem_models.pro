@@ -142,7 +142,7 @@ pro diskenv_radmc, rstar=rstar,tstar=tstar,mstar=mstar,ifinstar=ifinstar,$
 			       plh=plh,rpfrin=rpfrin,hrpuff=hrpuff,nvstr=nvstr,$
 	               nphot=nphot,npdiff=npdiff,errtol=errtol,tauchop=tauchop,lmbchop=lmbchop,$
 			       idxchop=idxchop,rhofloor=rhofloor,pnc=pnc,pnh=pnh,pz=pz,ref2=ref2,bindir=bindir,$
-				   tt=tt,radius=r,theta=theta,csenv=csenv,time=time,env=env,cav=cav,opening=opening, Aenv=Aenv
+				   tt=tt,radius=r,theta=theta,csenv=csenv,time=time,env=env,cav=cav,opening=opening,Aenv=Aenv,bgdens=bgdens
 				   
 				   
 				          
@@ -248,9 +248,10 @@ endelse
 ;Make the Shu infalling envelope
 ;
 if keyword_set(env) then begin
-	if ~keyword_set(cav_dens) then cav_dens=0.
+	if ~keyword_set(bgdens) then bgdens=0.
    envelope = make_shu(r,time*3600.*24.*365.,csenv=csenv, Aenv=Aenv)
 	env_subs = WHERE(r GT rdisk)
+   inside_subs = WHERE(r LE rdisk)
 	for i=0,nt-1 do begin
 		envelope_at_theta = envelope.rho
 		;
@@ -261,10 +262,11 @@ if keyword_set(env) then begin
 		;
 		if keyword_set(cav) then begin
 			cav_subs = WHERE(r LT 2.*opening/(1.+cos(!pi-theta[i])))
-			envelope_at_theta[cav_subs] = cav_dens
+			envelope_at_theta[cav_subs] = bgdens
 		endif	
 
 		rhodusttot[env_subs,i] += envelope_at_theta[env_subs]/gastodust
+      rhodusttot[inside_subs,i] += bgdens/gastodust
 	endfor
 endif
 
