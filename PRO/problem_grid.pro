@@ -27,7 +27,7 @@ nnr  = n_elements(r)
 if nnr ne nr then stop
 drr  = (r[nr-1]-r[nr-2])/r[nr-2]
 if drr gt 0.15 then begin
-   print,'ERROR: Radial grid too coarse...'
+   print,'ERROR: Radial grid too coarse...', drr, "should be <0.15"
    stop
 endif
 if drr lt 0.05 then begin
