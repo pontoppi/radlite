@@ -30,22 +30,57 @@ class Radlite():
             print("")
 
 
-        ##Below Section: CHECK input parameters for any user error
+        ##Below Section: Check input parameters for any user error
+        #Variables to add: turbmode = ["kep", "sou"]
+        #Make sure that desired image cube output is valid
+        validimage = [0, 2]
+        if image not in validimage:
+            raise ValueError("Sorry, the image you have chosen ("
+                    +str(image)+") is not a valid image.  The value "
+                    +"of image must be one of the following: "
+                    +str(validimage)+".")
+
+        #Prepare executable for desired image cube output
+        if image == 0: #If desired cube output is spectrum
+            if verbose: #Verbal output, if so desired
+                print("Preparing a spectrum-formatted image cube...")
+                print("")
+            executable = exe_path+"RADlite"
+        elif image == 2: #Else, if desired cube output is circular
+            if verbose: #Verbal output, if so desired
+                print("Preparing a circular-formatted image cube...")
+                print("")
+            executable = exe_path+"RADlite_imcir"
+
+        #Make sure that desired LTE format is valid
+        validlte = [0, 1]
+        if lte not in validlte:
+            raise ValueError("Sorry, the lte you have chosen ("
+                    +str(lte)+") is not a valid lte.  The value "
+                    +"of lte must be one of the following: "
+                    +str(validlte)+".")
+
+
         ##Below Section: RECORD inputs as attributes
 
 
 
-    def make_abundance():
+    def get_abundance():
 
-    def make_velocity():
+    def get_velocity():
 
-    def make_gastemperature():
+    def get_gastemperature():
+        ##Below Section: RECORD physical structure of underlying model
+        radius = self.radmc.radius #Radius
+        theta = self.radmc.theta #Theta
+        dustdens = self.radmc.dustdensity #Dust density
+        dusttemp = self.radmc.dusttemperature #Dust temperature
 
-    def make_moldata():
+    def get_moldata():
 
-    def make_levelpop():
+    def get_levelpop():
 
-    def run_lines(self):
+    def run_lines(self, numprocessors):
         """
         DOCSTRING
         Function:
@@ -55,6 +90,10 @@ class Radlite():
         Outputs:
         Notes:
         """
+        ##Below Section: Throws an error if invalid number of processors
+        #!!!
+
+
         ##Below Section: SET UP result directory
         printstamp = time.datetoprint?() #???
         printtime = time.timetoprint?() #???
@@ -81,16 +120,18 @@ class Radlite():
                 print("Preparing a circular-formatted image cube...")
                 print("")
             executable = exe_path+"RADlite_imcir"
+        else: #Throw error, otherwise
+            pass #Fix later
 
 
         ##Below Section: PROCESS data from the LTE or NLTE data file
         #Read in either LTE or NLTE data from other file
-        if self.lte == 1: #If LTE treatment desired
+        if self.lte: #If LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
             linedict = self._read_hitran()
-        elif self.lte == 0: #Else, if NLTE treatment desired
+        else: #Else, if NLTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
@@ -104,7 +145,37 @@ class Radlite():
         run_nlte = True #!!!ASSUMING FOR NOW
 
 
-        ##Below Section:
+        ##Below Section: GENERATE radlite input files
+        self._write_radliteinp() #Direct radlite input file
+        self._write_velocityinp() #Velocity input file
+        self._write_gasdensityinp() #Gas density input file
+        self._write_abundanceinp() #Abundance input file
+        self._write_turbulenceinp() #Turbulence input file
+        self._write_levelpopinp() #Level population input file
+
+
+        ##Below Section: CHECK that all files are in order
+        #BELOW FROM IDL !!! - read_vel, 'velocity.inp', vel
+        #Check passband width
+        #velmax = np.max(np.abs(vel.vphi))
+        #if verbose: #Verbal output, if so desired
+        #    print("Max. velocity = {0:.2f}km/s".format(velmax/1E5))
+
+
+        ##Below Section: RUN RADLITE on single/multiple processors
+        if verbose: #Verbal output, if so desired
+            print("Running RADLite on "+str(numprocessors)+" processor(s)...")
+        
+
+
+
+
+
+
+
+
+
+
         #RUN - SET_MODEL (IF NOT ALREADY DONE SO (I.E., SELF.MODEL=NONE))
         #RUN - CALC_LINES
         #RUN - RADLITE
