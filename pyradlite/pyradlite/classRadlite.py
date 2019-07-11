@@ -4,11 +4,13 @@
 
 ##Below Section: IMPORT necessary functions
 import subprocess
+import multiprocessing as mp
+import numpy as np
 
 
 ##
 class Radlite():
-    def __init__():
+    def __init__(verbose=True):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -35,7 +37,7 @@ class Radlite():
 
 
         ##Below Section: Check input parameters for any user error
-        #Variables to add: turbmode = ["kep", "sou"]
+        #!!!Variables to add: turbmode = ["kep", "sou"]
         #Make sure that desired image cube output is valid
         validimage = [0, 2]
         if image not in validimage:
@@ -43,26 +45,27 @@ class Radlite():
                     +str(image)+") is not a valid image.  The value "
                     +"of image must be one of the following: "
                     +str(validimage)+".")
-
+        ##Below Section: CHOOSE RADLite exec. based on desired output
         #Prepare executable for desired image cube output
-        if image == 0: #If desired cube output is spectrum
+        if self.image == 0: #If desired cube output is spectrum
             if verbose: #Verbal output, if so desired
-                print("Preparing a spectrum-formatted image cube...")
+                print("Will prepare a spectrum-formatted image cube...")
                 print("")
-            executable = exe_path+"RADlite"
-        elif image == 2: #Else, if desired cube output is circular
+            self.executable = self.exe_path+"RADlite"
+        elif self.image == 2: #Else, if desired cube output is circular
             if verbose: #Verbal output, if so desired
-                print("Preparing a circular-formatted image cube...")
+                print("Will prepare a circular-formatted image cube...")
                 print("")
-            executable = exe_path+"RADlite_imcir"
+            self.executable = self.exe_path+"RADlite_imcir"
+        else: #Throw error, otherwise
+            pass #Fix later
+
 
         #Make sure that desired LTE format is valid
-        validlte = [0, 1]
-        if lte not in validlte:
+        if not isinstance(lte, bool):
             raise ValueError("Sorry, the lte you have chosen ("
                     +str(lte)+") is not a valid lte.  The value "
-                    +"of lte must be one of the following: "
-                    +str(validlte)+".")
+                    +"of lte must be a boolean (True or False).")
 
 
         ##Below Section: RECORD inputs as attributes
@@ -70,8 +73,10 @@ class Radlite():
 
 
     def get_abundance():
+        pass
 
     def get_velocity():
+        pass
 
     def get_gastemperature():
         ##Below Section: RECORD physical structure of underlying model
@@ -81,8 +86,10 @@ class Radlite():
         dusttemp = self.radmc.dusttemperature #Dust temperature
 
     def get_moldata():
+        pass
 
     def get_levelpop():
+        pass
 
     def run_lines(self, numprocessors):
         """
@@ -101,46 +108,45 @@ class Radlite():
         ##Below Section: SET UP result directory
         printstamp = time.datetoprint?() #???
         printtime = time.timetoprint?() #???
-        if nodate: #If date should not be appended to directory name
-            rundir = run_name + printstamp
+        if self.nodate: #If date should not be appended to directory name
+            rundir = self.run_name + printstamp
         else: #If date should be appended to directory name
-            rundir = run_name + printstamp + printtime
+            rundir = self.run_name + printstamp + printtime
+
         #Make the desired directory, if nonexistent
-        ???
+            try:
+                comm = subprocess.call(["mkdir", rundir]) #Create directory
+            except (comm != 0): #Will override files within, otherwise
+                pass
         if verbose: #Verbal output, if so desired
-            print("All final data will be saved to the following "
-                    +"directory: "+rundir)
+            print("All input files and final data will be saved to the "
+                    +"following directory: "+rundir)
 
-
-        ##Below Section: CHOOSE RADLite exec. based on desired output
-        #Prepare executable for desired image cube output
-        if self.image == 0: #If desired cube output is spectrum
-            if verbose: #Verbal output, if so desired
-                print("Preparing a spectrum-formatted image cube...")
-                print("")
-            executable = exe_path+"RADlite"
-        elif self.image == 2: #Else, if desired cube output is circular
-            if verbose: #Verbal output, if so desired
-                print("Preparing a circular-formatted image cube...")
-                print("")
-            executable = exe_path+"RADlite_imcir"
-        else: #Throw error, otherwise
-            pass #Fix later
+        #Copy initial files into final directory
+        if verbose: #Verbal output, if so desired
+            print("Copying over initial data files into "+rundir+"...")
+        initfilelist = ["problem_params.pro", "line_params.ini", "radius.inp",
+                        "theta.inp", "frequency.inp", "density.inp",
+                        "dustdens.inp", "dusttemp_final.dat",
+                        "dustopac.inp", "dustopac_*.inp", "abundance.inp",
+                        "temperature.inp"]
+        for iname in initfilelist:
+            comm = subprocess.call(["cp", "./"+iname, rundir+"/"])
 
 
         ##Below Section: PROCESS data from the LTE or NLTE data file
-        #Read in either LTE or NLTE data from other file
+        #Read in either LTE or NLTE data
         if self.lte: #If LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
-            lineset = self._read_hitran(numprocessors)
-        else: #Else, if NLTE treatment desired
+            self.lineset = self._read_hitran(numprocessors)
+        else: #Else, if non-LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
-            lineset = self._read_lambda(numprocessors)
+            self.lineset = self._read_lambda(numprocessors)
 
 
         ##Below Section: DECIDE whether or not to generate NLTE files
@@ -157,19 +163,29 @@ class Radlite():
         for ai in range(0, numprocessors):
             if verbose: #Verbal output, if so desired
                 print("Prepping "+str(ai)+"th processor...")
+
             #Make a directory for this run
-            dirname = "./workingdir_cpu"+str(ai) #Processor-specific directory
+            cpudir = "./workingdir_cpu"+str(ai)+"/" #Processor-specific dir.
+            if verbose: #Verbal output, if so desired
+                print("Generating directory: "+cpudir)
             try:
-                mktry = subprocess.call(["mkdir", dirname]) #Create directory
-            except (mktry != 0):
-                raise ValueError("!!!") #!!!??? erase directories if exist???
+                comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
+            except (comm != 0): #If directory already exists, replace it
+                comm = subprocess.call(["rm", "-r", cpudir]) #Erase prev. dir.
+                comm = subprocess.call(["mkdir", cpudir]) #New empty dir.
+            #Copy initial files into this new processor subdirectory
+            for iname in initfilelist:
+                comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
+
             #Call processor routine
-            phere = mp.Process(target=self._run_radlite, args=(dirname))
+            phere = mp.Process(target=self._run_radlite,
+                                    args=(pind, cpudir, rundir,))
             plist.append(phere)
             #Start process
             if verbose: #Verbal output, if so desired
-                print("Starting "+str(ai)+"th processor in "+dirname+"...")
+                print("Starting "+str(ai)+"th processor in "+cpudir+"...")
             phere.start()
+
         #Close pool of processors
         if verbose: #Verbal output, if so desired
             print("Done running processor(s)!")
@@ -186,7 +202,7 @@ class Radlite():
     #
 
 
-    def _run_radlite(self, dirname):
+    def _run_radlite(self, pind, cpudir, rundir):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -197,20 +213,15 @@ class Radlite():
         Outputs:
         Notes:
         """
-
-
-
-
-
         ##Below Section: GENERATE radlite input files
-
-        self._write_radliteinp() #Direct radlite input file
-        self._write_velocityinp() #Velocity input file
-        self._write_gasdensityinp() #Gas density input file
-        self._write_abundanceinp() #Abundance input file
-        self._write_turbulenceinp() #Turbulence input file
-        self._write_levelpopinp() #Level population input file
-        self._write_moldatadat(lineset[ai]) #Molecular data files
+        self._write_radliteinp(cpudir) #Direct radlite input file
+        self._write_velocityinp(cpudir) #Velocity input file
+        self._write_gasdensityinp(cpudir) #Gas density input file
+        self._write_abundanceinp(cpudir) #Abundance input file
+        self._write_turbulenceinp(cpudir) #Turbulence input file
+        self._write_levelpopinp(cpudir) #Level population input file
+        self._write_moldatadat(filepathandname=cpudir,
+            outfilename=(cpudir+"moldata_"+str(pind)+".dat")) #Mol. datafiles
 
 
         ##Below Section: CHECK that all files are in order
@@ -221,39 +232,45 @@ class Radlite():
         #    print("Max. velocity = {0:.2f}km/s".format(velmax/1E5))
 
 
+        ##Below Section: RUN RADLITE
+        logfile = open(cpudir+"RADLITE_core"+str(pind)+".log", 'w')
+        comm = subprocess.call([self.executable], #Call RADLite
+                                cwd=cpudir+"/", #Call within processor subdir.
+                                stdout=logfile) #Send output to log file
 
 
+        ##Below Section: EXTRACT output files
+        comm = subprocess.call(["mv",
+                            cpudir+"/moldata_"+str(pind)+".dat",
+                            rundir+"/"]) #Molecular data used by this processor
+        comm = subprocess.call(["mv",
+                            cpudir+"/linespectrum_moldata_"+str(pind)+".dat",
+                            rundir+"/"]) #Line spectrum output
+        if self.image == 2:
+            comm = subprocess.call(["mv",
+                            cpudir+"/lineposvelcirc_moldata_"+str(pind)+".dat",
+                            rundir+"/"]) #Circular 3D image cube output
 
 
-
-
-
-
-
-
-
-
-        #RUN - SET_MODEL (IF NOT ALREADY DONE SO (I.E., SELF.MODEL=NONE))
-        #RUN - CALC_LINES
-        #RUN - RADLITE
-        #SAVE+MOVE RESULTS
-
-
-
-
-
-        #Below assembles/converts line wavelengths
-        #wave = np.sort(1E4/1.0/freq) #Sorted line wavelengths [um]
-        #nlines = len(wave) #Number of lines
-
-
-        ##Below Section:
-        #Below ensures that
-
+        ##Below Section: DELETE subdir. + EXIT
+        comm = subprocess.call(["rm", "-r", cpudir]) #Erase processor dir.
+        return
     #
 
 
+
+
+
+
+
+
+
+
+
     ##READ METHODS
+    BELOW STUFF NOT UPDATED YET!!!
+
+
     def _read_hitran(self, filepathandname, numprocessors):
         """
         DOCSTRING
@@ -574,6 +591,13 @@ pandas, astropy - lookinto; read into pandas dataframe
 
 
     ##WRITE METHODS
+    _write_radliteinp(cpudir) #Direct radlite input file
+    _write_velocityinp(cpudir) #Velocity input file
+    _write_gasdensityinp(cpudir) #Gas density input file
+    _write_abundanceinp(cpudir) #Abundance input file
+    _write_turbulenceinp(cpudir) #Turbulence input file
+    _write_levelpopinp(cpudir) #Level population input file
+    _write_moldatadat(filepathandname=cpudir,
 
 
 
