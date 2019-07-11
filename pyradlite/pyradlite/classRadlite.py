@@ -2,6 +2,10 @@
 ##PURPOSE:
 
 
+##Below Section: IMPORT necessary functions
+import subprocess
+
+
 ##
 class Radlite():
     def __init__():
@@ -104,7 +108,7 @@ class Radlite():
         #Make the desired directory, if nonexistent
         ???
         if verbose: #Verbal output, if so desired
-            print("All data will be saved to the following "
+            print("All final data will be saved to the following "
                     +"directory: "+rundir)
 
 
@@ -130,13 +134,13 @@ class Radlite():
             if verbose: #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
-            linedict = self._read_hitran()
+            lineset = self._read_hitran(numprocessors)
         else: #Else, if NLTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
-            linedict = self._read_lambda()
+            lineset = self._read_lambda(numprocessors)
 
 
         ##Below Section: DECIDE whether or not to generate NLTE files
@@ -145,13 +149,68 @@ class Radlite():
         run_nlte = True #!!!ASSUMING FOR NOW
 
 
+        ##Below Section: RUN RADLITE on single/multiple processors in subfolders
+        if verbose: #Verbal output, if so desired
+            print("Running RADLite on "+str(numprocessors)+" processor(s)...")
+        #Prepare pool of processors
+        plist = []
+        for ai in range(0, numprocessors):
+            if verbose: #Verbal output, if so desired
+                print("Prepping "+str(ai)+"th processor...")
+            #Make a directory for this run
+            dirname = "./workingdir_cpu"+str(ai) #Processor-specific directory
+            try:
+                mktry = subprocess.call(["mkdir", dirname]) #Create directory
+            except (mktry != 0):
+                raise ValueError("!!!") #!!!??? erase directories if exist???
+            #Call processor routine
+            phere = mp.Process(target=self._run_radlite, args=(dirname))
+            plist.append(phere)
+            #Start process
+            if verbose: #Verbal output, if so desired
+                print("Starting "+str(ai)+"th processor in "+dirname+"...")
+            phere.start()
+        #Close pool of processors
+        if verbose: #Verbal output, if so desired
+            print("Done running processor(s)!")
+        for ai in range(0, numprocessors):
+            if verbose: #Verbal output, if so desired
+                print("Closing "+str(ai)+"th processor...")
+            plist[ai].join()
+
+
+        ##Below Section: FINISH and EXIT
+        if verbose: #Verbal output, if so desired
+            print("Done running run_lines()!")
+        return
+    #
+
+
+    def _run_radlite(self, dirname):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+
+
+
+
+
         ##Below Section: GENERATE radlite input files
+
         self._write_radliteinp() #Direct radlite input file
         self._write_velocityinp() #Velocity input file
         self._write_gasdensityinp() #Gas density input file
         self._write_abundanceinp() #Abundance input file
         self._write_turbulenceinp() #Turbulence input file
         self._write_levelpopinp() #Level population input file
+        self._write_moldatadat(lineset[ai]) #Molecular data files
 
 
         ##Below Section: CHECK that all files are in order
@@ -162,10 +221,8 @@ class Radlite():
         #    print("Max. velocity = {0:.2f}km/s".format(velmax/1E5))
 
 
-        ##Below Section: RUN RADLITE on single/multiple processors
-        if verbose: #Verbal output, if so desired
-            print("Running RADLite on "+str(numprocessors)+" processor(s)...")
-        
+
+
 
 
 
