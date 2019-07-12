@@ -214,6 +214,7 @@ class Radlite():
         Notes:
         """
         ##Below Section: GENERATE radlite input files
+        ##NOTE: SOME OF THESE ARE PROBABLY GENERAL ENOUGH TO NOT BE DONE PER PROCESSOR
         self._write_radliteinp(cpudir) #Direct radlite input file
         self._write_velocityinp(cpudir) #Velocity input file
         self._write_gasdensityinp(cpudir) #Gas density input file
@@ -258,19 +259,7 @@ class Radlite():
     #
 
 
-
-
-
-
-
-
-
-
-
     ##READ METHODS
-    BELOW STUFF NOT UPDATED YET!!!
-
-
     def _read_hitran(self, filepathandname, numprocessors):
         """
         DOCSTRING
@@ -282,49 +271,48 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: ITERATE through lines in file
+        ##Below Section: PROCESS all lines in file
         if verbose: #Verbal output, if so desired
-            print("Extracting molecular lines from file "+filepathandname+".")
-        #Set up lists to hold data
-        mollist = []
-        isolist = []
-        wavenumlist = []
-        Alist = []
-        Elowlist = []
-        Euplist = []
-        vuplist = []
-        vlowlist = []
-        guplist = []
-        glowlist = []
-        #Iterate through each line
-        openfile = open(filepathandname, 'r')
-        for linehere in openfile:
-            #Extract molecular info from current line (160 tot. char.)
-            molinehere = int(linehere[0:1+1]) #2 char.; molecule
-            isohere = int(linehere[2:2+1]) #1 char.; isotopologue
-            wavenumhere = float(linehere[3:14+1]) #12 char.; wavenumber [cm^-1]
-            inshere = float(linehere[15:24+1]) #10 char.; line intensity
-            Ahere = float(linehere[25:34+1]) #10 char.; Einstein A coeff.
-            airhere = float(linehere[35:39+1]) #5 char. #!!!FIX/FINISH COMMENTS
-            selfhere = float(linehere[40:44+1]) #5 char.
-            Elowhere = float(linehere[45:54+1]) #10 char.
-            Euphere = Elowhere + wavehere
-            temphere = float(linehere[55:58+1]) #4 char.
-            preshere = float(linehere[59:66+1]) #8 char.
-            vuptext = linehere[67:81+1] #15 char.
-            vlowtext = linehere[82:96+1] #15 char.
-            quptext = linehere[97:111+1] #15 char.
-            qlowtext = linehere[112:126+1] #15 char.
-            errhere = int(linehere[127:132+1]) #6 char.
-            refhere = int(linehere[133:144+1]) #12 char.
-            flaghere = linehere[145:145+1] #1 char.
-            guphere = float(linehere[146:152+1]) #7 char.
-            glowhere = float(linehere[153:159+1]) #7 char.
-pandas, astropy - lookinto; read into pandas dataframe
-            #Throw an error if line contains signs of incomplete data
-            if guphere == 0:
-                raise ValueError("Something's wrong!  Incomplete molecular "
-                        +"HITRAN data at wavenum="+str(wavenumhere)+".")
+            print("Extracting molecular lines from file "+filepathandname+"...")
+        #Read in all filelines
+        with open(filepathandname, 'r') as openfile:
+            alllines = openfile.readlines()
+
+        #Set HITRAN entries and number of characters per HITRAN file entry
+        hitranchars = [2, 1, 12, 10, 10, 5, 5, 10, 4, 8, 15, 15, 15, 15,
+                            6, 12, 1, 7, 7] #Characters per HITRAN entry
+        hitrannames = ["mol", "iso", "wavenum", "ins", "A", "air", "self",
+                            "Elow", "temp", "press", "vup", "vlow",
+                            "qup", "qlow", "err", "ref", "flag", "gup", "glow"]
+        hitrandtypes = [int]*2 +[float]*8 +[str]*4 +[int]*2 +[str] +[float]*2
+
+        #Record *all* molecular line into a convenient dictionary
+        #NOTE: Any undesired lines will be removed later
+        hitrandict = {} #Initialize dictionary to hold line values
+        ii = 0 #Index to keep track of place within entries
+        for ai in range(0, len(hitrannames)):
+            namehere = hitrannames[ai] #Name of current entry
+            lenhere = hitranchars[ai] #Character length of current entry
+            datahere = np.array([linehere[ii:ii+hitranchars[ai]]
+                                    for linehere in alllines, #All entries
+                                    dtype=hitrandtypes[ai]]) #Entry datatype
+            hitrandict[namehere] = datahere #Record the extracted entry data
+            ii = ii + hitranchars[ai] #Update place within fileline characters
+        #Also calculate and record upper energy levels
+        hitrandict["Eup"] = hitrandict["Elow"] + hitrandict["wavenum"] #E_up
+
+        #Throw error signs of incomplete data
+        if 0 in hitrandict["gup"]:
+            raise ValueError("Something's wrong!  Incomplete molecular "
+                        +"HITRAN data at wavenum="
+                        +str(hitrandict["wavenum"][
+                                                hitrandict["gup"]==0])+".")
+
+
+        ##Below Section: REMOVE any lines outside of desired range
+        
+
+
 
             #Skip this line if falls outside of desired range
             if ((isonum != self.isotop) #If incorrect isotopologue
@@ -414,11 +402,11 @@ pandas, astropy - lookinto; read into pandas dataframe
                 "vlow":vlowlist_split, "gup":guplist_split,
                 "glow":glowlist_split,
                 "Eall_uniq":Ealllist, "vall_uniq":valllist,
-                "qall_uniq":qalllist, "gall_uniq":galllist} - attri.
+                "qall_uniq":qalllist, "gall_uniq":galllist}
     #
 
 
-    def _read_model(self, modelpathandname):
+    #def _read_model(self, modelpathandname):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -430,8 +418,24 @@ pandas, astropy - lookinto; read into pandas dataframe
         Notes:
         """
         ##Below Section: LOAD the model data
-        self.model = np.load(modelpathandname).item()
+        #self.model = np.load(modelpathandname).item()
     #
+
+
+
+
+
+
+
+
+
+
+
+
+    ##READ METHODS
+    BELOW STUFF NOT UPDATED YET!!!
+
+
 
 
     ##WRITE METHODS
