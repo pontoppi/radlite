@@ -488,7 +488,7 @@ pro simpledisk_vertstruct,rstar=rstar,tstar=tstar,mstar=mstar,$
          imakedisk=imakedisk,run=run,hrstore=hrstore,$
          thintin=thintin,tt=tt,radius=r,theta=theta,rhodust=rhodust,$
          sigdust=sigdust,kurucz=kurucz,kurdir=kurdir,bindir=bindir,$
-         ifast=ifast,dostr=dostr,ref2=ref2
+         ifast=ifast,dostr=dostr,ref2=ref2,snowline=snowline
 ;
 @problem_natconst.pro
 ;
@@ -579,6 +579,7 @@ endif
 if not keyword_set(pllongs) then pllongs=-2.d0+dblarr(n_elements(opacnames))
 if n_elements(gastodust) eq 0 then gastodust = 100.
 if n_elements(rhofloor) eq 0 then rhofloor = 1d-90
+if not keyword_set(snowline) then snowline=0
 if not keyword_set(bindir) then bindir='../bin/'
 if nvstr gt 0 and tauchop gt 0.d0 then begin
    print,'ERROR: The vertical structure iteration module is'
@@ -800,7 +801,7 @@ case imakedisk of
         ;;
         ;; Now split this dust density up in the various abundances
         ;;
-        if nspec gt 1 then begin
+        if (nspec gt 1) and not snowline then begin
             abun = dblarr(nnr,nnt,nspec) + 1.d0
             for ispec=1,nspec-1 do begin
                 q  = dblarr(nnr) + ab_ab0[ispec-1]
@@ -814,6 +815,16 @@ case imakedisk of
                 print,'ERROR: Total abundances dont add up!'
                 stop
             endif
+        endif
+        
+        if (nspec eq 2) and snowline then begin
+            abun = dblarr(nnr,nnt,nspec) + 1.d0
+            ice = r gt snowline*AU
+            plane = rebin(ice,nnr,nnt)
+            abun[*,*,0] = plane
+            noice = r le snowline*AU
+            plane = rebin(noice,nnr,nnt)
+            abun[*,*,1] = plane
         endif
         ;;
         ;; Now convert this into dustdens
