@@ -112,7 +112,7 @@ class radlite_model(radmc.radmc_model):
     def plot_quantity(self,type='gasdensity',plotfile=None,vmax=None,vmin=None,
                       length_unit='au',dens_unit='number',xlim=None,xlog=False,ylog=False,
                       ylim=None,nlevels=50,curves=None,isotropic=False,colors=None,linestyles=None,
-                      zoverr=False,clabels=False):
+                      zoverr=False,clabels=False,lw=2):
         
         if length_unit is 'au':
             scale_length = self.au
@@ -193,9 +193,9 @@ class radlite_model(radmc.radmc_model):
                 linestyles = ['-'] * nl
             for curve,color,linestyle in zip(curves,colors,linestyles):
                 if zoverr:
-                    ax.plot(curve[0],curve[1]/curve[0],lw=2., color=color, linestyle=linestyle)                    
+                    ax.plot(curve[0],curve[1]/curve[0],lw=lw, color=color, linestyle=linestyle)                    
                 else:
-                    ax.plot(curve[0],curve[1],lw=2., color=color, linestyle=linestyle)
+                    ax.plot(curve[0],curve[1],lw=lw, color=color, linestyle=linestyle)
  
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.1)
