@@ -71,6 +71,8 @@ class Radlite():
         ##Below Section: RECORD inputs as attributes
 
 
+    def set_numprocessors(self, numprocessors):
+        pass
 
     def get_abundance():
         pass
@@ -91,7 +93,7 @@ class Radlite():
     def get_levelpop():
         pass
 
-    def run_lines(self, numprocessors):
+    def run_radlite(self):
         """
         DOCSTRING
         Function:
@@ -178,7 +180,7 @@ class Radlite():
                 comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
 
             #Call processor routine
-            phere = mp.Process(target=self._run_radlite,
+            phere = mp.Process(target=self._run_processor,
                                     args=(pind, cpudir, rundir,))
             plist.append(phere)
             #Start process
@@ -202,7 +204,7 @@ class Radlite():
     #
 
 
-    def _run_radlite(self, pind, cpudir, rundir):
+    def _run_processor(self, pind, cpudir, rundir):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -221,7 +223,7 @@ class Radlite():
         self._write_abundanceinp(cpudir) #Abundance input file
         self._write_turbulenceinp(cpudir) #Turbulence input file
         self._write_levelpopinp(cpudir) #Level population input file
-        self._write_moldatadat(filepathandname=cpudir,
+        self._write_moldatadat(filepathandname=cpudir, pind=pind,
             outfilename=(cpudir+"moldata_"+str(pind)+".dat")) #Mol. datafiles
 
 
@@ -260,7 +262,7 @@ class Radlite():
 
 
     ##READ METHODS
-    def _read_hitran(self, filepathandname, numprocessors):
+    def _read_hitran(self, filepathandname):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -277,6 +279,8 @@ class Radlite():
         #Read in all filelines
         with open(filepathandname, 'r') as openfile:
             alllines = openfile.readlines()
+        if verbose: #Verbal output, if so desired
+            print("There are "+str(len(alllines))+" molecular lines in total.")
 
         #Set HITRAN entries and number of characters per HITRAN file entry
         hitranchars = [2, 1, 12, 10, 10, 5, 5, 10, 4, 8, 15, 15, 15, 15,
@@ -301,7 +305,7 @@ class Radlite():
         #Also calculate and record upper energy levels
         hitrandict["Eup"] = hitrandict["Elow"] + hitrandict["wavenum"] #E_up
 
-        #Throw error signs of incomplete data
+        #Throw error if any signs of incomplete data
         if 0 in hitrandict["gup"]:
             raise ValueError("Something's wrong!  Incomplete molecular "
                         +"HITRAN data at wavenum="
@@ -310,115 +314,51 @@ class Radlite():
 
 
         ##Below Section: REMOVE any lines outside of desired range
-        
-
-
-
-            #Skip this line if falls outside of desired range
-            if ((isonum != self.isotop) #If incorrect isotopologue
-                    or (wavenumhere < self.wavenumrange[0]) #If < wavenum range
-                    or (wavenumhere > self.wavenumrange[1]) #If > wavenum range
-                    or (inshere < self.cutoff) #If intensity < cutoff
-                    or (Euphere > self.Eupmax) #If E_up > E_up cutoff
-                    or (float(vuphere) > self.vupmax): #If v_up > v_up cutoff
-                continue
-
-            #Record the parsed data
-            mollist.append(molinehere)
-            isolist.append(isohere)
-            wavenumlist.append(wavenumhere)
-            Alist.append(Ahere)
-            Elowlist.append(Elowhere)
-            Euplist.append(Euphere)
-            vuplist.append(vuphere)
-            vlowlist.append(vlowhere)
-            quplist.append(quphere)
-            qlowlist.append(qlowhere)
-            guplist.append(guphere)
-            glowlist.append(glowhere)
-        #Politely close the file
-        openfile.close()
-
-        #Convert the lines into sorted arrays (for easier parsing later)
-        sortinds = np.argsort(Elowlist) #Indices, sorted by E_low
-        mollist = np.asarray(mollist)[sortinds]
-        isolist = np.asarray(isolist)[sortinds]
-        wavenumlist = np.asarray(wavenumlist)[sortinds]
-        Alist = np.asarray(Alist)[sortinds]
-        Elowlist = np.asarray(Elowlist)[sortinds]
-        Euplist = np.asarray(Euplist)[sortinds]
-        vlowlist = np.asarray(vlowlist)[sortinds]
-        vuplist = np.asarray(vuplist)[sortinds]
-        qlowlist = np.asarray(qlowlist)[sortinds]
-        quplist = np.asarray(quplist)[sortinds]
-        glowlist = np.asarray(glowlist)[sortinds]
-        guplist = np.asarray(guplist)[sortinds]
-        numlines = len(wavenumlist)
         if verbose: #Verbal output, if so desired
-            print("There are "+str(numlines)+" molecular lines.")
+            print("Removing molecular lines outside of specified criteria...")
+        #Extract indices of lines that fall within criteria
+        keepinds = ~np.where(
+                    #If incorrect isotopologue
+                    (hitrandict["isonum"] != self.isotop)
+                    #If wavenumber outside of desired wavenumber range
+                    | (hitrandict["wavenum"] < self.wavenumrange[0])
+                    | (hitrandict["wavenum"] > self.wavenumrange[1])
+                    #If intensity, level, or upper energy beyond given cutoffs
+                    | (hitrandict["ins"] < self.cutoff)
+                    | (hitrandict["Eu"] > self.Eupmax)
+                    | (float(hitrandict["vup"]) > self.vupmax))[0]
+        numlines = np.sum(keepinds) #Number of lines that fall within criteria
 
-
-        ##Below Section: SPLIT data across the given number of processors
+        #Keep only those lines that fall within criteria; delete all other lines
+        for key in hitrandict:
+            hitrandict[key] = hitrandict[key][keepinds]
+        self.hitrandict = hitrandict #Record final set of molecular lines
+        self.numlines = numlines #Record final count of lines
         if verbose: #Verbal output, if so desired
-            print("Dividing up the lines for "+numprocessors+" processors...")
+            print("There are "+str(numlines)+" molecular lines "
+                    +"that fall within specified criteria.")
+
+
+        ##Below Section: SPLIT data across given number of processors
+        if verbose: #Verbal output, if so desired
+            print("Dividing up the lines for "
+                        +self.numprocessors+" processors...")
         #Determine indices for splitting up the data
-        numpersplit = numlines // numprocessors #Number of lines, no remainder
+        numpersplit = self.numlines // self.numprocessors #No remainder
         splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
-                            for ai in range(0, numprocessors)] #Dividing indices
-        splitinds[-1][1] = numlines #Tack leftovers onto last processor
-        #Divide up data using indices
-        mollist_split = [mollist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        isolist_split = [isolist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        Alist_split = [Alist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        wavenumlist_split = [wavenumlist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        Elowlist_split = [Elowlist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        Euplist_split = [Euplist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        vuplist_split = [vuplist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        vlowlist_split = [vlowlist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        guplist_split = [guplist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
-        glowlist_split = [glowlist[splitinds[ai][0]:splitinds[ai][1]]
-                                for ai in range(0, numprocessors)]
+                        for ai in range(0, self.numprocessors)] #Divide indices
+        splitinds[-1][1] = self.numlines #Tack leftovers onto last processor
         if verbose: #Verbal output, if so desired
             print("Here are the chosen line intervals per processor:")
             print([("Processor "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
-
-
+        self.splitinds = splitinds #Record lines per processor
         ##Below Section: RETURN compiled lists of line data
         if verbose: #Verbal output, if so desired
             print("Done extracting molecular data!")
-        return {"mol":mollist_split, "iso":isolist_split, "A":Alist_split,
-                "wavenum":wavenumlist_split, "Elow":Elowlist_split,
-                "Eup":Euplist_split, "vup":vuplist_split,
-                "vlow":vlowlist_split, "gup":guplist_split,
-                "glow":glowlist_split,
-                "Eall_uniq":Ealllist, "vall_uniq":valllist,
-                "qall_uniq":qalllist, "gall_uniq":galllist}
     #
 
 
-    #def _read_model(self, modelpathandname):
-        """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
-        Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
-        """
-        ##Below Section: LOAD the model data
-        #self.model = np.load(modelpathandname).item()
     #
 
 
