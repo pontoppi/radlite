@@ -142,13 +142,13 @@ class Radlite():
             if verbose: #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
-            self.lineset = self._read_hitran(numprocessors)
+            self._read_hitran(numprocessors)
         else: #Else, if non-LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
-            self.lineset = self._read_lambda(numprocessors)
+            self._read_lambda(numprocessors)
 
 
         ##Below Section: DECIDE whether or not to generate NLTE files
@@ -199,7 +199,7 @@ class Radlite():
 
         ##Below Section: FINISH and EXIT
         if verbose: #Verbal output, if so desired
-            print("Done running run_lines()!")
+            print("Done running run_radlite()!")
         return
     #
 
@@ -216,7 +216,7 @@ class Radlite():
         Notes:
         """
         ##Below Section: GENERATE radlite input files
-        ##NOTE: SOME OF THESE ARE PROBABLY GENERAL ENOUGH TO NOT BE DONE PER PROCESSOR
+        NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER PROCESSOR !!!!!!!!!!
         self._write_radliteinp(cpudir) #Direct radlite input file
         self._write_velocityinp(cpudir) #Velocity input file
         self._write_gasdensityinp(cpudir) #Gas density input file
@@ -259,6 +259,7 @@ class Radlite():
         comm = subprocess.call(["rm", "-r", cpudir]) #Erase processor dir.
         return
     #
+
 
 
     ##READ METHODS
@@ -317,7 +318,7 @@ class Radlite():
         if verbose: #Verbal output, if so desired
             print("Removing molecular lines outside of specified criteria...")
         #Extract indices of lines that fall within criteria
-        keepinds = ~np.where(
+        keepinds = np.where( ~(
                     #If incorrect isotopologue
                     (hitrandict["isonum"] != self.isotop)
                     #If wavenumber outside of desired wavenumber range
@@ -326,7 +327,7 @@ class Radlite():
                     #If intensity, level, or upper energy beyond given cutoffs
                     | (hitrandict["ins"] < self.cutoff)
                     | (hitrandict["Eu"] > self.Eupmax)
-                    | (float(hitrandict["vup"]) > self.vupmax))[0]
+                    | (float(hitrandict["vup"]) > self.vupmax)))[0]
         numlines = np.sum(keepinds) #Number of lines that fall within criteria
 
         #Keep only those lines that fall within criteria; delete all other lines
@@ -353,33 +354,47 @@ class Radlite():
             print([("Processor "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
         self.splitinds = splitinds #Record lines per processor
-        ##Below Section: RETURN compiled lists of line data
+
+
+        ##Below Section: EXIT
         if verbose: #Verbal output, if so desired
             print("Done extracting molecular data!")
+        return
     #
 
 
+
+    ##CALCULATION METHODS
+    def _calc_velocity(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        pass
     #
-
-
-
-
-
-
-
-
-
-
-
-
-    ##READ METHODS
-    BELOW STUFF NOT UPDATED YET!!!
-
 
 
 
     ##WRITE METHODS
-    def _write_linespectrum_inp(self, numlines, molfilename, outfilename):
+    def _write_abundanceinp(self, cpudir):
+        pass
+    #
+
+    def _write_gasdensityinp(self, cpudir):
+        pass
+    #
+
+    def _write_levelpopinp(self, cpudir):
+        pass
+    #
+
+    def _write_linespectruminp(self, numlines, molfilename, outfilename):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -438,7 +453,7 @@ class Radlite():
     #
 
 
-    def _write_molefile(self, outfilename, hitrandict):
+    def _write_moldatadat(self, filepathandname, pind, outfilename):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -449,16 +464,28 @@ class Radlite():
         Outputs:
         Notes:
         """
-        if verbose: #Verbal output, if so desired
-            print("Writing "+outfilename+"...")
+        #Below Section: EXTRACT lists of info for line transitions
+        molname = self.get_value("molname", pind=pind)
+        molweight = self.get_value("molweight", pind=pind)
+        Euplist = self.get_value("Eup", pind=pind)
+        Elowlist = self.get_value("Elow", pind=pind)
+        wavenumlist = self.get_value("wavenum", pind=pind)
+        Alist = self.get_value("A", pind=pind)
+        vuplist = self.get_value("vup", pind=pind)
+        vlowlist = self.get_value("vlow", pind=pind)
+        quplist = self.get_value("qup", pind=pind)
+        qlowlist = self.get_value("qlow", pind=pind)
+
+
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
         if verbose: #Verbal output, if so desired
+            print("Writing "+outfilename+"...")
             print("Counting up unique levels for "+outfilename+"...")
         #Combine energies, transitions, and degeneracies
-        Ealllist = np.concatenate((hitrandict["Elow"], hitrandict["Eup"]))
-        valllist = np.concatenate((hitrandict["vlow"], hitrandict["vup"]))
-        qalllist = np.concatenate((hitrandict["qlow"], hitrandict["qup"]))
-        galllist = np.concatenate((hitrandict["glow"], hitrandict["gup"]))
+        Ealllist = np.concatenate((Elowlist, Euplist))
+        valllist = np.concatenate((vlowlist, vuplist))
+        qalllist = np.concatenate((qlowlist, quplist))
+        galllist = np.concatenate((glowlist, guplist))
         #Sort combined lists by energies
         sortinds = np.argsort(Ealllist)
         Ealllist = Eallist[sortinds]
@@ -467,13 +494,13 @@ class Radlite():
         galllist = gallist[sortinds]
 
         #Extract indices for unique levels only
-        uniqEinds = ~np.where( #Indices of unique Elow, Eu value combinations
+        uniqEinds = np.where( ~( #Indices of unique Elow, Eu value combinations
                     (np.abs(Ealllist[0:-1]-Ealllist[1:len(Ealllist)])
-                            /1.0/(Ealllist[1:len(Ealllist)]+0.1)) < 0.0001)
-        uniqvinds = ~np.where( #Indices of unique vlow, vup value combinations
-                        vuplist[0:-1] == vuplist[1:len(Ealllist)])
-        uniqginds = ~np.where( #Indices of unique glow, gup value combinations
-                        glowlist[0:-1] == glowlist[1:len(Ealllist)])
+                            /1.0/(Ealllist[1:len(Ealllist)]+0.1)) < 0.0001))[0]
+        uniqvinds = np.where( ~( #Indices of unique vlow, vup combinations
+                        vuplist[0:-1] == vuplist[1:len(Ealllist)]))[0]
+        uniqginds = np.where( ~( #Indices of unique glow, gup combinations
+                        glowlist[0:-1] == glowlist[1:len(Ealllist)]))[0]
 
         #Combine and apply indices
         if verbose: #Verbal output, if so desired
@@ -491,10 +518,9 @@ class Radlite():
 
         ##Below Section: BUILD string to form the molecular data file
         writestr = ""
-        writestr += "!MOLECULE\n{0:s}\n".format(self.molname)
-        writestr += "!MOLECULAR WEIGHT\n{0:4.1f}\n".format(self.molweight))
-        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(
-                            len(Ealllist))
+        writestr += "!MOLECULE\n{0:s}\n".format(molname)
+        writestr += "!MOLECULAR WEIGHT\n{0:4.1f}\n".format(molweight)
+        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(len(Ealllist))
         #Tack on unique levels, energies, and degeneracies
         writestr += "!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q\n"
         for ai in range(0, len(Ealllist)):
@@ -503,50 +529,72 @@ class Radlite():
                             qalllist[ai])
         #Tack on transitions
         writestr += "!NUMBER OF RADIATIVE TRANSITIONS\n"
-        writestr += "{0:6d\n}".format(len(hitrandict["wavenum"]))
+        writestr += "{0:6d\n}".format(len(wavenumlist))
         writestr += ("!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm^-1) + "
                         +"E_u(cm^-1) + v_l + Q_p + Q_pp\n")
-        for ai in range(0, len(hitrandict["wavenum"])):
-            levu = np.where((np.abs(Ealllist - hitrandict["Eup"][ai])
-                                /1.0/hitrandict["Eup"][ai]) < 1E-4)[0]
-            if hitrandict["Elow"][ai] != 0: #If not down to 0-level
-                levl = np.where(np.abs(Ealllist - hitrandict["Elow"][ai])
-                                /1.0/hitrandict["Elow"][ai]) < 1E-4)[0]
+        for ai in range(0, len(wavenumlist)):
+            levu = np.where((np.abs(Ealllist - Euplist[ai])
+                                /1.0/Euplist[ai]) < 1E-4)[0]
+            if Elowlist[ai] != 0: #If not down to 0-level
+                levl = np.where(np.abs(Ealllist - Elowlist[ai])
+                                /1.0/Elowlist[ai]) < 1E-4)[0]
             else:
                 levl = np.where(Ealllist == 0)[0]
             writestr += ("{0:5d}{1:5d}{2:5d}{3:12.3e}{4:16.7f}".format(
-                                (ai+1), levu[0]+1, levl[0]+1,
-                                hitrandict["A"][ai], hitrandict["wavenum"][ai])
+                                (ai+1), levu[0]+1, levl[0]+1, Alist[ai],
+                                wavenumlist[ai])
                         +"{5:12.5f}{6:>15}{7:>15}{8:>15}{9:>15}\n".format(
-                                hitrandict["Eup"][ai], hitrandict["vup"][ai],
-                                hitrandict["vlow"][ai], hitrandict["qup"][ai],
-                                hitrandict["qlow"][ai]))
+                                Euplist[ai], vuplist[ai], vlowlist[ai],
+                                quplist[ai], qlowlist[ai])
 
 
         ##Below Section: WRITE the results to file + EXIT function
         with openfile as open(outputfilename, 'w'):
-            f.write(writestr)
+            openfile.write(writestr)
         return
     #
 
 
-        ##
+    def _write_radliteinp(self, cpudir):
+        pass
+    #
 
+    def _write_turbulenceinp(self, cpudir):
+        pass
+    #
 
+    def _write_velocityinp(self, outputfilename):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing velocity information
+        #Extract velocity
+        velarr = self.get_value("velocity") #Velocity data
+        rlen = len(self.get_value("radius")) #Length of radius array
+        tlen = len(self.get_value("theta")) #Length of theta array
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        #Fill in string with velocity information
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                writestr += "{0:f} {1:f} {2:f}\n".format(
+                                velarr["r"][ri, ti], valarr["th"][ri, ti],
+                                velarr["phi"][ri, ti])
 
-    ##WRITE METHODS
-    _write_radliteinp(cpudir) #Direct radlite input file
-    _write_velocityinp(cpudir) #Velocity input file
-    _write_gasdensityinp(cpudir) #Gas density input file
-    _write_abundanceinp(cpudir) #Abundance input file
-    _write_turbulenceinp(cpudir) #Turbulence input file
-    _write_levelpopinp(cpudir) #Level population input file
-    _write_moldatadat(filepathandname=cpudir,
+        ##Below Section: WRITE the results to file + EXIT function
+        with openfile as open(outputfilename, 'w'):
+            openfile.write(writestr)
+        return
+    #
 
-
-
-
-#
 #
 
 
