@@ -157,8 +157,13 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: Throws an error if invalid number of processors
-        #!!!
+        ##Below Section: SET UP lists of initial and input files
+        initfilelist = ["problem_params.pro", "line_params.ini"]
+        cpfilelist = ["radius.inp",
+                        "theta.inp", "frequency.inp", "density.inp",
+                        "dustdens.inp", "dusttemp_final.dat",
+                        "dustopac.inp", "dustopac_*.inp", "abundance.inp",
+                        "temperature.inp", "velocity.inp"]
 
 
         ##Below Section: SET UP result directory
@@ -181,11 +186,6 @@ class Radlite():
         #Copy initial files into final directory
         if verbose: #Verbal output, if so desired
             print("Copying over initial data files into "+rundir+"...")
-        initfilelist = ["problem_params.pro", "line_params.ini", "radius.inp",
-                        "theta.inp", "frequency.inp", "density.inp",
-                        "dustdens.inp", "dusttemp_final.dat",
-                        "dustopac.inp", "dustopac_*.inp", "abundance.inp",
-                        "temperature.inp"]
         for iname in initfilelist:
             comm = subprocess.call(["cp", "./"+iname, rundir+"/"])
 
@@ -209,6 +209,13 @@ class Radlite():
         #!!!! - UNFINISHED - ASSUMING run_nlte=True FOR NOW
         #FILL THIS IN FROM LINE_RUN LINES 145-162
         run_nlte = True #!!!ASSUMING FOR NOW
+
+
+        ##Below Section: WRITE RADLite input files
+        self._write_abundanceinp(outputfilename="./abundance.inp") #Abundance
+        self._write_gasdensityinp(outputfilename=) #Gas density
+        self._write_turbulenceinp(outputfilename="./turbulence.inp") #Turbulence
+        self._write_velocityinp(outputfilename="./velocity.inp") #Velocity
 
 
         ##Below Section: RUN RADLITE on single/multiple processors in subfolders
@@ -272,10 +279,6 @@ class Radlite():
         ##Below Section: GENERATE radlite input files
         NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER PROCESSOR !!!!!!!!!!
         self._write_radliteinp(cpudir) #Direct radlite input file
-        self._write_velocityinp(cpudir) #Velocity input file
-        self._write_gasdensityinp(cpudir) #Gas density input file
-        self._write_abundanceinp(cpudir) #Abundance input file
-        self._write_turbulenceinp(cpudir) #Turbulence input file
         self._write_levelpopinp(cpudir) #Level population input file
         self._write_moldatadat(filepathandname=cpudir, pind=pind,
             outfilename=(cpudir+"moldata_"+str(pind)+".dat")) #Mol. datafiles
@@ -436,6 +439,54 @@ class Radlite():
 
 
     ##CALCULATION METHODS
+    ###NOTE: MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
+    def _calc_abundance(self, verbose=True):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: EXTRACT structural information
+        temparr = self.get_value("dusttemperature")
+        densarr = self.get_value("density")
+        rlen = self.get_value("rlen")
+        tlen = self.get_value("tlen")
+        gamval = self.get_value("gamma")
+        abundrange = self.get_value("abundrange")
+        temp_fr = self.get_value("freezetemperature")
+        if verbose: #Verbal output, if so desired
+            print("Calculating abundance...")
+
+
+        ##Below Section: CALCULATE abundance based on specified abundance mode
+        if temp_fr is None: #For constant abundance
+            if verbose: #Verbal output, if so desired
+                print("Setting a constant abundance...")
+            abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
+            self._set_value(valname="abund_collpartner", val=0.0)
+        else: #For abundance that changes below freeze-out temperature
+            if verbose: #Verbal output, if so desired
+                print("Setting abundance to min. below {0:f}K...".format())
+            abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
+            abundarr[abundarr < temp_fr] = abundrange[0]
+            self._set_value(valname="collpartner", val=0.0)
+
+
+        ##NOTE: IN MAKE_ABUNDANCE.PRO, THERE WAS PART HERE ABOUT MOL_DESTRUCT
+
+        ##Below Section: RECORD calculated abundance + EXIT
+        self._set_value(valname="abundance", val=abundarr)
+        if verbose: #Verbal output, if so desired
+            print("Done calculating abundance!")
+        return
+    #
+
+
     ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     def _calc_turbulence(self, verbose=True):
         """
@@ -516,17 +567,48 @@ class Radlite():
 
 
     ##WRITE METHODS
-    def _write_abundanceinp(self, cpudir):
-        pass
+    def _write_abundanceinp(self, outfilename):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing abundance information
+        #Extract abundance
+        abundarr = self.get_value("abundance") #Abundance data
+        collpartner = self.get_value("collpartner")
+        rlen = len(self.get_value("rlen")) #Length of radius array
+        tlen = len(self.get_value("tlen"))/2.0 #Half-length of theta array
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        #Fill in string with abundance information
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                writestr += "{0:f}\n".format(abundarr[ri, ti],
+                                                collpartner)
+
+        ##Below Section: WRITE the results to file + EXIT function
+        with openfile as open(outputfilename, 'w'):
+            openfile.write(writestr)
+        return
     #
+
 
     def _write_gasdensityinp(self, cpudir):
         pass
     #
 
+
     def _write_levelpopinp(self, cpudir):
         pass
     #
+
 
     def _write_linespectruminp(self, numlines, molfilename, outfilename):
         """
@@ -715,7 +797,8 @@ class Radlite():
         #Fill in string with turbulence information
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                writestr += "{0:f}\n".format(turbarr/1.0E5) #[cm/s] -> [km/s]
+                writestr += "{0:f}\n".format(
+                                        turbarr[ri, ti]/1.0E5) #[cm/s] -> [km/s]
 
         ##Below Section: WRITE the results to file + EXIT function
         with openfile as open(outputfilename, 'w'):
