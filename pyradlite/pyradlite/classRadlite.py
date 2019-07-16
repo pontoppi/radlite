@@ -69,10 +69,64 @@ class Radlite():
 
 
         ##Below Section: RECORD inputs as attributes
+        ##Other stuff to record: gamma=1.4 (adiabatic constant for diatomic gas), mu=2.3 (mean molecular mass), alpha=0.01 (viscosity alpha)
 
 
-    def set_numprocessors(self, numprocessors):
-        pass
+    def _set_value(self, valname, val):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: RECORD given value under given name + EXIT
+        self.valdict[valname] = val
+        return
+    #
+
+
+    def get_value(self, valname):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: RAISE ERROR IF this is not a valid value name
+        validval = []
+        if valname not in validval:
+            pass #FINISH LATER
+        ##Below Section: TRY-EXTRACT requested value
+        try:
+            return self.valdict[valname]
+        except KeyError: #If value not yet recorded, extract it
+            #try _calc_<valname>
+            pass #FINISH THIS LATER - WAY TO CALL FUNCTION NAME GIVEN STRING NAME?
+    #
+
+
+    def _get_value_perprocess(self, valname, pind):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        return self.valdict[valname][self.get_value("_splitinds")[pind]]
+    #
+
 
     def get_abundance():
         pass
@@ -353,7 +407,7 @@ class Radlite():
             print("Here are the chosen line intervals per processor:")
             print([("Processor "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
-        self.splitinds = splitinds #Record lines per processor
+        self._set_value(valname="_splitinds", val=splitinds) #Record split lines
 
 
         ##Below Section: EXIT
@@ -363,9 +417,27 @@ class Radlite():
     #
 
 
+    def _read_starinfo(self, filepathandname):
+        pass
+        #IDL SNIPPET:
+        """
+            1: BEGIN    ;Keplerian velocity structure
+        openr,1,'starinfo.inp'
+        iformat=0
+        readf,1,iformat
+        rstar=0.d0
+        mstar=0.d0
+        readf,1,rstar
+        readf,1,mstar
+        close,1
+        """
+    #
+
+
 
     ##CALCULATION METHODS
-    def _calc_velocity(self):
+    ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
+    def _calc_turbulence(self, verbose=True):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -376,7 +448,69 @@ class Radlite():
         Outputs:
         Notes:
         """
-        pass
+        ##Below Section: EXTRACT gas information
+        temparr = self.get_value("dusttemperature")
+        gamval = self.get_value("gamma")
+        muval = self.get_value("mu")
+        molmassval = self.get_value("molmass")
+        if verbose: #Verbal output, if so desired
+            print("Calculating turbulence...")
+            print("Using first dust component temperature to determine "
+                    +"turbulent velocities...")
+
+
+        ##Below Section: CALCULATE turbulence (alpha-model) using sound speed
+        csarr = np.sqrt(gamma*kB0*temparr/1.0/(muval*mp0)) #Sound speed
+        turbarr = self.get_value("alpha")*csarr #Turbulence
+        #Add thermal broadening in quadrature
+        thermbroadarr = np.sqrt(2.0*kB0*temparr/(molmassval*mp0)) #Therm. broad.
+        turbarr = np.sqrt((turbarr**2) + (thermbroadarr**2)) #Updated turbulence
+
+
+        ##Below Section: RECORD calculated turbulence + EXIT
+        self._set_value(valname="turbulence", val=turbarr)
+        if verbose: #Verbal output, if so desired
+            print("Done calculating turbulence!")
+        return
+    #
+
+
+    ###NOTE: _CALC_VELOCITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING _CALC_VELOCITY METHODS
+    def _calc_velocity(self, verbose=True):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: EXTRACT stellar information
+        vmode = self.get_value("vmode") #Type of velocity to calculation
+        rlen = self.get_value("rlen") #Number of radius points
+        tlen = self.get_value("tlen") #Number of theta points
+        mstar = self.get_value("starinfo")["mstar"] #Stellar mass
+        rstar = self.get_value("starinfo")["rstar"] #Stellar radius
+        rrarr = self.get_value("rr") #???
+        if verbose: #Verbal output, if so desired
+            print("Calculating velocity field... Velocity mode is "+str(vmode))
+            print("Used starinfo.inp file for Keplerian velocity...")
+
+
+        ##Below Section: CALCULATE Keplerian velocity
+        vdict = {} #Dictionary to hold different velocity dimensions
+        vdict["r"] = np.zeros(shape=(rlen, tlen)) #Radial velocity
+        vdict["th"] = np.zeros(shape=(rlen, tlen)) #Theta velocity
+        vdict["phi"] = np.sqrt(G0*mstar/1.0/rrarr) #Phi velocity
+
+
+        ##Below Section: RECORD velocity and EXIT
+        self._set_value("velocity", vdict) #Record velocity
+        if verbose: #Verbal output, if so desired
+            print("Done calculating velocity.")
+        return
     #
 
 
@@ -465,16 +599,16 @@ class Radlite():
         Notes:
         """
         #Below Section: EXTRACT lists of info for line transitions
-        molname = self.get_value("molname", pind=pind)
-        molweight = self.get_value("molweight", pind=pind)
-        Euplist = self.get_value("Eup", pind=pind)
-        Elowlist = self.get_value("Elow", pind=pind)
-        wavenumlist = self.get_value("wavenum", pind=pind)
-        Alist = self.get_value("A", pind=pind)
-        vuplist = self.get_value("vup", pind=pind)
-        vlowlist = self.get_value("vlow", pind=pind)
-        quplist = self.get_value("qup", pind=pind)
-        qlowlist = self.get_value("qlow", pind=pind)
+        molname = self._get_value_perprocess("molname", pind=pind)
+        molweight = self._get_value_perprocess("molweight", pind=pind)
+        Euplist = self._get_value_perprocess("Eup", pind=pind)
+        Elowlist = self._get_value_perprocess("Elow", pind=pind)
+        wavenumlist = self._get_value_perprocess("wavenum", pind=pind)
+        Alist = self._get_value_perprocess("A", pind=pind)
+        vuplist = self._get_value_perprocess("vup", pind=pind)
+        vlowlist = self._get_value_perprocess("vlow", pind=pind)
+        quplist = self._get_value_perprocess("qup", pind=pind)
+        qlowlist = self._get_value_perprocess("qlow", pind=pind)
 
 
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
@@ -559,9 +693,36 @@ class Radlite():
         pass
     #
 
-    def _write_turbulenceinp(self, cpudir):
-        pass
+    def _write_turbulenceinp(self, outputfilename):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing turbulence information
+        #Extract turbulence
+        turbarr = self.get_value("turbulence") #Turbulence data
+        rlen = len(self.get_value("rlen")) #Length of radius array
+        tlen = len(self.get_value("tlen")) #Length of theta array
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        #Fill in string with turbulence information
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                writestr += "{0:f}\n".format(turbarr/1.0E5) #[cm/s] -> [km/s]
+
+        ##Below Section: WRITE the results to file + EXIT function
+        with openfile as open(outputfilename, 'w'):
+            openfile.write(writestr)
+        return
     #
+
 
     def _write_velocityinp(self, outputfilename):
         """
@@ -577,10 +738,11 @@ class Radlite():
         ##Below Section: BUILD string containing velocity information
         #Extract velocity
         velarr = self.get_value("velocity") #Velocity data
-        rlen = len(self.get_value("radius")) #Length of radius array
-        tlen = len(self.get_value("theta")) #Length of theta array
+        rlen = len(self.get_value("rlen")) #Length of radius array
+        tlen = len(self.get_value("tlen")) #Length of theta array
         #Set up string
         writestr = "" #Initialize string
+        writestr += "1\n"
         writestr += "{0:d} {1:d}\n".format(rlen, tlen)
         #Fill in string with velocity information
         for ri in range(0, rlen):
@@ -594,6 +756,11 @@ class Radlite():
             openfile.write(writestr)
         return
     #
+
+
+
+
+
 
 #
 
