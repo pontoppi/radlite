@@ -1,0 +1,35 @@
+{
+  "main_path":        "~/Documents/disk_modeling/radlite-master/",
+  "hit_path":         "~/Documents/disk_modeling/radlite-master/HITRAN/",
+  "psumfile":         "~/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
+  "lambda_path":      "~/Documents/disk_modeling/radlite-master/LAMDA/",
+  "exe_path":         "~/Documents/disk_modeling/radlite-master/RADLITE/",
+
+  "ncores":           7,
+  "image":           "spec",
+
+  "lte":              True,
+  "gas_decoup":       False,
+  "molname":          "H2O",
+  "ovp":              "all",
+
+  "gtd":              12800.0,
+  "freezefile":       "h2oabun_g2d_1280.sav",
+  "temp_fr":          150.0,
+  "coldfinger":       0.0,
+  "turb_broad":       0.9,
+
+  "min_mu":           25.0,
+  "max_mu":           610.0,
+  "min_abun":         5.0E-11,
+  "max_abun":         1.5E-4,
+  "insmin":           1E-90,
+  "Eumax":            5000.0,
+
+  "incl":             10.0,
+  "vsampling":        0.25,
+  "passband":         20.0,
+
+  "gamma":            1.4,
+  "mu":               2.37
+}

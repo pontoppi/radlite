@@ -6,11 +6,13 @@
 import subprocess
 import multiprocessing as mp
 import numpy as np
+import json
+import os
 
 
 ##
 class Radlite():
-    def __init__(verbose=True):
+    def __init__(self, infilepath, verbose=True):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -36,59 +38,46 @@ class Radlite():
             print("")
 
 
-        ##Below Section: Check input parameters for any user error
-        #!!!Variables to add: turbmode = ["kep", "sou"]
+        ##Below Section: READ IN + STORE input files
+        #Read in input RADLite data
+        self._valdict = json.load(os.join(infilepath, "input_radlite.json"))
+        #Read in HITRAN data and then extract desired molecule
+        hitrandict = json.load(os.join(infilepath, "data_hitran.json"))
+        moldict = hitrandict[self._valdict["molname"]] #Extract molecular data
+        for key in moldict: #Store molecule-specific data
+            self._valdict[key] = moldict[key]
+
+
+        ##Below Section: CHECK inputs for any user error; otherwise record them
         #Make sure that desired image cube output is valid
-        validimage = [0, 2]
-        if image not in validimage:
+        validimage = ["spec", "circ"]
+        if self._valdict["image"] not in validimage:
             raise ValueError("Sorry, the image you have chosen ("
-                    +str(image)+") is not a valid image.  The value "
+                    +str(inpdict["image"])+") is not a valid image.  The value "
                     +"of image must be one of the following: "
                     +str(validimage)+".")
         ##Below Section: CHOOSE RADLite exec. based on desired output
         #Prepare executable for desired image cube output
-        if self.image == 0: #If desired cube output is spectrum
+        if self._valdict["image"] == "spec": #If desired cube output is spectrum
             if verbose: #Verbal output, if so desired
                 print("Will prepare a spectrum-formatted image cube...")
                 print("")
-            self.executable = self.exe_path+"RADlite"
-        elif self.image == 2: #Else, if desired cube output is circular
+            self._valdict["executable"] = self._valdict["exe_path"]+"RADlite"
+        elif self._valdict["image"] == "circ": #If desired output is circular
             if verbose: #Verbal output, if so desired
                 print("Will prepare a circular-formatted image cube...")
                 print("")
-            self.executable = self.exe_path+"RADlite_imcir"
-        else: #Throw error, otherwise
-            pass #Fix later
-
 
         #Make sure that desired LTE format is valid
-        if not isinstance(lte, bool):
+        if not isinstance(self._valdict["lte"], bool):
             raise ValueError("Sorry, the lte you have chosen ("
-                    +str(lte)+") is not a valid lte.  The value "
-                    +"of lte must be a boolean (True or False).")
-
-
-        ##Below Section: RECORD inputs as attributes
-        ##Other stuff to record: gamma=1.4 (adiabatic constant for diatomic gas), mu=2.3 (mean molecular mass), alpha=0.01 (viscosity alpha)
-
-
-    def _set_value(self, valname, val):
-        """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
-        Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
-        """
-        ##Below Section: RECORD given value under given name + EXIT
-        self.valdict[valname] = val
-        return
+                    +str(self._valdict["lte"])+") is not a valid lte.  The "
+                    +"value of lte must be a boolean (True or False).")
     #
 
 
+
+    ##STORE AND FETCH METHODS
     def get_value(self, valname):
         """
         DOCSTRING
@@ -101,15 +90,16 @@ class Radlite():
         Notes:
         """
         ##Below Section: RAISE ERROR IF this is not a valid value name
-        validval = []
-        if valname not in validval:
-            pass #FINISH LATER
+        #validval = []
+        #if valname not in validval:
+        #    pass #FINISH LATER
         ##Below Section: TRY-EXTRACT requested value
         try:
-            return self.valdict[valname]
+            return self._valdict[valname]
         except KeyError: #If value not yet recorded, extract it
             #try _calc_<valname>
-            pass #FINISH THIS LATER - WAY TO CALL FUNCTION NAME GIVEN STRING NAME?
+            raise ValueError("NOT READY TO HANDLE THIS YET")
+            #pass #FINISH THIS LATER - WAY TO CALL FUNCTION NAME GIVEN STRING NAME?
     #
 
 
@@ -128,24 +118,41 @@ class Radlite():
     #
 
 
-    def get_abundance():
-        pass
+    def _set_value(self, valname, val):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: RECORD given value under given name + EXIT
+        self._valdict[valname] = val
+        return
+    #
 
-    def get_velocity():
-        pass
 
-    def get_gastemperature():
-        ##Below Section: RECORD physical structure of underlying model
-        radius = self.radmc.radius #Radius
-        theta = self.radmc.theta #Theta
-        dustdens = self.radmc.dustdensity #Dust density
-        dusttemp = self.radmc.dusttemperature #Dust temperature
+    #def get_abundance():
+    #    pass
 
-    def get_moldata():
-        pass
+    #def get_velocity():
+    #    pass
 
-    def get_levelpop():
-        pass
+    #def get_gastemperature():
+    #    ##Below Section: RECORD physical structure of underlying model
+    #    radius = self.radmc.radius #Radius
+    #    theta = self.radmc.theta #Theta
+    #    dustdens = self.radmc.dustdensity #Dust density
+    #    dusttemp = self.radmc.dusttemperature #Dust temperature
+
+    #def get_moldata():
+    #    pass
+
+    #def get_levelpop():
+    #    pass
 
     def run_radlite(self):
         """
@@ -192,17 +199,17 @@ class Radlite():
 
         ##Below Section: PROCESS data from the LTE or NLTE data file
         #Read in either LTE or NLTE data
-        if self.lte: #If LTE treatment desired
+        if self.get_value("lte"): #If LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
-            self._read_hitran(numprocessors)
+            self._read_hitran(numcores)
         else: #Else, if non-LTE treatment desired
             if verbose: #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
-            self._read_lambda(numprocessors)
+            self._read_lambda(numcores)
 
 
         ##Below Section: DECIDE whether or not to generate NLTE files
@@ -218,17 +225,18 @@ class Radlite():
         self._write_velocityinp(outputfilename="./velocity.inp") #Velocity
 
 
-        ##Below Section: RUN RADLITE on single/multiple processors in subfolders
+        ##Below Section: RUN RADLITE on single/multiple cores in subfolders
+        numcores = self.get_value("ncores")
         if verbose: #Verbal output, if so desired
-            print("Running RADLite on "+str(numprocessors)+" processor(s)...")
-        #Prepare pool of processors
+            print("Running RADLite on "+str(numcores)+" core(s)...")
+        #Prepare pool of cores
         plist = []
-        for ai in range(0, numprocessors):
+        for ai in range(0, numcores):
             if verbose: #Verbal output, if so desired
-                print("Prepping "+str(ai)+"th processor...")
+                print("Prepping "+str(ai)+"th core...")
 
             #Make a directory for this run
-            cpudir = "./workingdir_cpu"+str(ai)+"/" #Processor-specific dir.
+            cpudir = "./workingdir_cpu"+str(ai)+"/" #core-specific dir.
             if verbose: #Verbal output, if so desired
                 print("Generating directory: "+cpudir)
             try:
@@ -236,25 +244,25 @@ class Radlite():
             except (comm != 0): #If directory already exists, replace it
                 comm = subprocess.call(["rm", "-r", cpudir]) #Erase prev. dir.
                 comm = subprocess.call(["mkdir", cpudir]) #New empty dir.
-            #Copy initial files into this new processor subdirectory
+            #Copy initial files into this new core subdirectory
             for iname in initfilelist:
                 comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
 
-            #Call processor routine
-            phere = mp.Process(target=self._run_processor,
+            #Call core routine
+            phere = mp.Process(target=self._run_core,
                                     args=(pind, cpudir, rundir,))
             plist.append(phere)
             #Start process
             if verbose: #Verbal output, if so desired
-                print("Starting "+str(ai)+"th processor in "+cpudir+"...")
+                print("Starting "+str(ai)+"th core in "+cpudir+"...")
             phere.start()
 
-        #Close pool of processors
+        #Close pool of cores
         if verbose: #Verbal output, if so desired
-            print("Done running processor(s)!")
-        for ai in range(0, numprocessors):
+            print("Done running core(s)!")
+        for ai in range(0, numcores):
             if verbose: #Verbal output, if so desired
-                print("Closing "+str(ai)+"th processor...")
+                print("Closing "+str(ai)+"th core...")
             plist[ai].join()
 
 
@@ -265,7 +273,7 @@ class Radlite():
     #
 
 
-    def _run_processor(self, pind, cpudir, rundir):
+    def _run_core(self, pind, cpudir, rundir):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -277,7 +285,7 @@ class Radlite():
         Notes:
         """
         ##Below Section: GENERATE radlite input files
-        NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER PROCESSOR !!!!!!!!!!
+        NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER core !!!!!!!!!!
         self._write_radliteinp(cpudir) #Direct radlite input file
         self._write_levelpopinp(cpudir) #Level population input file
         self._write_moldatadat(filepathandname=cpudir, pind=pind,
@@ -295,14 +303,14 @@ class Radlite():
         ##Below Section: RUN RADLITE
         logfile = open(cpudir+"RADLITE_core"+str(pind)+".log", 'w')
         comm = subprocess.call([self.executable], #Call RADLite
-                                cwd=cpudir+"/", #Call within processor subdir.
+                                cwd=cpudir+"/", #Call within core subdir.
                                 stdout=logfile) #Send output to log file
 
 
         ##Below Section: EXTRACT output files
         comm = subprocess.call(["mv",
                             cpudir+"/moldata_"+str(pind)+".dat",
-                            rundir+"/"]) #Molecular data used by this processor
+                            rundir+"/"]) #Molecular data used by this core
         comm = subprocess.call(["mv",
                             cpudir+"/linespectrum_moldata_"+str(pind)+".dat",
                             rundir+"/"]) #Line spectrum output
@@ -313,7 +321,7 @@ class Radlite():
 
 
         ##Below Section: DELETE subdir. + EXIT
-        comm = subprocess.call(["rm", "-r", cpudir]) #Erase processor dir.
+        comm = subprocess.call(["rm", "-r", cpudir]) #Erase core dir.
         return
     #
 
@@ -397,18 +405,18 @@ class Radlite():
                     +"that fall within specified criteria.")
 
 
-        ##Below Section: SPLIT data across given number of processors
+        ##Below Section: SPLIT data across given number of cores
         if verbose: #Verbal output, if so desired
             print("Dividing up the lines for "
-                        +self.numprocessors+" processors...")
+                        +self.numcores+" cores...")
         #Determine indices for splitting up the data
-        numpersplit = self.numlines // self.numprocessors #No remainder
+        numpersplit = self.numlines // self.numcores #No remainder
         splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
-                        for ai in range(0, self.numprocessors)] #Divide indices
-        splitinds[-1][1] = self.numlines #Tack leftovers onto last processor
+                        for ai in range(0, self.numcores)] #Divide indices
+        splitinds[-1][1] = self.numlines #Tack leftovers onto last core
         if verbose: #Verbal output, if so desired
-            print("Here are the chosen line intervals per processor:")
-            print([("Processor "+str(ehere[0])+": Interval "+str(ehere[1]))
+            print("Here are the chosen line intervals per core:")
+            print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
         self._set_value(valname="_splitinds", val=splitinds) #Record split lines
 
@@ -421,19 +429,32 @@ class Radlite():
 
 
     def _read_starinfo(self, filepathandname):
-        pass
-        #IDL SNIPPET:
         """
-            1: BEGIN    ;Keplerian velocity structure
-        openr,1,'starinfo.inp'
-        iformat=0
-        readf,1,iformat
-        rstar=0.d0
-        mstar=0.d0
-        readf,1,rstar
-        readf,1,mstar
-        close,1
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
         """
+        ##Below Section: PROCESS all lines in file
+        if verbose: #Verbal output, if so desired
+            print("Extracting molecular lines from file "+filepathandname+"...")
+        #Read in all filelines
+        with open(filepathandname, 'r') as openfile:
+            alllines = openfile.readlines()
+
+
+        ##Below Section: STORE read-in data + EXIT
+        self._set_value(valname="mstar",
+                            val=float(alllines[1])) #Stellar mass
+        self._set_value(valname="rstar",
+                            val=float(alllines[2])) #Stellar radius
+        self._set_value(valname="teff",
+                            val=float(alllines[3])) #Stellar eff. temperature
+        return
     #
 
 
