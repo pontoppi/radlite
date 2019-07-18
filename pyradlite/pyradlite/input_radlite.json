@@ -1,15 +1,19 @@
 {
-  "main_path":        "~/Documents/disk_modeling/radlite-master/",
-  "hit_path":         "~/Documents/disk_modeling/radlite-master/HITRAN/",
-  "psumfile":         "~/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
-  "lambda_path":      "~/Documents/disk_modeling/radlite-master/LAMDA/",
-  "exe_path":         "~/Documents/disk_modeling/radlite-master/RADLITE/",
+  "inp_path":        "/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/",
+  "hit_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
+  "psumfile":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
+  "lambda_path":      "/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
+  "exe_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
+  "run_dir":          "./",
+  "run_name":         "testing",
+  "dodate":           true,
+  "verbose":          true,
 
-  "ncores":           7,
+  "ncores":           1,
   "image":           "spec",
 
-  "lte":              True,
-  "gas_decoup":       False,
+  "lte":              true,
+  "gas_decoup":       false,
   "molname":          "H2O",
   "ovp":              "all",
 

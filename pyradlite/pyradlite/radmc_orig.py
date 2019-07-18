@@ -16,8 +16,8 @@ class radmc_model():
         self.theta = self.read_theta()
         self.frequency = self.read_freq()
         self.wavelength = cst.c*1e6/self.frequency # micron
-        #self.gasdensity = self.read_gasdensity()
-        #self.dustdensity = self.read_dustdensity()
+        self.gasdensity = self.read_gasdensity()
+        self.dustdensity = self.read_dustdensity()
         self.dusttemperature = self.read_dusttemperature()
         self.dustopac = self.read_opacity()
         self.pars = self.read_parameters()
@@ -25,7 +25,7 @@ class radmc_model():
         self.nr = self.radius.shape[0]
         self.nt = self.theta.shape[0]
         self.nf = self.frequency[0]
-        #self.nspecies = self.dustdensity.shape[2]
+        self.nspecies = self.dustdensity.shape[2]
 
         self.x,self.y = self.cartesian()
 

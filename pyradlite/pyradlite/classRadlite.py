@@ -7,12 +7,22 @@ import subprocess
 import multiprocessing as mp
 import numpy as np
 import json
-import os
+import os.path
+from datetime import datetime as dater
+from classUtils import func_timer
+import astropy.constants as const
+import radmc
+
+#Set helpful constants
+c0 = const.c.cgs.value
+G0 = const.G.cgs.value
+
 
 
 ##
 class Radlite():
-    def __init__(self, infilepath, verbose=True):
+    @func_timer
+    def __init__(self, infilepath="./"):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -23,8 +33,21 @@ class Radlite():
         Outputs:
         Notes:
         """
+        ##Below Section: READ IN + STORE input files
+        #Read in input RADLite data
+        with open(os.path.join(infilepath, "input_radlite.json")) as openfile:
+            self._valdict = json.load(openfile)
+        #Read in HITRAN data and then extract desired molecule
+        with open(os.path.join(infilepath, "data_hitran.json")) as openfile:
+            hitrandict = json.load(openfile)
+        #Store molecular data for specified molecule
+        moldict = hitrandict[self._valdict["molname"]] #Extract molecular data
+        for key in moldict: #Store molecule-specific data
+            self._valdict[key] = moldict[key]
+
+
         ##Below Section: PRINT a welcome message, if so desired
-        if verbose:
+        if self.get_value("verbose"):
             print("--------------------------------------------------")
             print("Welcome to RADLite Version 1.2, wrapped in Python.")
             print("")
@@ -38,16 +61,6 @@ class Radlite():
             print("")
 
 
-        ##Below Section: READ IN + STORE input files
-        #Read in input RADLite data
-        self._valdict = json.load(os.join(infilepath, "input_radlite.json"))
-        #Read in HITRAN data and then extract desired molecule
-        hitrandict = json.load(os.join(infilepath, "data_hitran.json"))
-        moldict = hitrandict[self._valdict["molname"]] #Extract molecular data
-        for key in moldict: #Store molecule-specific data
-            self._valdict[key] = moldict[key]
-
-
         ##Below Section: CHECK inputs for any user error; otherwise record them
         #Make sure that desired image cube output is valid
         validimage = ["spec", "circ"]
@@ -59,12 +72,12 @@ class Radlite():
         ##Below Section: CHOOSE RADLite exec. based on desired output
         #Prepare executable for desired image cube output
         if self._valdict["image"] == "spec": #If desired cube output is spectrum
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Will prepare a spectrum-formatted image cube...")
                 print("")
             self._valdict["executable"] = self._valdict["exe_path"]+"RADlite"
         elif self._valdict["image"] == "circ": #If desired output is circular
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Will prepare a circular-formatted image cube...")
                 print("")
 
@@ -73,11 +86,25 @@ class Radlite():
             raise ValueError("Sorry, the lte you have chosen ("
                     +str(self._valdict["lte"])+") is not a valid lte.  The "
                     +"value of lte must be a boolean (True or False).")
+
+
+        ###TEMP. BLOCK START
+        ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
+        modradmc = radmc.radmc_model("./")
+        self._valdict["radius"] = modradmc.radius
+        self._valdict["theta"] = modradmc.theta
+        ###TEMP. BLOCK END
+
+
+
+        ##Below Section: EXIT
+        return
     #
 
 
 
     ##STORE AND FETCH METHODS
+    @func_timer
     def get_value(self, valname):
         """
         DOCSTRING
@@ -89,17 +116,34 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: RAISE ERROR IF this is not a valid value name
-        #validval = []
-        #if valname not in validval:
-        #    pass #FINISH LATER
-        ##Below Section: TRY-EXTRACT requested value
+        ##Below Section: DETERMINE requested value
+        #Try accessing it
         try:
             return self._valdict[valname]
-        except KeyError: #If value not yet recorded, extract it
-            #try _calc_<valname>
-            raise ValueError("NOT READY TO HANDLE THIS YET")
-            #pass #FINISH THIS LATER - WAY TO CALL FUNCTION NAME GIVEN STRING NAME?
+        except KeyError: #If value not yet recorded...
+            pass
+
+        #If that doesn't work, try calculating it
+        try:
+            eval("self._calc_"+valname+"()") #Try calculating it
+            return self._valdict[valname]
+        except AttributeError: #If value not calculable...
+            pass
+
+        #If that doesn't work, try reading it in
+        try:
+            eval("self._read_"+valname+"()") #Try reading it in
+            return self._valdict[valname]
+        except AttributeError: #If value not readable
+            raise NameError("'"+valname+"' doesn't seem to be a valid value.  "
+                            +"Valid values are:\n"
+                            +str([key for key in self._valdict])+".\n"
+                            +"Run the method run_radlite (if you haven't yet) "
+                            +"to automatically populate more values.\n"
+                            +"Alternatively, you can pass the name of a "
+                            +"supported physics component (e.g., 'velocity') "
+                            +"to the get_value() method to populate that "
+                            +"component on its own.")
     #
 
 
@@ -114,7 +158,7 @@ class Radlite():
         Outputs:
         Notes:
         """
-        return self.valdict[valname][self.get_value("_splitinds")[pind]]
+        return self._valdict[valname][self.get_value("_splitinds")[pind]]
     #
 
 
@@ -154,6 +198,7 @@ class Radlite():
     #def get_levelpop():
     #    pass
 
+    @func_timer
     def run_radlite(self):
         """
         DOCSTRING
@@ -174,24 +219,24 @@ class Radlite():
 
 
         ##Below Section: SET UP result directory
-        printstamp = time.datetoprint?() #???
-        printtime = time.timetoprint?() #???
-        if self.nodate: #If date should not be appended to directory name
-            rundir = self.run_name + printstamp
-        else: #If date should be appended to directory name
-            rundir = self.run_name + printstamp + printtime
+        rundir = os.path.join(self.get_value("run_dir"), self.get_value("run_name"))
+        if self.get_value("dodate"): #If date should be appended to dir. name
+            currtime = dater.now()
+            timestamp = "_{0}_{1d}h{2d}m{3d}s".format(currtime.date,
+                            currtime.hour, currtime.minute, currtime.second)
+            rundir += timestamp
 
         #Make the desired directory, if nonexistent
             try:
                 comm = subprocess.call(["mkdir", rundir]) #Create directory
             except (comm != 0): #Will override files within, otherwise
                 pass
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("All input files and final data will be saved to the "
                     +"following directory: "+rundir)
 
         #Copy initial files into final directory
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Copying over initial data files into "+rundir+"...")
         for iname in initfilelist:
             comm = subprocess.call(["cp", "./"+iname, rundir+"/"])
@@ -200,12 +245,12 @@ class Radlite():
         ##Below Section: PROCESS data from the LTE or NLTE data file
         #Read in either LTE or NLTE data
         if self.get_value("lte"): #If LTE treatment desired
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
             self._read_hitran(numcores)
         else: #Else, if non-LTE treatment desired
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
@@ -220,24 +265,24 @@ class Radlite():
 
         ##Below Section: WRITE RADLite input files
         self._write_abundanceinp(outputfilename="./abundance.inp") #Abundance
-        self._write_gasdensityinp(outputfilename=) #Gas density
+        #self._write_gasdensityinp(outputfilename=) #Gas density
         self._write_turbulenceinp(outputfilename="./turbulence.inp") #Turbulence
         self._write_velocityinp(outputfilename="./velocity.inp") #Velocity
 
 
         ##Below Section: RUN RADLITE on single/multiple cores in subfolders
         numcores = self.get_value("ncores")
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Running RADLite on "+str(numcores)+" core(s)...")
         #Prepare pool of cores
         plist = []
         for ai in range(0, numcores):
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Prepping "+str(ai)+"th core...")
 
             #Make a directory for this run
             cpudir = "./workingdir_cpu"+str(ai)+"/" #core-specific dir.
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Generating directory: "+cpudir)
             try:
                 comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
@@ -253,21 +298,21 @@ class Radlite():
                                     args=(pind, cpudir, rundir,))
             plist.append(phere)
             #Start process
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Starting "+str(ai)+"th core in "+cpudir+"...")
             phere.start()
 
         #Close pool of cores
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done running core(s)!")
         for ai in range(0, numcores):
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Closing "+str(ai)+"th core...")
             plist[ai].join()
 
 
         ##Below Section: FINISH and EXIT
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done running run_radlite()!")
         return
     #
@@ -285,7 +330,7 @@ class Radlite():
         Notes:
         """
         ##Below Section: GENERATE radlite input files
-        NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER core !!!!!!!!!!
+        #NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER core !!!!!!!!!!
         self._write_radliteinp(cpudir) #Direct radlite input file
         self._write_levelpopinp(cpudir) #Level population input file
         self._write_moldatadat(filepathandname=cpudir, pind=pind,
@@ -296,7 +341,7 @@ class Radlite():
         #BELOW FROM IDL !!! - read_vel, 'velocity.inp', vel
         #Check passband width
         #velmax = np.max(np.abs(vel.vphi))
-        #if verbose: #Verbal output, if so desired
+        #if self.get_value("verbose"): #Verbal output, if so desired
         #    print("Max. velocity = {0:.2f}km/s".format(velmax/1E5))
 
 
@@ -328,7 +373,8 @@ class Radlite():
 
 
     ##READ METHODS
-    def _read_hitran(self, filepathandname):
+    @func_timer
+    def _read_hitran(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -340,12 +386,15 @@ class Radlite():
         Notes:
         """
         ##Below Section: PROCESS all lines in file
-        if verbose: #Verbal output, if so desired
+        filepathandname = os.path.join(
+                                    self.get_value("hit_path"),
+                                    self.get_value("hitran_file"))
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Extracting molecular lines from file "+filepathandname+"...")
         #Read in all filelines
         with open(filepathandname, 'r') as openfile:
             alllines = openfile.readlines()
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("There are "+str(len(alllines))+" molecular lines in total.")
 
         #Set HITRAN entries and number of characters per HITRAN file entry
@@ -364,8 +413,8 @@ class Radlite():
             namehere = hitrannames[ai] #Name of current entry
             lenhere = hitranchars[ai] #Character length of current entry
             datahere = np.array([linehere[ii:ii+hitranchars[ai]]
-                                    for linehere in alllines, #All entries
-                                    dtype=hitrandtypes[ai]]) #Entry datatype
+                                    for linehere in alllines], #All entries
+                                    dtype=hitrandtypes[ai]) #Entry datatype
             hitrandict[namehere] = datahere #Record the extracted entry data
             ii = ii + hitranchars[ai] #Update place within fileline characters
         #Also calculate and record upper energy levels
@@ -380,7 +429,7 @@ class Radlite():
 
 
         ##Below Section: REMOVE any lines outside of desired range
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Removing molecular lines outside of specified criteria...")
         #Extract indices of lines that fall within criteria
         keepinds = np.where( ~(
@@ -400,13 +449,13 @@ class Radlite():
             hitrandict[key] = hitrandict[key][keepinds]
         self.hitrandict = hitrandict #Record final set of molecular lines
         self.numlines = numlines #Record final count of lines
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("There are "+str(numlines)+" molecular lines "
                     +"that fall within specified criteria.")
 
 
         ##Below Section: SPLIT data across given number of cores
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Dividing up the lines for "
                         +self.numcores+" cores...")
         #Determine indices for splitting up the data
@@ -414,7 +463,7 @@ class Radlite():
         splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
                         for ai in range(0, self.numcores)] #Divide indices
         splitinds[-1][1] = self.numlines #Tack leftovers onto last core
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Here are the chosen line intervals per core:")
             print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
@@ -422,13 +471,14 @@ class Radlite():
 
 
         ##Below Section: EXIT
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done extracting molecular data!")
         return
     #
 
 
-    def _read_starinfo(self, filepathandname):
+    @func_timer
+    def _read_starinfo(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -440,7 +490,9 @@ class Radlite():
         Notes:
         """
         ##Below Section: PROCESS all lines in file
-        if verbose: #Verbal output, if so desired
+        filepathandname = os.path.join(
+                                    self.get_value("inp_path"), "starinfo.inp")
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Extracting molecular lines from file "+filepathandname+"...")
         #Read in all filelines
         with open(filepathandname, 'r') as openfile:
@@ -448,12 +500,15 @@ class Radlite():
 
 
         ##Below Section: STORE read-in data + EXIT
-        self._set_value(valname="mstar",
-                            val=float(alllines[1])) #Stellar mass
-        self._set_value(valname="rstar",
-                            val=float(alllines[2])) #Stellar radius
-        self._set_value(valname="teff",
-                            val=float(alllines[3])) #Stellar eff. temperature
+        mstar = float(alllines[1]) #Stellar mass
+        rstar = float(alllines[2]) #Stellar radius
+        teff = float(alllines[3]) #Stellar eff. temperature
+        starinfodict = {"mstar":mstar, "rstar":rstar, "teff":teff}
+        #Store together and individually
+        self._set_value(valname="starinfo", val=starinfodict)
+        self._set_value(valname="mstar", val=mstar)
+        self._set_value(valname="rstar", val=rstar)
+        self._set_value(valname="teff", val=teff)
         return
     #
 
@@ -461,7 +516,8 @@ class Radlite():
 
     ##CALCULATION METHODS
     ###NOTE: MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    def _calc_abundance(self, verbose=True):
+    @func_timer
+    def _calc_abundance(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -480,18 +536,18 @@ class Radlite():
         gamval = self.get_value("gamma")
         abundrange = self.get_value("abundrange")
         temp_fr = self.get_value("freezetemperature")
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Calculating abundance...")
 
 
         ##Below Section: CALCULATE abundance based on specified abundance mode
         if temp_fr is None: #For constant abundance
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Setting a constant abundance...")
             abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
             self._set_value(valname="abund_collpartner", val=0.0)
         else: #For abundance that changes below freeze-out temperature
-            if verbose: #Verbal output, if so desired
+            if self.get_value("verbose"): #Verbal output, if so desired
                 print("Setting abundance to min. below {0:f}K...".format())
             abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
             abundarr[abundarr < temp_fr] = abundrange[0]
@@ -502,14 +558,15 @@ class Radlite():
 
         ##Below Section: RECORD calculated abundance + EXIT
         self._set_value(valname="abundance", val=abundarr)
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done calculating abundance!")
         return
     #
 
 
     ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    def _calc_turbulence(self, verbose=True):
+    @func_timer
+    def _calc_turbulence(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -525,7 +582,7 @@ class Radlite():
         gamval = self.get_value("gamma")
         muval = self.get_value("mu")
         molmassval = self.get_value("molmass")
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Calculating turbulence...")
             print("Using first dust component temperature to determine "
                     +"turbulent velocities...")
@@ -541,14 +598,15 @@ class Radlite():
 
         ##Below Section: RECORD calculated turbulence + EXIT
         self._set_value(valname="turbulence", val=turbarr)
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done calculating turbulence!")
         return
     #
 
 
     ###NOTE: _CALC_VELOCITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING _CALC_VELOCITY METHODS
-    def _calc_velocity(self, verbose=True):
+    @func_timer
+    def _calc_velocity(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -560,14 +618,13 @@ class Radlite():
         Notes:
         """
         ##Below Section: EXTRACT stellar information
-        vmode = self.get_value("vmode") #Type of velocity to calculation
-        rlen = self.get_value("rlen") #Number of radius points
-        tlen = self.get_value("tlen") #Number of theta points
+        rlen = len(self.get_value("radius")) #Number of radius points
+        tlen = len(self.get_value("theta")) #Number of theta points
         mstar = self.get_value("starinfo")["mstar"] #Stellar mass
         rstar = self.get_value("starinfo")["rstar"] #Stellar radius
         rrarr = self.get_value("rr") #???
-        if verbose: #Verbal output, if so desired
-            print("Calculating velocity field... Velocity mode is "+str(vmode))
+        if self.get_value("verbose"): #Verbal output, if so desired
+            print("Calculating velocity field...")
             print("Used starinfo.inp file for Keplerian velocity...")
 
 
@@ -580,7 +637,7 @@ class Radlite():
 
         ##Below Section: RECORD velocity and EXIT
         self._set_value("velocity", vdict) #Record velocity
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Done calculating velocity.")
         return
     #
@@ -588,6 +645,7 @@ class Radlite():
 
 
     ##WRITE METHODS
+    @func_timer
     def _write_abundanceinp(self, outfilename):
         """
         DOCSTRING
@@ -615,7 +673,7 @@ class Radlite():
                                                 collpartner)
 
         ##Below Section: WRITE the results to file + EXIT function
-        with openfile as open(outputfilename, 'w'):
+        with open(outputfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
@@ -690,6 +748,7 @@ class Radlite():
     #
 
 
+    @func_timer
     def _write_moldatadat(self, filepathandname, pind, outfilename):
         """
         DOCSTRING
@@ -715,7 +774,7 @@ class Radlite():
 
 
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Writing "+outfilename+"...")
             print("Counting up unique levels for "+outfilename+"...")
         #Combine energies, transitions, and degeneracies
@@ -740,7 +799,7 @@ class Radlite():
                         glowlist[0:-1] == glowlist[1:len(Ealllist)]))[0]
 
         #Combine and apply indices
-        if verbose: #Verbal output, if so desired
+        if self.get_value("verbose"): #Verbal output, if so desired
             print("Removing any duplicate levels for "+outfilename
                     +"...  To start, there are "+str(len(Ealllist))+" levels.")
         uniqinds = np.unique(np.concatenate((uniqEinds, uniqvinds, uniqginds)))
@@ -748,9 +807,10 @@ class Radlite():
         valllist = valllist[uniqinds]
         qalllist = qalllist[uniqinds]
         galllist = galllist[uniqinds]
-        if verbose: #Verbal output, if so desired
-            print(str(np.sum(~uniqinds))+" levels have been removed for "+
-            print(outfilename+", leaving "+str(len(Eallist))+" unique levels.")
+        if self.get_value("verbose"): #Verbal output, if so desired
+            print(str(np.sum(~uniqinds))+" levels have been removed for "
+                        +outfilename+", leaving "+str(len(Eallist))
+                        +" unique levels.")
 
 
         ##Below Section: BUILD string to form the molecular data file
@@ -773,7 +833,7 @@ class Radlite():
             levu = np.where((np.abs(Ealllist - Euplist[ai])
                                 /1.0/Euplist[ai]) < 1E-4)[0]
             if Elowlist[ai] != 0: #If not down to 0-level
-                levl = np.where(np.abs(Ealllist - Elowlist[ai])
+                levl = np.where((np.abs(Ealllist - Elowlist[ai])
                                 /1.0/Elowlist[ai]) < 1E-4)[0]
             else:
                 levl = np.where(Ealllist == 0)[0]
@@ -782,11 +842,11 @@ class Radlite():
                                 wavenumlist[ai])
                         +"{5:12.5f}{6:>15}{7:>15}{8:>15}{9:>15}\n".format(
                                 Euplist[ai], vuplist[ai], vlowlist[ai],
-                                quplist[ai], qlowlist[ai])
+                                quplist[ai], qlowlist[ai]))
 
 
         ##Below Section: WRITE the results to file + EXIT function
-        with openfile as open(outputfilename, 'w'):
+        with open(outputfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
@@ -822,7 +882,7 @@ class Radlite():
                                         turbarr[ri, ti]/1.0E5) #[cm/s] -> [km/s]
 
         ##Below Section: WRITE the results to file + EXIT function
-        with openfile as open(outputfilename, 'w'):
+        with  open(outputfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
@@ -856,7 +916,7 @@ class Radlite():
                                 velarr["phi"][ri, ti])
 
         ##Below Section: WRITE the results to file + EXIT function
-        with openfile as open(outputfilename, 'w'):
+        with open(outputfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
