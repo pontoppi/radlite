@@ -14,8 +14,29 @@ import astropy.constants as const
 import radmc
 
 #Set helpful constants
-c0 = const.c.cgs.value
-G0 = const.G.cgs.value
+dotest = True
+if dotest:
+    au0 = 1.49597870E13
+    c0 = 2.99792458E10
+    rsun0     = 6.9599E10
+    msun0     = 1.9891E33
+    lsun0     = 3.8525E33
+    pc0     = 3.085678E18
+    h0     = 6.6262000E-27
+    kB0     = 1.3807E-16 #1.380658E-16 #From read_molecule_lambda.pro; #1.3807E-16 from natconst.pro
+    mp0     = 1.6726231E-24
+    G0     = 6.67259E-8
+    tsun0     = 5.78E3
+    mu0     = 2.3
+    amu0    = 1.6605402E-24
+else:
+    amu0 = const.u.cgs.value #Atomic mass
+    au0 = const.au.cgs.value
+    c0 = const.c.cgs.value
+    G0 = const.G.cgs.value
+    mp0 = const.m_p.cgs.value #Mass of proton
+    msun0 = const.M_sun.cgs.value
+    rsun0 = const.R_sun.cgs.value
 
 
 
@@ -44,6 +65,7 @@ class Radlite():
         moldict = hitrandict[self._valdict["molname"]] #Extract molecular data
         for key in moldict: #Store molecule-specific data
             self._valdict[key] = moldict[key]
+        self._valdict["molmass"] = moldict["molweight"]*amu0 #Tack on mol. mass
 
 
         ##Below Section: PRINT a welcome message, if so desired
@@ -93,6 +115,8 @@ class Radlite():
         modradmc = radmc.radmc_model("./")
         self._valdict["radius"] = modradmc.radius
         self._valdict["theta"] = modradmc.theta
+        self._valdict["dusttemperature"] = modradmc.dusttemperature[:,:,0].T
+        #NOTE: !!! Assuming one species read in; hence the [:,:,0]
         ###TEMP. BLOCK END
 
 
@@ -104,7 +128,7 @@ class Radlite():
 
 
     ##STORE AND FETCH METHODS
-    @func_timer
+    #@func_timer
     def get_value(self, valname):
         """
         DOCSTRING
@@ -138,8 +162,8 @@ class Radlite():
             raise NameError("'"+valname+"' doesn't seem to be a valid value.  "
                             +"Valid values are:\n"
                             +str([key for key in self._valdict])+".\n"
-                            +"Run the method run_radlite (if you haven't yet) "
-                            +"to automatically populate more values.\n"
+                            +"Run the method run_radlite() (if you haven't "
+                            +"yet) to automatically populate more values.\n"
                             +"Alternatively, you can pass the name of a "
                             +"supported physics component (e.g., 'velocity') "
                             +"to the get_value() method to populate that "
@@ -179,25 +203,6 @@ class Radlite():
     #
 
 
-    #def get_abundance():
-    #    pass
-
-    #def get_velocity():
-    #    pass
-
-    #def get_gastemperature():
-    #    ##Below Section: RECORD physical structure of underlying model
-    #    radius = self.radmc.radius #Radius
-    #    theta = self.radmc.theta #Theta
-    #    dustdens = self.radmc.dustdensity #Dust density
-    #    dusttemp = self.radmc.dusttemperature #Dust temperature
-
-    #def get_moldata():
-    #    pass
-
-    #def get_levelpop():
-    #    pass
-
     @func_timer
     def run_radlite(self):
         """
@@ -216,6 +221,14 @@ class Radlite():
                         "dustdens.inp", "dusttemp_final.dat",
                         "dustopac.inp", "dustopac_*.inp", "abundance.inp",
                         "temperature.inp", "velocity.inp"]
+
+
+        ##Below Section: WRITE RADLite input files
+        if self.get_value("verbose"): #Verbal output, if so desired
+            print("Writing radlite input files...")
+        self._write_abundanceinp() #Abundance
+        self._write_turbulenceinp() #Turbulence
+        self._write_velocityinp() #Velocity
 
 
         ##Below Section: SET UP result directory
@@ -239,7 +252,10 @@ class Radlite():
         if self.get_value("verbose"): #Verbal output, if so desired
             print("Copying over initial data files into "+rundir+"...")
         for iname in initfilelist:
-            comm = subprocess.call(["cp", "./"+iname, rundir+"/"])
+            comm = subprocess.call(["cp",
+                            os.path.join((self.get_value("inp_path"),
+                                            iname)),
+                            os.path.join((rundir, "/"))])
 
 
         ##Below Section: PROCESS data from the LTE or NLTE data file
@@ -255,19 +271,6 @@ class Radlite():
                 print("")
             molfile = "molfile.dat"
             self._read_lambda(numcores)
-
-
-        ##Below Section: DECIDE whether or not to generate NLTE files
-        #!!!! - UNFINISHED - ASSUMING run_nlte=True FOR NOW
-        #FILL THIS IN FROM LINE_RUN LINES 145-162
-        run_nlte = True #!!!ASSUMING FOR NOW
-
-
-        ##Below Section: WRITE RADLite input files
-        self._write_abundanceinp(outputfilename="./abundance.inp") #Abundance
-        #self._write_gasdensityinp(outputfilename=) #Gas density
-        self._write_turbulenceinp(outputfilename="./turbulence.inp") #Turbulence
-        self._write_velocityinp(outputfilename="./velocity.inp") #Velocity
 
 
         ##Below Section: RUN RADLITE on single/multiple cores in subfolders
@@ -318,6 +321,7 @@ class Radlite():
     #
 
 
+    @func_timer
     def _run_core(self, pind, cpudir, rundir):
         """
         DOCSTRING
@@ -500,8 +504,8 @@ class Radlite():
 
 
         ##Below Section: STORE read-in data + EXIT
-        mstar = float(alllines[1]) #Stellar mass
-        rstar = float(alllines[2]) #Stellar radius
+        rstar = float(alllines[1]) #Stellar radius
+        mstar = float(alllines[2]) #Stellar mass
         teff = float(alllines[3]) #Stellar eff. temperature
         starinfodict = {"mstar":mstar, "rstar":rstar, "teff":teff}
         #Store together and individually
@@ -530,27 +534,27 @@ class Radlite():
         """
         ##Below Section: EXTRACT structural information
         temparr = self.get_value("dusttemperature")
-        densarr = self.get_value("density")
-        rlen = self.get_value("rlen")
-        tlen = self.get_value("tlen")
+        rlen = len(self.get_value("radius"))
+        tlen = len(self.get_value("theta"))
         gamval = self.get_value("gamma")
-        abundrange = self.get_value("abundrange")
-        temp_fr = self.get_value("freezetemperature")
+        abundrange = [self.get_value("min_abun"), self.get_value("max_abun")]
+        temp_fr = self.get_value("temp_fr")
         if self.get_value("verbose"): #Verbal output, if so desired
             print("Calculating abundance...")
 
 
         ##Below Section: CALCULATE abundance based on specified abundance mode
-        if temp_fr is None: #For constant abundance
+        if temp_fr is False: #For constant abundance
             if self.get_value("verbose"): #Verbal output, if so desired
                 print("Setting a constant abundance...")
-            abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
+            abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
             self._set_value(valname="abund_collpartner", val=0.0)
         else: #For abundance that changes below freeze-out temperature
             if self.get_value("verbose"): #Verbal output, if so desired
-                print("Setting abundance to min. below {0:f}K...".format())
-            abundarr = np.ones(shape=(rlen, tlen))*abundrange[1]
-            abundarr[abundarr < temp_fr] = abundrange[0]
+                print("Setting abundance to min. below {0:f}K..."
+                                .format(temp_fr))
+            abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
+            abundarr[temparr < temp_fr] = abundrange[0]
             self._set_value(valname="collpartner", val=0.0)
 
 
@@ -581,7 +585,7 @@ class Radlite():
         temparr = self.get_value("dusttemperature")
         gamval = self.get_value("gamma")
         muval = self.get_value("mu")
-        molmassval = self.get_value("molmass")
+        weightval = self.get_value("molweight")
         if self.get_value("verbose"): #Verbal output, if so desired
             print("Calculating turbulence...")
             print("Using first dust component temperature to determine "
@@ -589,10 +593,10 @@ class Radlite():
 
 
         ##Below Section: CALCULATE turbulence (alpha-model) using sound speed
-        csarr = np.sqrt(gamma*kB0*temparr/1.0/(muval*mp0)) #Sound speed
+        csarr = np.sqrt(gamval*kB0*temparr/1.0/(muval*mp0)) #Sound speed
         turbarr = self.get_value("alpha")*csarr #Turbulence
         #Add thermal broadening in quadrature
-        thermbroadarr = np.sqrt(2.0*kB0*temparr/(molmassval*mp0)) #Therm. broad.
+        thermbroadarr = np.sqrt(2.0*kB0*temparr/(weightval*mp0)) #Therm. broad.
         turbarr = np.sqrt((turbarr**2) + (thermbroadarr**2)) #Updated turbulence
 
 
@@ -618,21 +622,22 @@ class Radlite():
         Notes:
         """
         ##Below Section: EXTRACT stellar information
-        rlen = len(self.get_value("radius")) #Number of radius points
-        tlen = len(self.get_value("theta")) #Number of theta points
+        rarr = self.get_value("radius") #Radii
+        rlen = len(rarr) #Number of radius points
+        tlen = len(self.get_value("theta"))//2 #Number of theta points
+        rexparr = np.resize(rarr, (tlen, rlen)) #Radii, expended to 2D
         mstar = self.get_value("starinfo")["mstar"] #Stellar mass
         rstar = self.get_value("starinfo")["rstar"] #Stellar radius
-        rrarr = self.get_value("rr") #???
         if self.get_value("verbose"): #Verbal output, if so desired
             print("Calculating velocity field...")
-            print("Used starinfo.inp file for Keplerian velocity...")
+            print("Used starinfo.inp file for mstar and rstar...")
 
 
         ##Below Section: CALCULATE Keplerian velocity
         vdict = {} #Dictionary to hold different velocity dimensions
-        vdict["r"] = np.zeros(shape=(rlen, tlen)) #Radial velocity
-        vdict["th"] = np.zeros(shape=(rlen, tlen)) #Theta velocity
-        vdict["phi"] = np.sqrt(G0*mstar/1.0/rrarr) #Phi velocity
+        vdict["r"] = np.zeros(shape=(tlen, rlen)) #Radial velocity
+        vdict["th"] = np.zeros(shape=(tlen, rlen)) #Theta velocity
+        vdict["phi"] = np.sqrt(G0*mstar/1.0/rexparr) #Phi velocity
 
 
         ##Below Section: RECORD velocity and EXIT
@@ -646,7 +651,7 @@ class Radlite():
 
     ##WRITE METHODS
     @func_timer
-    def _write_abundanceinp(self, outfilename):
+    def _write_abundanceinp(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -661,34 +666,38 @@ class Radlite():
         #Extract abundance
         abundarr = self.get_value("abundance") #Abundance data
         collpartner = self.get_value("collpartner")
-        rlen = len(self.get_value("rlen")) #Length of radius array
-        tlen = len(self.get_value("tlen"))/2.0 #Half-length of theta array
+        rlen = len(self.get_value("radius")) #Length of radius array
+        tlen = len(self.get_value("theta"))//2 #Half-length of theta array
         #Set up string
         writestr = "" #Initialize string
-        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
         #Fill in string with abundance information
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                writestr += "{0:f}\n".format(abundarr[ri, ti],
+                writestr += "{0:.8e}\t{1:.8f}\n".format(abundarr[ti, ri],
                                                 collpartner)
 
         ##Below Section: WRITE the results to file + EXIT function
-        with open(outputfilename, 'w') as openfile:
+        outfilename = os.path.join(self.get_value("inp_path"), "abundance.inp")
+        with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
 
 
+    @func_timer
     def _write_gasdensityinp(self, cpudir):
         pass
     #
 
 
+    @func_timer
     def _write_levelpopinp(self, cpudir):
         pass
     #
 
 
+    @func_timer
     def _write_linespectruminp(self, numlines, molfilename, outfilename):
         """
         DOCSTRING
@@ -852,11 +861,14 @@ class Radlite():
     #
 
 
+    @func_timer
     def _write_radliteinp(self, cpudir):
         pass
     #
 
-    def _write_turbulenceinp(self, outputfilename):
+
+    @func_timer
+    def _write_turbulenceinp(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -870,25 +882,27 @@ class Radlite():
         ##Below Section: BUILD string containing turbulence information
         #Extract turbulence
         turbarr = self.get_value("turbulence") #Turbulence data
-        rlen = len(self.get_value("rlen")) #Length of radius array
-        tlen = len(self.get_value("tlen")) #Length of theta array
+        rlen = len(self.get_value("radius")) #Length of radius array
+        tlen = len(self.get_value("theta"))//2 #Length of theta array
         #Set up string
-        writestr = "" #Initialize string
-        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        writestr = "1\n" #Initialize string
+        writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
         #Fill in string with turbulence information
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                writestr += "{0:f}\n".format(
-                                        turbarr[ri, ti]/1.0E5) #[cm/s] -> [km/s]
+                writestr += "{0:.8f}\n".format(
+                                        (turbarr[ti, ri]/1.0E5)) #[cm/s]->[km/s]
 
         ##Below Section: WRITE the results to file + EXIT function
-        with  open(outputfilename, 'w') as openfile:
+        outfilename = os.path.join(self.get_value("inp_path"), "turbulence.inp")
+        with  open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
 
 
-    def _write_velocityinp(self, outputfilename):
+    @func_timer
+    def _write_velocityinp(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -902,21 +916,21 @@ class Radlite():
         ##Below Section: BUILD string containing velocity information
         #Extract velocity
         velarr = self.get_value("velocity") #Velocity data
-        rlen = len(self.get_value("rlen")) #Length of radius array
-        tlen = len(self.get_value("tlen")) #Length of theta array
+        rlen = len(self.get_value("radius")) #Length of radius array
+        tlen = len(self.get_value("theta"))//2 #Length of theta array
         #Set up string
         writestr = "" #Initialize string
-        writestr += "1\n"
-        writestr += "{0:d} {1:d}\n".format(rlen, tlen)
+        writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
         #Fill in string with velocity information
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                writestr += "{0:f} {1:f} {2:f}\n".format(
-                                velarr["r"][ri, ti], valarr["th"][ri, ti],
-                                velarr["phi"][ri, ti])
+                writestr += "{0:.8f}\t{1:.8f}\t{2:.8f}\n".format(
+                                velarr["r"][ti, ri], velarr["th"][ti, ri],
+                                velarr["phi"][ti, ri])
 
         ##Below Section: WRITE the results to file + EXIT function
-        with open(outputfilename, 'w') as openfile:
+        outfilename = os.path.join(self.get_value("inp_path"), "velocity.inp")
+        with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #

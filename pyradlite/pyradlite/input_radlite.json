@@ -4,7 +4,7 @@
   "psumfile":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
   "lambda_path":      "/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
   "exe_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
-  "run_dir":          "./",
+  "run_dir":          "/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/rundir/",
   "run_name":         "testing",
   "dodate":           true,
   "verbose":          true,
@@ -14,26 +14,28 @@
 
   "lte":              true,
   "gas_decoup":       false,
-  "molname":          "H2O",
+  "molname":          "12CO",
   "ovp":              "all",
+  "collpartner":      0.0,
 
   "gtd":              12800.0,
   "freezefile":       "h2oabun_g2d_1280.sav",
-  "temp_fr":          150.0,
+  "temp_fr":          false,
   "coldfinger":       0.0,
   "turb_broad":       0.9,
 
-  "min_mu":           25.0,
-  "max_mu":           610.0,
-  "min_abun":         5.0E-11,
-  "max_abun":         1.5E-4,
+  "min_mu":           4.6,
+  "max_mu":           4.7,
+  "min_abun":         1.4E-8,
+  "max_abun":         1.4E-5,
   "insmin":           1E-90,
-  "Eumax":            5000.0,
+  "Eumax":            10000.0,
 
-  "incl":             10.0,
-  "vsampling":        0.25,
-  "passband":         20.0,
+  "incl":             15.0,
+  "vsampling":        1.5,
+  "passband":         70.0,
 
+  "alpha":            0.9,
   "gamma":            1.4,
-  "mu":               2.37
+  "mu":               2.3
 }
