@@ -1,4 +1,4 @@
-##FILE:
+set_attr##FILE:
 ##PURPOSE:
 
 
@@ -37,6 +37,7 @@ else:
     mp0 = const.m_p.cgs.value #Mass of proton
     msun0 = const.M_sun.cgs.value
     rsun0 = const.R_sun.cgs.value
+    h0 = const.h.cgs.value
 
 
 
@@ -56,20 +57,21 @@ class Radlite():
         """
         ##Below Section: READ IN + STORE input files
         #Read in input RADLite data
-        with open(os.path.join(infilepath, "input_radlite.json")) as openfile:
-            self._valdict = json.load(openfile)
+        with open(os.path.join(infilepath,
+                                    "input_radlite.json")) as openfile:
+            self._attrdict = json.load(openfile)
         #Read in HITRAN data and then extract desired molecule
         with open(os.path.join(infilepath, "data_hitran.json")) as openfile:
             hitrandict = json.load(openfile)
         #Store molecular data for specified molecule
-        moldict = hitrandict[self._valdict["molname"]] #Extract molecular data
+        moldict = hitrandict[self._attrdict["molname"]] #Extract mol. data
         for key in moldict: #Store molecule-specific data
-            self._valdict[key] = moldict[key]
-        self._valdict["molmass"] = moldict["molweight"]*amu0 #Tack on mol. mass
+            self._attrdict[key] = moldict[key]
+        self._attrdict["molmass"] = moldict["molweight"]*amu0 #Mol. mass
 
 
         ##Below Section: PRINT a welcome message, if so desired
-        if self.get_value("verbose"):
+        if self.get_attr("verbose"):
             print("--------------------------------------------------")
             print("Welcome to RADLite Version 1.2, wrapped in Python.")
             print("")
@@ -83,39 +85,41 @@ class Radlite():
             print("")
 
 
-        ##Below Section: CHECK inputs for any user error; otherwise record them
+        ##Below Section: CHECK inputs for user error; otherwise record them
         #Make sure that desired image cube output is valid
         validimage = ["spec", "circ"]
-        if self._valdict["image"] not in validimage:
+        if self._attrdict["image"] not in validimage:
             raise ValueError("Sorry, the image you have chosen ("
-                    +str(inpdict["image"])+") is not a valid image.  The value "
-                    +"of image must be one of the following: "
+                    +str(inpdict["image"])+") is not a valid image.  The "
+                    +"value of image must be one of the following: "
                     +str(validimage)+".")
         ##Below Section: CHOOSE RADLite exec. based on desired output
         #Prepare executable for desired image cube output
-        if self._valdict["image"] == "spec": #If desired cube output is spectrum
-            if self.get_value("verbose"): #Verbal output, if so desired
+        if self._attrdict["image"] == "spec": #If desired output is spectrum
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Will prepare a spectrum-formatted image cube...")
                 print("")
-            self._valdict["executable"] = self._valdict["exe_path"]+"RADlite"
-        elif self._valdict["image"] == "circ": #If desired output is circular
-            if self.get_value("verbose"): #Verbal output, if so desired
+            self._attrdict["executable"] = (self._attrdict["exe_path"]
+                                            +"RADlite")
+        elif self._attrdict["image"] == "circ": #If desired output is circ.
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Will prepare a circular-formatted image cube...")
                 print("")
 
         #Make sure that desired LTE format is valid
-        if not isinstance(self._valdict["lte"], bool):
+        if not isinstance(self._attrdict["lte"], bool):
             raise ValueError("Sorry, the lte you have chosen ("
-                    +str(self._valdict["lte"])+") is not a valid lte.  The "
-                    +"value of lte must be a boolean (True or False).")
+                    +str(self._attrdict["lte"])+") is not a valid lte.  "
+                    +"The value of lte must be a boolean (True or False).")
 
 
         ###TEMP. BLOCK START
         ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
         modradmc = radmc.radmc_model("./")
-        self._valdict["radius"] = modradmc.radius
-        self._valdict["theta"] = modradmc.theta
-        self._valdict["dusttemperature"] = modradmc.dusttemperature[:,:,0].T
+        self._attrdict["radius"] = modradmc.radius
+        self._attrdict["theta"] = modradmc.theta
+        self._attrdict["dusttemperature"] = (modradmc.dusttemperature[:,:,0]
+                                                .T)
         #NOTE: !!! Assuming one species read in; hence the [:,:,0]
         ###TEMP. BLOCK END
 
@@ -128,8 +132,7 @@ class Radlite():
 
 
     ##STORE AND FETCH METHODS
-    #@func_timer
-    def get_value(self, valname):
+    def get_attr(self, attrname):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -140,38 +143,39 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: DETERMINE requested value
+        ##Below Section: DETERMINE requested attribute
         #Try accessing it
         try:
-            return self._valdict[valname]
-        except KeyError: #If value not yet recorded...
+            return self._attrdict[attrname]
+        except KeyError: #If attribute not yet recorded...
             pass
 
         #If that doesn't work, try calculating it
         try:
-            eval("self._calc_"+valname+"()") #Try calculating it
-            return self._valdict[valname]
-        except AttributeError: #If value not calculable...
+            eval("self._calc_"+attrname+"()") #Try calculating it
+            return self._attrdict[attrname]
+        except AttributeError: #If attribute not calculable...
             pass
 
         #If that doesn't work, try reading it in
         try:
-            eval("self._read_"+valname+"()") #Try reading it in
-            return self._valdict[valname]
-        except AttributeError: #If value not readable
-            raise NameError("'"+valname+"' doesn't seem to be a valid value.  "
-                            +"Valid values are:\n"
-                            +str([key for key in self._valdict])+".\n"
+            eval("self._read_"+attrname+"()") #Try reading it in
+            return self._attrdict[attrname]
+        except AttributeError: #If attribute not readable
+            raise NameError("'"+attrname+"' doesn't seem to be a valid "
+                            +"Attribute.  Valid attributes are:\n"
+                            +str([key for key in self._attrdict])+".\n"
                             +"Run the method run_radlite() (if you haven't "
-                            +"yet) to automatically populate more values.\n"
+                            +"yet) to automatically populate more "
+                            +"attributes.\n"
                             +"Alternatively, you can pass the name of a "
-                            +"supported physics component (e.g., 'velocity') "
-                            +"to the get_value() method to populate that "
+                            +"supported physics component (e.g., 'velocity'"
+                            +") to the get_attr() method to populate that "
                             +"component on its own.")
     #
 
 
-    def _get_value_perprocess(self, valname, pind):
+    def _get_attr_perprocess(self, attrname, pind):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -182,11 +186,13 @@ class Radlite():
         Outputs:
         Notes:
         """
-        return self._valdict[valname][self.get_value("_splitinds")[pind]]
+        boundshere = self.get_attr("_splitinds")[pind]
+        return self.get_attr("_coredict")[attrname][
+                                            boundshere[0]:boundshere[1]]
     #
 
 
-    def _set_value(self, valname, val):
+    def _set_attr(self, attrname, attrval):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -197,8 +203,8 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: RECORD given value under given name + EXIT
-        self._valdict[valname] = val
+        ##Below Section: RECORD given attribute under given name + EXIT
+        self._attrdict[attrname] = attrval
         return
     #
 
@@ -224,68 +230,76 @@ class Radlite():
 
 
         ##Below Section: WRITE RADLite input files
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Writing radlite input files...")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("\nRunning run_radlite()!\n")
+            print("Writing radlite input files...\n")
         self._write_abundanceinp() #Abundance
+        self._write_radliteinp()
         self._write_turbulenceinp() #Turbulence
         self._write_velocityinp() #Velocity
 
 
         ##Below Section: SET UP result directory
-        rundir = os.path.join(self.get_value("run_dir"), self.get_value("run_name"))
-        if self.get_value("dodate"): #If date should be appended to dir. name
+        rundir = self.get_attr("run_dir")
+        if self.get_attr("dodate"): #If date should be appended to dir. name
             currtime = dater.now()
-            timestamp = "_{0}_{1d}h{2d}m{3d}s".format(currtime.date,
-                            currtime.hour, currtime.minute, currtime.second)
+            timestamp = "_{0}_{1}h{2}m{3}s".format(str(currtime.date()),
+                            str(currtime.hour), str(currtime.minute),
+                            str(currtime.second))
             rundir += timestamp
 
         #Make the desired directory, if nonexistent
-            try:
-                comm = subprocess.call(["mkdir", rundir]) #Create directory
-            except (comm != 0): #Will override files within, otherwise
-                pass
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Attempting to create run directory "+rundir+"...")
+        comm = subprocess.call(["mkdir", rundir]) #Create directory
+        if (comm != 0): #Will override files within, otherwise
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print(rundir+" already exists. Will overwrite files within.")
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("All input files and final data will be saved to the "
-                    +"following directory: "+rundir)
+                    +"following folder in the current directory: "+rundir)
 
         #Copy initial files into final directory
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Copying over initial data files into "+rundir+"...")
         for iname in initfilelist:
             comm = subprocess.call(["cp",
-                            os.path.join((self.get_value("inp_path"),
-                                            iname)),
-                            os.path.join((rundir, "/"))])
+                            os.path.join(self.get_attr("inp_path"), iname),
+                            rundir+"/"])
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done copying over initial data files!\n")
 
 
-        ##Below Section: PROCESS data from the LTE or NLTE data file
+        ##Below Section: PROCESS data for LTE/NLTE and mol. line treatment
         #Read in either LTE or NLTE data
-        if self.get_value("lte"): #If LTE treatment desired
-            if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("lte"): #If LTE treatment desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Extracting LTE molecular data...")
                 print("")
-            self._read_hitran(numcores)
+            self._read_hitran()
         else: #Else, if non-LTE treatment desired
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Extracting NLTE molecular data...")
                 print("")
             molfile = "molfile.dat"
-            self._read_lambda(numcores)
+            self._read_lambda()
+        #Read in partition function
+        self._read_psum()
 
 
         ##Below Section: RUN RADLITE on single/multiple cores in subfolders
-        numcores = self.get_value("ncores")
-        if self.get_value("verbose"): #Verbal output, if so desired
+        numcores = self.get_attr("ncores")
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Running RADLite on "+str(numcores)+" core(s)...")
         #Prepare pool of cores
         plist = []
         for ai in range(0, numcores):
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Prepping "+str(ai)+"th core...")
 
             #Make a directory for this run
             cpudir = "./workingdir_cpu"+str(ai)+"/" #core-specific dir.
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Generating directory: "+cpudir)
             try:
                 comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
@@ -298,24 +312,24 @@ class Radlite():
 
             #Call core routine
             phere = mp.Process(target=self._run_core,
-                                    args=(pind, cpudir, rundir,))
+                                    args=(ai, cpudir, rundir,))
             plist.append(phere)
             #Start process
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Starting "+str(ai)+"th core in "+cpudir+"...")
             phere.start()
 
         #Close pool of cores
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done running core(s)!")
         for ai in range(0, numcores):
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Closing "+str(ai)+"th core...")
             plist[ai].join()
 
 
         ##Below Section: FINISH and EXIT
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done running run_radlite()!")
         return
     #
@@ -333,27 +347,18 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: GENERATE radlite input files
-        #NOTE: SOME OF THESE ARE GENERAL ENOUGH TO NOT BE DONE PER core !!!!!!!!!!
-        self._write_radliteinp(cpudir) #Direct radlite input file
+        ##Below Section: GENERATE radlite molecular line input files
+        self._write_moldatadat(cpudir=cpudir, pind=pind) #Mol. datafiles
         self._write_levelpopinp(cpudir) #Level population input file
-        self._write_moldatadat(filepathandname=cpudir, pind=pind,
-            outfilename=(cpudir+"moldata_"+str(pind)+".dat")) #Mol. datafiles
-
-
-        ##Below Section: CHECK that all files are in order
-        #BELOW FROM IDL !!! - read_vel, 'velocity.inp', vel
-        #Check passband width
-        #velmax = np.max(np.abs(vel.vphi))
-        #if self.get_value("verbose"): #Verbal output, if so desired
-        #    print("Max. velocity = {0:.2f}km/s".format(velmax/1E5))
+        print("Done for now")
+        return
 
 
         ##Below Section: RUN RADLITE
-        logfile = open(cpudir+"RADLITE_core"+str(pind)+".log", 'w')
-        comm = subprocess.call([self.executable], #Call RADLite
+        with open(cpudir+"RADLITE_core"+str(pind)+".log", 'w') as openlogfile:
+            comm = subprocess.call([self.get_attr("executable")], #Call RADLite
                                 cwd=cpudir+"/", #Call within core subdir.
-                                stdout=logfile) #Send output to log file
+                                stdout=openlogfile) #Send output to log file
 
 
         ##Below Section: EXTRACT output files
@@ -363,7 +368,7 @@ class Radlite():
         comm = subprocess.call(["mv",
                             cpudir+"/linespectrum_moldata_"+str(pind)+".dat",
                             rundir+"/"]) #Line spectrum output
-        if self.image == 2:
+        if self.get_attr("image") == 2:
             comm = subprocess.call(["mv",
                             cpudir+"/lineposvelcirc_moldata_"+str(pind)+".dat",
                             rundir+"/"]) #Circular 3D image cube output
@@ -389,29 +394,38 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: PROCESS all lines in file
+        ##Below Section: EXTRACT necessary parameters
+        isonum = self.get_attr("isonum")
+        wavenumrange = [1.0E4/self.get_attr("max_mu"),
+                                            1.0E4/self.get_attr("min_mu")]
+        insmin = self.get_attr("min_ins")
+        Eupmax = self.get_attr("max_Eup")
+        vupmax = self.get_attr("max_vup")
+
+
+        ##Below Section: PROCESS all lines in HITRAN file
         filepathandname = os.path.join(
-                                    self.get_value("hit_path"),
-                                    self.get_value("hitran_file"))
-        if self.get_value("verbose"): #Verbal output, if so desired
+                                    self.get_attr("hit_path"),
+                                    self.get_attr("hitran_file"))
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Extracting molecular lines from file "+filepathandname+"...")
         #Read in all filelines
         with open(filepathandname, 'r') as openfile:
             alllines = openfile.readlines()
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("There are "+str(len(alllines))+" molecular lines in total.")
 
         #Set HITRAN entries and number of characters per HITRAN file entry
-        hitranchars = [2, 1, 12, 10, 10, 5, 5, 10, 4, 8, 15, 15, 15, 15,
+        hitranchars = [3, 12, 10, 10, 5, 5, 10, 4, 8, 15, 15, 15, 15,
                             6, 12, 1, 7, 7] #Characters per HITRAN entry
-        hitrannames = ["mol", "iso", "wavenum", "ins", "A", "air", "self",
+        hitrannames = ["isonum", "wavenum", "ins", "A", "air", "self",
                             "Elow", "temp", "press", "vup", "vlow",
                             "qup", "qlow", "err", "ref", "flag", "gup", "glow"]
-        hitrandtypes = [int]*2 +[float]*8 +[str]*4 +[int]*2 +[str] +[float]*2
+        hitrandtypes = [int]*1 +[float]*8 +[str]*7 +[float]*2
 
         #Record *all* molecular line into a convenient dictionary
         #NOTE: Any undesired lines will be removed later
-        hitrandict = {} #Initialize dictionary to hold line values
+        hitrandict = {} #Initialize dictionary to hold line attributes
         ii = 0 #Index to keep track of place within entries
         for ai in range(0, len(hitrannames)):
             namehere = hitrannames[ai] #Name of current entry
@@ -423,6 +437,10 @@ class Radlite():
             ii = ii + hitranchars[ai] #Update place within fileline characters
         #Also calculate and record upper energy levels
         hitrandict["Eup"] = hitrandict["Elow"] + hitrandict["wavenum"] #E_up
+        #And also convert v levels into ints (removing any whitespaces)
+        vupnum = np.array(
+                            [int(hitrandict["vup"][ai].replace(" ", ""))
+                                for ai in range(0, len(hitrandict["vup"]))])
 
         #Throw error if any signs of incomplete data
         if 0 in hitrandict["gup"]:
@@ -433,50 +451,104 @@ class Radlite():
 
 
         ##Below Section: REMOVE any lines outside of desired range
-        if self.get_value("verbose"): #Verbal output, if so desired
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Removing molecular lines outside of specified criteria...")
         #Extract indices of lines that fall within criteria
         keepinds = np.where( ~(
                     #If incorrect isotopologue
-                    (hitrandict["isonum"] != self.isotop)
+                    (hitrandict["isonum"] != isonum)
                     #If wavenumber outside of desired wavenumber range
-                    | (hitrandict["wavenum"] < self.wavenumrange[0])
-                    | (hitrandict["wavenum"] > self.wavenumrange[1])
+                    | (hitrandict["wavenum"] < wavenumrange[0])
+                    | (hitrandict["wavenum"] > wavenumrange[1])
                     #If intensity, level, or upper energy beyond given cutoffs
-                    | (hitrandict["ins"] < self.cutoff)
-                    | (hitrandict["Eu"] > self.Eupmax)
-                    | (float(hitrandict["vup"]) > self.vupmax)))[0]
-        numlines = np.sum(keepinds) #Number of lines that fall within criteria
+                    | (hitrandict["ins"] < insmin)
+                    | (hitrandict["Eup"] > Eupmax)
+                    | (vupnum > vupmax)))[0]
+        numlines = len(keepinds) #Number of lines that fall within criteria
 
         #Keep only those lines that fall within criteria; delete all other lines
         for key in hitrandict:
             hitrandict[key] = hitrandict[key][keepinds]
-        self.hitrandict = hitrandict #Record final set of molecular lines
-        self.numlines = numlines #Record final count of lines
-        if self.get_value("verbose"): #Verbal output, if so desired
+        self._set_attr(attrname="_coredict", attrval=hitrandict) #Final set
+        self._set_attr(attrname="numlines", attrval=numlines) #Final count
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("There are "+str(numlines)+" molecular lines "
                     +"that fall within specified criteria.")
 
 
         ##Below Section: SPLIT data across given number of cores
-        if self.get_value("verbose"): #Verbal output, if so desired
+        numcores = self.get_attr("ncores") #Number of cores
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Dividing up the lines for "
-                        +self.numcores+" cores...")
+                        +str(numcores)+" cores...")
         #Determine indices for splitting up the data
-        numpersplit = self.numlines // self.numcores #No remainder
+        numpersplit = numlines // numcores #No remainder
         splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
-                        for ai in range(0, self.numcores)] #Divide indices
-        splitinds[-1][1] = self.numlines #Tack leftovers onto last core
-        if self.get_value("verbose"): #Verbal output, if so desired
+                        for ai in range(0, numcores)] #Divide indices
+        splitinds[-1][1] = numlines #Tack leftovers onto last core
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Here are the chosen line intervals per core:")
             print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
-        self._set_value(valname="_splitinds", val=splitinds) #Record split lines
+        self._set_attr(attrname="_splitinds", attrval=splitinds) #Split lines
 
 
         ##Below Section: EXIT
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Done extracting molecular data!")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done extracting molecular data!\n")
+        return
+    #
+
+
+    @func_timer
+    def _read_psum(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: PROCESS all filelines in partition sum file
+        #Read in all filelines
+        with open(self.get_attr("psumfile"), 'r') as openfile:
+            alllines = openfile.readlines()
+
+        #Record information for all chemical species from filelines
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Extracting partition function info from "
+                                        +self.get_attr("psumfile")+"...")
+        specieslist = alllines[1].split() #List of all chemical species' names
+        numspecies = len(specieslist) #Number of chemical species
+        molmassarr = np.asarray(alllines[2].split()
+                                        ).astype(float) #List of all mol. mass
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("There are a total of "+str(numspecies)+" chemical species "
+                                        +"in "+self.get_attr("psumfile")+".")
+
+        #Extract info for requested molecule (chemical species)
+        try: #Try to determine index of requested molecule
+            iind = specieslist.index(self.get_attr("molname")) #Mol's index
+        except ValueError: #If requested molecule not present in list
+            raise ValueError("Oh no! No partition sum table found in "
+                            +self.get_attr("psumfile")+" for the requested "
+                            +"molecule "+self.get_attr("molname")+".")
+        psumtemparr = np.array([float(alllines[ai].split()[0])
+                                    for ai in range(3, len(alllines))]) #Temp.
+        psumarr = np.array([float(alllines[ai].split()[iind+1])
+                                    for ai in range(3, len(alllines))]) #Part.
+
+
+        ##Below Section: STORE partition info + EXIT
+        self._set_attr(attrname="psum", attrval=psumarr)
+        self._set_attr(attrname="psum_temp", attrval=psumtemparr)
+        self._set_attr(attrname="psum_molmass", attrval=molmassarr[iind])
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Partition information for "+self.get_attr("molname")+" "
+                                        +"has been successfully extracted!\n")
         return
     #
 
@@ -495,9 +567,9 @@ class Radlite():
         """
         ##Below Section: PROCESS all lines in file
         filepathandname = os.path.join(
-                                    self.get_value("inp_path"), "starinfo.inp")
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Extracting molecular lines from file "+filepathandname+"...")
+                                    self.get_attr("inp_path"), "starinfo.inp")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Extracting stellar info from file "+filepathandname+"...")
         #Read in all filelines
         with open(filepathandname, 'r') as openfile:
             alllines = openfile.readlines()
@@ -509,10 +581,10 @@ class Radlite():
         teff = float(alllines[3]) #Stellar eff. temperature
         starinfodict = {"mstar":mstar, "rstar":rstar, "teff":teff}
         #Store together and individually
-        self._set_value(valname="starinfo", val=starinfodict)
-        self._set_value(valname="mstar", val=mstar)
-        self._set_value(valname="rstar", val=rstar)
-        self._set_value(valname="teff", val=teff)
+        self._set_attr(attrname="starinfo", attrval=starinfodict)
+        self._set_attr(attrname="mstar", attrval=mstar)
+        self._set_attr(attrname="rstar", attrval=rstar)
+        self._set_attr(attrname="teff", attrval=teff)
         return
     #
 
@@ -533,37 +605,37 @@ class Radlite():
         Notes:
         """
         ##Below Section: EXTRACT structural information
-        temparr = self.get_value("dusttemperature")
-        rlen = len(self.get_value("radius"))
-        tlen = len(self.get_value("theta"))
-        gamval = self.get_value("gamma")
-        abundrange = [self.get_value("min_abun"), self.get_value("max_abun")]
-        temp_fr = self.get_value("temp_fr")
-        if self.get_value("verbose"): #Verbal output, if so desired
+        temparr = self.get_attr("dusttemperature")
+        rlen = len(self.get_attr("radius"))
+        tlen = len(self.get_attr("theta"))
+        gamval = self.get_attr("gamma")
+        abundrange = [self.get_attr("min_abun"), self.get_attr("max_abun")]
+        temp_fr = self.get_attr("temp_fr")
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Calculating abundance...")
 
 
         ##Below Section: CALCULATE abundance based on specified abundance mode
         if temp_fr is False: #For constant abundance
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Setting a constant abundance...")
             abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
-            self._set_value(valname="abund_collpartner", val=0.0)
+            self._set_attr(attrname="abund_collpartner", attrval=0.0)
         else: #For abundance that changes below freeze-out temperature
-            if self.get_value("verbose"): #Verbal output, if so desired
+            if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Setting abundance to min. below {0:f}K..."
                                 .format(temp_fr))
             abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
             abundarr[temparr < temp_fr] = abundrange[0]
-            self._set_value(valname="collpartner", val=0.0)
+            self._set_attr(attrname="collpartner", attrval=0.0)
 
 
         ##NOTE: IN MAKE_ABUNDANCE.PRO, THERE WAS PART HERE ABOUT MOL_DESTRUCT
 
         ##Below Section: RECORD calculated abundance + EXIT
-        self._set_value(valname="abundance", val=abundarr)
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Done calculating abundance!")
+        self._set_attr(attrname="abundance", attrval=abundarr)
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done calculating abundance!\n")
         return
     #
 
@@ -582,11 +654,11 @@ class Radlite():
         Notes:
         """
         ##Below Section: EXTRACT gas information
-        temparr = self.get_value("dusttemperature")
-        gamval = self.get_value("gamma")
-        muval = self.get_value("mu")
-        weightval = self.get_value("molweight")
-        if self.get_value("verbose"): #Verbal output, if so desired
+        temparr = self.get_attr("dusttemperature")
+        gamval = self.get_attr("gamma")
+        muval = self.get_attr("mu")
+        weightval = self.get_attr("molweight")
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Calculating turbulence...")
             print("Using first dust component temperature to determine "
                     +"turbulent velocities...")
@@ -594,16 +666,16 @@ class Radlite():
 
         ##Below Section: CALCULATE turbulence (alpha-model) using sound speed
         csarr = np.sqrt(gamval*kB0*temparr/1.0/(muval*mp0)) #Sound speed
-        turbarr = self.get_value("alpha")*csarr #Turbulence
+        turbarr = self.get_attr("alpha")*csarr #Turbulence
         #Add thermal broadening in quadrature
         thermbroadarr = np.sqrt(2.0*kB0*temparr/(weightval*mp0)) #Therm. broad.
         turbarr = np.sqrt((turbarr**2) + (thermbroadarr**2)) #Updated turbulence
 
 
         ##Below Section: RECORD calculated turbulence + EXIT
-        self._set_value(valname="turbulence", val=turbarr)
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Done calculating turbulence!")
+        self._set_attr(attrname="turbulence", attrval=turbarr)
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done calculating turbulence!\n")
         return
     #
 
@@ -622,13 +694,13 @@ class Radlite():
         Notes:
         """
         ##Below Section: EXTRACT stellar information
-        rarr = self.get_value("radius") #Radii
+        rarr = self.get_attr("radius") #Radii
         rlen = len(rarr) #Number of radius points
-        tlen = len(self.get_value("theta"))//2 #Number of theta points
+        tlen = len(self.get_attr("theta"))//2 #Number of theta points
         rexparr = np.resize(rarr, (tlen, rlen)) #Radii, expended to 2D
-        mstar = self.get_value("starinfo")["mstar"] #Stellar mass
-        rstar = self.get_value("starinfo")["rstar"] #Stellar radius
-        if self.get_value("verbose"): #Verbal output, if so desired
+        mstar = self.get_attr("starinfo")["mstar"] #Stellar mass
+        rstar = self.get_attr("starinfo")["rstar"] #Stellar radius
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Calculating velocity field...")
             print("Used starinfo.inp file for mstar and rstar...")
 
@@ -641,9 +713,9 @@ class Radlite():
 
 
         ##Below Section: RECORD velocity and EXIT
-        self._set_value("velocity", vdict) #Record velocity
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Done calculating velocity.")
+        self._set_attr("velocity", vdict) #Record velocity
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done calculating velocity!\n")
         return
     #
 
@@ -664,10 +736,10 @@ class Radlite():
         """
         ##Below Section: BUILD string containing abundance information
         #Extract abundance
-        abundarr = self.get_value("abundance") #Abundance data
-        collpartner = self.get_value("collpartner")
-        rlen = len(self.get_value("radius")) #Length of radius array
-        tlen = len(self.get_value("theta"))//2 #Half-length of theta array
+        abundarr = self.get_attr("abundance") #Abundance data
+        collpartner = self.get_attr("collpartner")
+        rlen = len(self.get_attr("radius")) #Length of radius array
+        tlen = len(self.get_attr("theta"))//2 #Half-length of theta array
         #Set up string
         writestr = "" #Initialize string
         writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
@@ -678,7 +750,7 @@ class Radlite():
                                                 collpartner)
 
         ##Below Section: WRITE the results to file + EXIT function
-        outfilename = os.path.join(self.get_value("inp_path"), "abundance.inp")
+        outfilename = os.path.join(self.get_attr("inp_path"), "abundance.inp")
         with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
@@ -693,12 +765,28 @@ class Radlite():
 
     @func_timer
     def _write_levelpopinp(self, cpudir):
-        pass
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing turbulence information
+        #Extract levelpop information
+        lpopdict = self.get_attr("_levelpopdict") #Level population info
+        numlevels = lpopdict["numlevels"] #Number of energy levels
+        Eup_K = lpopdict["Eall"]*h0*c0/1.0/k0 #[K]; Upper energy levels
+
+
     #
 
 
     @func_timer
-    def _write_linespectruminp(self, numlines, molfilename, outfilename):
+    def _write_linespectruminp(self, cpudir):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -717,33 +805,37 @@ class Radlite():
         writestr += "{0:<8d}Format number\n".format(2)
         writestr += ("-"*63)+"\n"
         writestr += "{0:<8.2f}{1:<50s}\n".format(
-                            self.passband, "Width of line passband [km/s]")
+                    self.get_attr("passband"), "Width of line passband [km/s]")
         writestr += "{0:<8.2f}{1:<50s}\n".format(
-                            self.vsampling, "Velocity sampling [km/s]")
+                    self.get_attr("vsampling"), "Velocity sampling [km/s]")
         writestr += ("-"*65)+"\n"
         writestr += "{0:<8d}Format number\n".format(2)
         writestr += "{0:<8d}{1:<50s}\n".format(
-                            self.image,
-                            "Command (0=spectrum, 2=image[3-D P/V cube])")
+                    self.get_attr("image"),
+                    "Command (0=spectrum, 2=image[3-D P/V cube])")
         writestr += "{0:<8.1f}{1:<50s}\n".format(
-                            self.dist, "Distance in [pc]")
+                    self.get_attr("dist"), "Distance in [pc]")
         writestr += "{0:<8.1f}{1:<50s}\n".format(
-                            self.incl, "Inclination [deg]")
+                    self.get_attr("incl"), "Inclination [deg]")
         writestr += "{0:<8.1f}{1:<60s}\n".format(
-                            self.vlsr, "Radial velocity, rel. to local "
+                    self.get_attr("vlsr"), "Radial velocity, rel. to local "
                                         +"standard of rest [km/s]")
         writestr += "{0:<8d}{1:<50s}\n".format(
-                            numlines, "Nr of lines to make spectrum/image")
+                    self.get_attr("numlines"),
+                    "Nr of lines to make spectrum/image")
         writestr += "{0:<8d}Starting line to make spectrum/image\n".format(1)
-        if self.image == 2: #For 3D image cube
-            npix = int(np.ceil(self.imwidth_au/1.0/self.ssampling))
+        #
+        if self.get_attr("image") == 2: #For 3D image cube
+            npix = int(np.ceil(self.get_attr("imwidth")
+                                    /1.0/self.get_attr("ssampling")))
+            imwidth_cm = self.get_attr("imwidth")/1.0/au0
             writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of x pixels")
             writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of y pixels")
             writestr += "{0:<8d}image size in cm?\n".format(1)
             writestr += "{0:<8.1e}{1:<50s}\n".format(
-                            self.imwidth_cm, "size x direction")
+                            imwidth_cm, "size x direction")
             writestr += "{0:<8.1e}{1:<50s}\n".format(
-                            self.imwidth_cm, "size y direction")
+                            imwidth_cm, "size y direction")
             writestr += "{0:<8d}Phi offset?\n".format(0)
             writestr += "{0:<8d}x offset?\n".format(0)
             writestr += "{0:<8d}y offset?\n".format(0)
@@ -751,6 +843,7 @@ class Radlite():
 
 
         ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(cpudir, "linespectrum.inp")
         with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
@@ -758,7 +851,7 @@ class Radlite():
 
 
     @func_timer
-    def _write_moldatadat(self, filepathandname, pind, outfilename):
+    def _write_moldatadat(self, cpudir, pind):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -770,100 +863,184 @@ class Radlite():
         Notes:
         """
         #Below Section: EXTRACT lists of info for line transitions
-        molname = self._get_value_perprocess("molname", pind=pind)
-        molweight = self._get_value_perprocess("molweight", pind=pind)
-        Euplist = self._get_value_perprocess("Eup", pind=pind)
-        Elowlist = self._get_value_perprocess("Elow", pind=pind)
-        wavenumlist = self._get_value_perprocess("wavenum", pind=pind)
-        Alist = self._get_value_perprocess("A", pind=pind)
-        vuplist = self._get_value_perprocess("vup", pind=pind)
-        vlowlist = self._get_value_perprocess("vlow", pind=pind)
-        quplist = self._get_value_perprocess("qup", pind=pind)
-        qlowlist = self._get_value_perprocess("qlow", pind=pind)
+        molname = self.get_attr("molname")
+        molweight = self.get_attr("molweight")
+        Euparr = self._get_attr_perprocess("Eup", pind=pind)
+        Elowarr = self._get_attr_perprocess("Elow", pind=pind)
+        guparr = self._get_attr_perprocess("gup", pind=pind)
+        glowarr = self._get_attr_perprocess("glow", pind=pind)
+        wavenumarr = self._get_attr_perprocess("wavenum", pind=pind)
+        Aarr = self._get_attr_perprocess("A", pind=pind)
+        vuparr = self._get_attr_perprocess("vup", pind=pind)
+        vlowarr = self._get_attr_perprocess("vlow", pind=pind)
+        quparr = self._get_attr_perprocess("qup", pind=pind)
+        qlowarr = self._get_attr_perprocess("qlow", pind=pind)
+        #Sort the lists by E_low
+        sortinds = np.argsort(Elowarr)
+        Euparr = Euparr[sortinds]
+        Elowarr = Elowarr[sortinds]
+        guparr = guparr[sortinds]
+        glowarr = glowarr[sortinds]
+        wavenumarr = wavenumarr[sortinds]
+        Aarr = Aarr[sortinds]
+        vuparr = vuparr[sortinds]
+        vlowarr = vlowarr[sortinds]
+        quparr = quparr[sortinds]
+        qlowarr = qlowarr[sortinds]
 
 
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Writing "+outfilename+"...")
-            print("Counting up unique levels for "+outfilename+"...")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Writing moldata.dat...")
+            print("Counting up unique levels...")
         #Combine energies, transitions, and degeneracies
-        Ealllist = np.concatenate((Elowlist, Euplist))
-        valllist = np.concatenate((vlowlist, vuplist))
-        qalllist = np.concatenate((qlowlist, quplist))
-        galllist = np.concatenate((glowlist, guplist))
+        Eallarr = np.concatenate((Elowarr, Euparr))
+        vallarr = np.concatenate((vlowarr, vuparr))
+        qallarr = np.concatenate((qlowarr, quparr))
+        gallarr = np.concatenate((glowarr, guparr))
         #Sort combined lists by energies
-        sortinds = np.argsort(Ealllist)
-        Ealllist = Eallist[sortinds]
-        valllist = vallist[sortinds]
-        qalllist = qallist[sortinds]
-        galllist = gallist[sortinds]
+        sortinds = np.argsort(Eallarr)
+        Eallarr = Eallarr[sortinds]
+        vallarr = vallarr[sortinds]
+        qallarr = qallarr[sortinds]
+        gallarr = gallarr[sortinds]
 
         #Extract indices for unique levels only
-        uniqEinds = np.where( ~( #Indices of unique Elow, Eu value combinations
-                    (np.abs(Ealllist[0:-1]-Ealllist[1:len(Ealllist)])
-                            /1.0/(Ealllist[1:len(Ealllist)]+0.1)) < 0.0001))[0]
-        uniqvinds = np.where( ~( #Indices of unique vlow, vup combinations
-                        vuplist[0:-1] == vuplist[1:len(Ealllist)]))[0]
-        uniqginds = np.where( ~( #Indices of unique glow, gup combinations
-                        glowlist[0:-1] == glowlist[1:len(Ealllist)]))[0]
+        keepinds = [True]*len(Eallarr)
+        for ai in range(1, len(Eallarr)):
+            if ( #For non-unique E, v, and g value combinations
+                        ((np.abs(Eallarr[ai-1]-Eallarr[ai])
+                                /1.0/(Eallarr[ai]+0.1)) < 0.0001)
+                        and (vallarr[ai-1] == vallarr[ai])
+                        and (gallarr[ai-1] == gallarr[ai])):
+                keepinds[ai] = False
+        uniqinds = np.unique(np.where(keepinds)[0])
 
         #Combine and apply indices
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print("Removing any duplicate levels for "+outfilename
-                    +"...  To start, there are "+str(len(Ealllist))+" levels.")
-        uniqinds = np.unique(np.concatenate((uniqEinds, uniqvinds, uniqginds)))
-        Ealllist = Ealllist[uniqinds]
-        valllist = valllist[uniqinds]
-        qalllist = qalllist[uniqinds]
-        galllist = galllist[uniqinds]
-        if self.get_value("verbose"): #Verbal output, if so desired
-            print(str(np.sum(~uniqinds))+" levels have been removed for "
-                        +outfilename+", leaving "+str(len(Eallist))
-                        +" unique levels.")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Removing any duplicate levels...  "
+                    +"To start, there are "+str(len(Eallarr))+" levels.")
+        Eallarr = Eallarr[uniqinds]
+        vallarr = vallarr[uniqinds]
+        qallarr = qallarr[uniqinds]
+        gallarr = gallarr[uniqinds]
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print(str(len(uniqinds))+" unique indices found, "
+                        +"meaning "+str(len(Eallarr))+" unique levels.")
+
+
+        ##Below Section: STORE unique level results for levelpop use later
+        numlevels = len(Eallarr)
+        numtrans = len(wavenumarr)
+        levelpopdict = {"Eall":Eallarr, "gall":gallarr,
+                            "numlevels":numlevels, "numtrans":numtrans}
+        self._set_attr(attrname="_levelpopdict", attrval=levelpopdict)
 
 
         ##Below Section: BUILD string to form the molecular data file
         writestr = ""
         writestr += "!MOLECULE\n{0:s}\n".format(molname)
         writestr += "!MOLECULAR WEIGHT\n{0:4.1f}\n".format(molweight)
-        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(len(Ealllist))
+        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(numlevels)
         #Tack on unique levels, energies, and degeneracies
         writestr += "!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q\n"
-        for ai in range(0, len(Ealllist)):
+        for ai in range(0, numlevels):
             writestr += "{0:5d}{1:12.4f}{2:7.1f}{3:>15s}{4:>15s}\n".format(
-                            (ai+1), Ealllist[ai], galllist[ai], valllist[ai],
-                            qalllist[ai])
+                            (ai+1), Eallarr[ai], gallarr[ai], vallarr[ai],
+                            qallarr[ai])
         #Tack on transitions
         writestr += "!NUMBER OF RADIATIVE TRANSITIONS\n"
-        writestr += "{0:6d\n}".format(len(wavenumlist))
+        writestr += "{0:6d}\n".format(numtrans)
         writestr += ("!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm^-1) + "
                         +"E_u(cm^-1) + v_l + Q_p + Q_pp\n")
-        for ai in range(0, len(wavenumlist)):
-            levu = np.where((np.abs(Ealllist - Euplist[ai])
-                                /1.0/Euplist[ai]) < 1E-4)[0]
-            if Elowlist[ai] != 0: #If not down to 0-level
-                levl = np.where((np.abs(Ealllist - Elowlist[ai])
-                                /1.0/Elowlist[ai]) < 1E-4)[0]
+        for ai in range(0, numtrans):
+            levu = np.where((np.abs(Eallarr - Euparr[ai])
+                                /1.0/Euparr[ai]) < 1E-4)[0]
+            if Elowarr[ai] != 0: #If not down to 0-level
+                levl = np.where((np.abs(Eallarr - Elowarr[ai])
+                                /1.0/Elowarr[ai]) < 1E-4)[0]
             else:
-                levl = np.where(Ealllist == 0)[0]
+                levl = np.where(Eallarr == 0)[0]
             writestr += ("{0:5d}{1:5d}{2:5d}{3:12.3e}{4:16.7f}".format(
-                                (ai+1), levu[0]+1, levl[0]+1, Alist[ai],
-                                wavenumlist[ai])
-                        +"{5:12.5f}{6:>15}{7:>15}{8:>15}{9:>15}\n".format(
-                                Euplist[ai], vuplist[ai], vlowlist[ai],
-                                quplist[ai], qlowlist[ai]))
+                                (ai+1), levu[0]+1, levl[0]+1, Aarr[ai],
+                                wavenumarr[ai])
+                        +"{0:12.5f}{1:>15}{2:>15}{3:>15}{4:>15}\n".format(
+                                Euparr[ai], vuparr[ai], vlowarr[ai],
+                                quparr[ai], qlowarr[ai]))
 
 
         ##Below Section: WRITE the results to file + EXIT function
-        with open(outputfilename, 'w') as openfile:
+        outfilename = os.path.join(cpudir, "moldata.dat")
+        with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
     #
 
 
     @func_timer
-    def _write_radliteinp(self, cpudir):
-        pass
+    def _write_radliteinp(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string to form the input file
+        writestr = "" #Initialize string
+        writestr += "104\t\tInput format version\n"
+        writestr += "="*40+"\n"
+        writestr += str(self.get_attr("niter"))+"\t\tMaximum number\n"
+        writestr += "2\t\tIteration method\t\t(0=LI,1=ALI,2=ALI+Ng,-1=IS)\n"
+        writestr += "0\t\tFlux conservation trick\t\t(0=disable)\n"
+        writestr += "1.000e-06\t\tConvergence tolerance\n"
+        writestr += "0\t\tConvergence crit type\t\t(0=J_nu,1=j_nu)\n"
+        writestr += "1\t\tInitial guess type\t\t(0=triv)\n"
+        writestr += "="*40+"\n"
+        writestr += "41\t\tNr of mu-angle points\n"
+        writestr += "16\t\tNr of phi-angle points\n"
+        writestr += "2\t\tType of mu gridding\t\t(0=regular,1=dr/r,2=dr/rspecial)\n"
+        writestr += "0.1\t\tLargest allowed error\n"
+        writestr += "1.0\t\tDmu wrt dR\t\t(1.0=tangent ray method)\n"
+        writestr += "3\t\tExtra mus around mu=0\n"
+        writestr += "="*40+"\n"
+        if self.get_attr("noisrf"):
+            writestr += "0\t\tType of outer boundary\t\t(0=empty,2=microwavebg)\n"
+        else:
+            writestr += "3\t\tType of outer boundary\t\t(0=empty,2=microwavebg)\n"
+        writestr += "2\t\tType of inner boundary\t\t(0=solid,1=empty?,2=central star,3=mirror)\n"
+        writestr += "0\t\tType of equator boundary\t\t(0=no,1=disk)\n"
+        writestr += "="*40+"\n"
+        writestr += "57.3\t\tDefault inclination angle\n"
+        writestr += str(self.get_attr("cir_np"))+"\t\tNr Phi-points circular CCD\n"
+        writestr += str(self.get_attr("b_per_r"))+"\t\tThe number of b_i of the image per r_i of the grid\n"
+        writestr += str(self.get_attr("b_extra"))+"\t\tThe number of extra b_i inside the inner radius\n"
+        writestr += "="*40+"\n"
+        writestr += "1\t\tSave NLTE\n"
+        writestr += "0\t\tSave intensity at inu\n"
+        writestr += "-1\t\tSave source at inu\n"
+        writestr += "0\t\tSave moments\t\t(-1=save,2=append,3=onlylast)\n"
+        writestr += "-1\t\tSave dusttemp/etc\t\t(-1=save,2=append,3=onlylast)\n"
+        writestr += "0\t\tSave ALI operator\n"
+        writestr += "1\t\tSave phys vars of medium\n"
+        writestr += "0\t\tSave flux conservation data\n"
+        writestr += "="*40+"\n"
+        writestr += "-551\t\tType of setup\n"
+        writestr += "0\t\tDo dust?\n"
+        writestr += "1\t\tDo lines?\n"
+        writestr += "1\t\tInclude dust in lines?\n"
+        writestr += "1\t\tInclude star pumping?\n"
+        writestr += "="*40+"\n"
+
+
+        ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(self.get_attr("inp_path"), "radlite.inp")
+        with open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+        return
     #
 
 
@@ -881,9 +1058,9 @@ class Radlite():
         """
         ##Below Section: BUILD string containing turbulence information
         #Extract turbulence
-        turbarr = self.get_value("turbulence") #Turbulence data
-        rlen = len(self.get_value("radius")) #Length of radius array
-        tlen = len(self.get_value("theta"))//2 #Length of theta array
+        turbarr = self.get_attr("turbulence") #Turbulence data
+        rlen = len(self.get_attr("radius")) #Length of radius array
+        tlen = len(self.get_attr("theta"))//2 #Length of theta array
         #Set up string
         writestr = "1\n" #Initialize string
         writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
@@ -894,7 +1071,7 @@ class Radlite():
                                         (turbarr[ti, ri]/1.0E5)) #[cm/s]->[km/s]
 
         ##Below Section: WRITE the results to file + EXIT function
-        outfilename = os.path.join(self.get_value("inp_path"), "turbulence.inp")
+        outfilename = os.path.join(self.get_attr("inp_path"), "turbulence.inp")
         with  open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return
@@ -915,9 +1092,9 @@ class Radlite():
         """
         ##Below Section: BUILD string containing velocity information
         #Extract velocity
-        velarr = self.get_value("velocity") #Velocity data
-        rlen = len(self.get_value("radius")) #Length of radius array
-        tlen = len(self.get_value("theta"))//2 #Length of theta array
+        velarr = self.get_attr("velocity") #Velocity data
+        rlen = len(self.get_attr("radius")) #Length of radius array
+        tlen = len(self.get_attr("theta"))//2 #Length of theta array
         #Set up string
         writestr = "" #Initialize string
         writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
@@ -929,7 +1106,7 @@ class Radlite():
                                 velarr["phi"][ti, ri])
 
         ##Below Section: WRITE the results to file + EXIT function
-        outfilename = os.path.join(self.get_value("inp_path"), "velocity.inp")
+        outfilename = os.path.join(self.get_attr("inp_path"), "velocity.inp")
         with open(outfilename, 'w') as openfile:
             openfile.write(writestr)
         return

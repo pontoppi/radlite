@@ -1,15 +1,20 @@
 {
-  "inp_path":        "/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/",
-  "hit_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
+  "inp_path":   {
+                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/",
+                      "comment":"Path to the folder containing all .inp files produced by RADMC (e.g., radius.inp)."
+                    },
+  "hit_path":         {"value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
+                      "comment":
+
   "psumfile":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
   "lambda_path":      "/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
   "exe_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
-  "run_dir":          "/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/rundir/",
-  "run_name":         "testing",
-  "dodate":           true,
+  "run_dir":          "rundir",
+  "dodate":           false,
   "verbose":          true,
 
   "ncores":           1,
+  "niter":            200,
   "image":           "spec",
 
   "lte":              true,
@@ -28,14 +33,24 @@
   "max_mu":           4.7,
   "min_abun":         1.4E-8,
   "max_abun":         1.4E-5,
-  "insmin":           1E-90,
-  "Eumax":            10000.0,
+  "min_ins":          1E-90,
+  "max_Eup":          10000.0,
+  "max_vup":          1E90,
 
   "incl":             15.0,
   "vsampling":        1.5,
+  "ssampling":        0.1,
   "passband":         70.0,
+  "vlsr":             0.0,
+  "dist":             1.0,
+  "imwidth":          10.0,
 
   "alpha":            0.9,
   "gamma":            1.4,
-  "mu":               2.3
+  "mu":               2.3,
+
+  "cir_np":           150,
+  "b_per_r":          1,
+  "b_extra":          -60,
+  "noisrf":           true
 }
