@@ -1,4 +1,4 @@
-set_attr##FILE:
+##FILE:
 ##PURPOSE:
 
 
@@ -9,6 +9,7 @@ import numpy as np
 import json
 import os.path
 from datetime import datetime as dater
+from scipy.interpolate import interp1d as interper
 from classUtils import func_timer
 import astropy.constants as const
 import radmc
@@ -59,7 +60,12 @@ class Radlite():
         #Read in input RADLite data
         with open(os.path.join(infilepath,
                                     "input_radlite.json")) as openfile:
-            self._attrdict = json.load(openfile)
+            inputdict = json.load(openfile)
+        #Store in secret dictionary (stripping out comments)
+        self._attrdict = {}
+        for key in inputdict:
+            self._attrdict[key] = inputdict[key]["value"]
+
         #Read in HITRAN data and then extract desired molecule
         with open(os.path.join(infilepath, "data_hitran.json")) as openfile:
             hitrandict = json.load(openfile)
@@ -83,49 +89,80 @@ class Radlite():
             print("--------------------------------------------------")
             print("")
             print("")
+            print("")
+            print("-"*10+"\n"+"Now preparing all RADLite input files...")
+            print("")
 
 
-        ##Below Section: CHECK inputs for user error; otherwise record them
-        #Make sure that desired image cube output is valid
-        validimage = ["spec", "circ"]
-        if self._attrdict["image"] not in validimage:
-            raise ValueError("Sorry, the image you have chosen ("
-                    +str(inpdict["image"])+") is not a valid image.  The "
-                    +"value of image must be one of the following: "
-                    +str(validimage)+".")
-        ##Below Section: CHOOSE RADLite exec. based on desired output
-        #Prepare executable for desired image cube output
-        if self._attrdict["image"] == "spec": #If desired output is spectrum
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Will prepare a spectrum-formatted image cube...")
-                print("")
-            self._attrdict["executable"] = (self._attrdict["exe_path"]
-                                            +"RADlite")
-        elif self._attrdict["image"] == "circ": #If desired output is circ.
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Will prepare a circular-formatted image cube...")
-                print("")
-
-        #Make sure that desired LTE format is valid
-        if not isinstance(self._attrdict["lte"], bool):
-            raise ValueError("Sorry, the lte you have chosen ("
-                    +str(self._attrdict["lte"])+") is not a valid lte.  "
-                    +"The value of lte must be a boolean (True or False).")
+        ##Below Section: CHECK inputs for user error
+        self._check_inputs()
 
 
         ###TEMP. BLOCK START
         ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
         modradmc = radmc.radmc_model("./")
-        self._attrdict["radius"] = modradmc.radius
-        self._attrdict["theta"] = modradmc.theta
-        self._attrdict["dusttemperature"] = (modradmc.dusttemperature[:,:,0]
-                                                .T)
+        self._set_attr(attrname="radius", attrval=modradmc.radius)
+        self._set_attr(attrname="theta", attrval=modradmc.theta)
+        self._set_attr(attrname="dusttemperature",
+                            attrval=modradmc.dusttemperature[:,:,0].T)
         #NOTE: !!! Assuming one species read in; hence the [:,:,0]
         ###TEMP. BLOCK END
 
 
+        ##Below Section: WRITE RADLite input files
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Writing RADLite input files...")
+            print("")
+        self._write_abundanceinp() #Abundance
+        self._write_gastemperatureinp() #Gas temperature
+        self._write_radliteinp() #Radlite input
+        self._write_turbulenceinp() #Turbulence
+        self._write_velocityinp() #Velocity
+
+
+        ##Below Section: PREPARE all molecular line and population data
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("-"*10+"\n"+"Assembling molecular line data...")
+            print("")
+        self._prep_mol_forall() #Assemble all molecular line data
+
+
+        ##Below Section: PREPARE molecular and population data per core
+        numcores = self.get_attr("numcores")
+        #Initialize private structure to hold level population info per core
+        self._set_attr(attrname="_levelpopdicts", attrval={})
+
+        #Prepare pool of cores
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("-"*10+"\n"+"Preparing molecular line data per core...")
+            print("")
+        plist = []
+        for ai in range(0, numcores):
+            #Call core routine
+            phere = mp.Process(target=self._prep_mol_forcore, args=(ai,))
+            plist.append(phere)
+            #Start process
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Starting mol. line prep. for "+str(ai)+"th core...")
+            phere.start()
+
+        #Close pool of cores
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done preparing molecular line data per core!")
+            print("")
+        for ai in range(0, numcores):
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Closing "+str(ai)+"th core...")
+            plist[ai].join()
+        print("")
+
 
         ##Below Section: EXIT
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("-"*10+"\n"+"RADLite preparation is complete!")
+            print("You can now run RADLite using the run_radlite() method.")
+            print("-"*20)
+            print("")
         return
     #
 
@@ -162,9 +199,9 @@ class Radlite():
             eval("self._read_"+attrname+"()") #Try reading it in
             return self._attrdict[attrname]
         except AttributeError: #If attribute not readable
-            raise NameError("'"+attrname+"' doesn't seem to be a valid "
+            raise AttributeError("'"+attrname+"' doesn't seem to be a valid "
                             +"Attribute.  Valid attributes are:\n"
-                            +str([key for key in self._attrdict])+".\n"
+                            +str(np.sort([key for key in self._attrdict]))+".\n"
                             +"Run the method run_radlite() (if you haven't "
                             +"yet) to automatically populate more "
                             +"attributes.\n"
@@ -175,7 +212,7 @@ class Radlite():
     #
 
 
-    def _get_attr_perprocess(self, attrname, pind):
+    def _get_core_attr(self, attrname, dictname, pind):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -187,7 +224,7 @@ class Radlite():
         Notes:
         """
         boundshere = self.get_attr("_splitinds")[pind]
-        return self.get_attr("_coredict")[attrname][
+        return self.get_attr(dictname)[attrname][
                                             boundshere[0]:boundshere[1]]
     #
 
@@ -209,6 +246,53 @@ class Radlite():
     #
 
 
+
+    ##CHECK METHODS
+    def _check_inputs(self):
+        ##Below Section: CHECK user inputs; make sure they are valid
+        #Make sure that desired image cube output is valid
+        validimage = ["spec", "circ"]
+        if self.get_attr("image") not in validimage:
+            raise ValueError("Sorry, the image you have chosen ("
+                    +str(inpdict["image"])+") is not a valid image.  The "
+                    +"value of image must be one of the following: "
+                    +str(validimage)+".")
+
+        #Truncate number of cores, if too many requested
+        maxcores = mp.cpu_count()
+        if self.get_attr("numcores") > (maxcores - 1):
+            newnumcores = max([(maxcores - 1), 1])
+            print("Whoa, looks like you requested too many cores (you "
+                    +"requested "+str(self.get_attr("numcores"))+")!")
+            print("Looks like you only have "+str(maxcores)+" available in "
+                    +"total, so we're reducing the number of cores down to "
+                    +str(newnumcores)+".")
+            self._set_attr(attrnum="numcores", attrval=newnumcores)
+
+        #Make sure that desired LTE format is valid
+        if not isinstance(self.get_attr("lte"), bool):
+            raise ValueError("Sorry, the lte you have chosen ("
+                    +str(self.get_attr("lte"))+") is not a valid lte.  "
+                    +"The value of lte must be a boolean (True or False).")
+
+
+        ##Below Section: CHOOSE RADLite exec. based on desired output
+        #Prepare executable for desired image cube output
+        if self.get_attr("image") == "spec": #If desired output is spectrum
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Will prepare a spectrum-formatted image cube...")
+                print("")
+            self._set_attr(attrname="executable",
+                            attrval=self.get_attr("exe_path")+"RADlite")
+        elif self.get_attr("image") == "circ": #If desired output is circ.
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Will prepare a circular-formatted image cube...")
+                print("")
+    #
+
+
+
+    ##RUN METHODS
     @func_timer
     def run_radlite(self):
         """
@@ -227,16 +311,6 @@ class Radlite():
                         "dustdens.inp", "dusttemp_final.dat",
                         "dustopac.inp", "dustopac_*.inp", "abundance.inp",
                         "temperature.inp", "velocity.inp"]
-
-
-        ##Below Section: WRITE RADLite input files
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("\nRunning run_radlite()!\n")
-            print("Writing radlite input files...\n")
-        self._write_abundanceinp() #Abundance
-        self._write_radliteinp()
-        self._write_turbulenceinp() #Turbulence
-        self._write_velocityinp() #Velocity
 
 
         ##Below Section: SET UP result directory
@@ -283,12 +357,10 @@ class Radlite():
                 print("")
             molfile = "molfile.dat"
             self._read_lambda()
-        #Read in partition function
-        self._read_psum()
 
 
         ##Below Section: RUN RADLITE on single/multiple cores in subfolders
-        numcores = self.get_attr("ncores")
+        numcores = self.get_attr("numcores")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Running RADLite on "+str(numcores)+" core(s)...")
         #Prepare pool of cores
@@ -348,8 +420,8 @@ class Radlite():
         Notes:
         """
         ##Below Section: GENERATE radlite molecular line input files
-        self._write_moldatadat(cpudir=cpudir, pind=pind) #Mol. datafiles
-        self._write_levelpopinp(cpudir) #Level population input file
+        self._write_coremoldatadat(cpudir=cpudir, pind=pind) #Mol. datafiles
+        self._write_corelevelpopinp(cpudir) #Level population input file
         print("Done for now")
         return
 
@@ -376,6 +448,148 @@ class Radlite():
 
         ##Below Section: DELETE subdir. + EXIT
         comm = subprocess.call(["rm", "-r", cpudir]) #Erase core dir.
+        return
+    #
+
+
+
+    ##PREPARATION METHODS
+    @func_timer
+    def _prep_mol_forcore(self, pind):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        #Below Section: EXTRACT lists of info for line transitions
+        dictname = "_hitrandict"
+        Euparr = self._get_core_attr("Eup", dictname=dictname, pind=pind)
+        Elowarr = self._get_core_attr("Elow", dictname=dictname, pind=pind)
+        guparr = self._get_core_attr("gup", dictname=dictname, pind=pind)
+        glowarr = self._get_core_attr("glow", dictname=dictname, pind=pind)
+        wavenumarr = self._get_core_attr("wavenum",
+                                                dictname=dictname, pind=pind)
+        vuparr = self._get_core_attr("vup", dictname=dictname, pind=pind)
+        vlowarr = self._get_core_attr("vlow", dictname=dictname, pind=pind)
+        quparr = self._get_core_attr("qup", dictname=dictname, pind=pind)
+        qlowarr = self._get_core_attr("qlow", dictname=dictname, pind=pind)
+        #
+        tlen = len(self.get_attr("theta"))//2
+        tempgasarr = self.get_attr("gastemperature")[:,0:tlen]
+        psum = self.get_attr("psum")
+        psumtemp = self.get_attr("psum_temp")
+
+
+        ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Writing moldata.dat...")
+            print("Counting up unique levels...")
+        #Combine energies, transitions, and degeneracies
+        Eallarr = np.concatenate((Elowarr, Euparr))
+        vallarr = np.concatenate((vlowarr, vuparr))
+        qallarr = np.concatenate((qlowarr, quparr))
+        gallarr = np.concatenate((glowarr, guparr))
+        #Sort combined lists by energies
+        sortinds = np.argsort(Eallarr)
+        Eallarr = Eallarr[sortinds]
+        vallarr = vallarr[sortinds]
+        qallarr = qallarr[sortinds]
+        gallarr = gallarr[sortinds]
+
+        #Extract indices for unique levels only
+        keepinds = [True]*len(Eallarr)
+        for ai in range(1, len(Eallarr)):
+            if ( #For non-unique E, v, and g value combinations
+                        ((np.abs(Eallarr[ai-1]-Eallarr[ai])
+                                /1.0/(Eallarr[ai]+0.1)) < 0.0001)
+                        and (vallarr[ai-1] == vallarr[ai])
+                        and (gallarr[ai-1] == gallarr[ai])):
+                keepinds[ai] = False
+        uniqinds = np.unique(np.where(keepinds)[0])
+
+        #Combine and apply indices
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Removing any duplicate levels...  "
+                    +"To start, there are "+str(len(Eallarr))+" levels.")
+        Euniqarr = Eallarr[uniqinds]
+        vuniqarr = vallarr[uniqinds]
+        quniqarr = qallarr[uniqinds]
+        guniqarr = gallarr[uniqinds]
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print(str(len(uniqinds))+" unique indices found, "
+                        +"meaning "+str(len(Euniqarr))+" unique levels.")
+
+
+        ##Below Section: CALCULATE partition sum and level populations
+        numlevels = len(Euniqarr)
+        numtrans = len(wavenumarr)
+        Euniqarr_K = Euniqarr*h0*c0/1.0/kB0 #[K]; Upper energy levels
+        #Interpolate partition sum
+        psumfunc = interper(psumtemp, psum)
+        psuminterped = psumfunc(tempgasarr)
+
+        #Calculate population levels
+        npoparr = np.array([(guniqarr[ai]
+                                    *np.exp(-1.0*Euniqarr_K[ai]/tempgasarr))
+                            for ai in range(0, numlevels)]) /1.0/psuminterped
+        #Trim any ridiculously-low values
+        npoparr[npoparr < 1E-99] = 0.0
+
+
+        ##Below Section: STORE unique level results for levelpop use later
+        lpopdict = {"npop":npoparr, "Euniq":Euniqarr, "guniq":guniqarr,
+                            "quniq":quniqarr, "vuniq":vuniqarr,
+                            "numlevels":numlevels, "numtrans":numtrans}
+        lpopalldicts = self.get_attr("_levelpopdicts") #Level pop. for all cores
+        lpopalldicts[pind] = lpopdict #Record current level pop. with others
+
+
+        ##Below Section: EXIT
+        return
+    #
+
+
+    @func_timer
+    def _prep_mol_forall(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL functions to read molecular line data
+        self._read_hitran()
+        self._read_psum()
+
+
+        ##Below Section: SPLIT data across given number of cores
+        numlines = self.get_attr("numlines") #Number of lines
+        numcores = self.get_attr("numcores") #Number of cores
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Dividing up the lines for "
+                        +str(numcores)+" cores...")
+        #Determine indices for splitting up the data
+        numpersplit = numlines // numcores #No remainder
+        splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
+                        for ai in range(0, numcores)] #Divide indices
+        splitinds[-1][1] = numlines #Tack leftovers onto last core
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Here are the chosen line intervals per core:")
+            print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
+                                    for ehere in enumerate(splitinds)])
+        self._set_attr(attrname="_splitinds", attrval=splitinds) #Split lines
+
+
+        ##Below Section: EXIT
         return
     #
 
@@ -469,28 +683,11 @@ class Radlite():
         #Keep only those lines that fall within criteria; delete all other lines
         for key in hitrandict:
             hitrandict[key] = hitrandict[key][keepinds]
-        self._set_attr(attrname="_coredict", attrval=hitrandict) #Final set
+        self._set_attr(attrname="_hitrandict", attrval=hitrandict) #Final set
         self._set_attr(attrname="numlines", attrval=numlines) #Final count
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("There are "+str(numlines)+" molecular lines "
                     +"that fall within specified criteria.")
-
-
-        ##Below Section: SPLIT data across given number of cores
-        numcores = self.get_attr("ncores") #Number of cores
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Dividing up the lines for "
-                        +str(numcores)+" cores...")
-        #Determine indices for splitting up the data
-        numpersplit = numlines // numcores #No remainder
-        splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
-                        for ai in range(0, numcores)] #Divide indices
-        splitinds[-1][1] = numlines #Tack leftovers onto last core
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Here are the chosen line intervals per core:")
-            print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
-                                    for ehere in enumerate(splitinds)])
-        self._set_attr(attrname="_splitinds", attrval=splitinds) #Split lines
 
 
         ##Below Section: EXIT
@@ -620,14 +817,13 @@ class Radlite():
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Setting a constant abundance...")
             abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
-            self._set_attr(attrname="abund_collpartner", attrval=0.0)
         else: #For abundance that changes below freeze-out temperature
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Setting abundance to min. below {0:f}K..."
                                 .format(temp_fr))
             abundarr = np.ones(shape=(tlen, rlen))*abundrange[1]
             abundarr[temparr < temp_fr] = abundrange[0]
-            self._set_attr(attrname="collpartner", attrval=0.0)
+        self._set_attr(attrname="collpartner", attrval=0.0)
 
 
         ##NOTE: IN MAKE_ABUNDANCE.PRO, THERE WAS PART HERE ABOUT MOL_DESTRUCT
@@ -636,6 +832,34 @@ class Radlite():
         self._set_attr(attrname="abundance", attrval=abundarr)
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done calculating abundance!\n")
+        return
+    #
+
+
+    ###NOTE: _CALC_GASTEMPERATURE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
+    @func_timer
+    def _calc_gastemperature(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: EXTRACT gas information
+        gastemparr = self.get_attr("dusttemperature").copy()
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Calculating gas temperature...")
+            print("Assuming gas temperature = dust temperature...")
+
+
+        ##Below Section: RECORD calculated gas temperature + EXIT
+        self._set_attr(attrname="gastemperature", attrval=gastemparr)
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done calculating gas temperature!\n")
         return
     #
 
@@ -758,13 +982,7 @@ class Radlite():
 
 
     @func_timer
-    def _write_gasdensityinp(self, cpudir):
-        pass
-    #
-
-
-    @func_timer
-    def _write_levelpopinp(self, cpudir):
+    def _write_core_levelpopinp(self, cpudir, pind):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -775,13 +993,175 @@ class Radlite():
         Outputs:
         Notes:
         """
-        ##Below Section: BUILD string containing turbulence information
-        #Extract levelpop information
-        lpopdict = self.get_attr("_levelpopdict") #Level population info
+        ##Below Section: EXTRACT level population and partition sum information
+        #Extract level population information
+        lpopdict = self.get_attr("_levelpopdicts")[pind] #Level population info
         numlevels = lpopdict["numlevels"] #Number of energy levels
-        Eup_K = lpopdict["Eall"]*h0*c0/1.0/k0 #[K]; Upper energy levels
+        npoparr = lpopdict["npop"] #Level populations
+        Euniqarr = lpopdict["Euniq"] #Unique energy levels
+        guniqarr = lpopdict["guniq"] #Unique degeneracy levels
+        tlen = len(self.get_attr("theta"))//2 #Number of theta points
+        rlen = len(self.get_attr("radius")) #Number of radius points
 
 
+        ##Below Section: BUILD string containing level population information
+        #FOR LEVELPOP_MOLDATA
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d}\t{1:d}\t{2:d}\n".format(rlen, tlen, numlevels)
+
+        #Convert energies and degeneracies into strings
+        Estr = "\n".join(Euniqarr)
+        gstr = "\n".join(guniqarr)
+        #Tack energies and degeneracies onto overall string
+        writestr += Estr
+        writestr += gstr
+
+        #Fill in string with level populations
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                npopstrhere = "\n".join(npoparr[:, ti, ri])
+                writestr += npopstrhere
+
+        #Write the results to file
+        outfilename = os.path.join(cpudir, "levelpop_moldata.dat")
+        with  open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+
+
+        #FOR LEVELPOP INFO - POSSIBLY COULD BE DELETED !!!
+        #Set up string
+        #writestr = "" #Initialize string
+        #writestr += "-3\nlevelpop_moldata.dat\n0"
+
+        #Write the results to file
+        #outfilename = os.path.join(cpudir, "levelpop.info")
+        #with  open(outfilename, 'w') as openfile:
+        #    openfile.write(writestr)
+
+
+        ##Below Section: EXIT function
+        return
+    #
+
+
+    @func_timer
+    def _write_core_moldatadat(self, cpudir, pind):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        #Below Section: EXTRACT lists of info for line transitions
+        #Extract molecular line information
+        molname = self.get_attr("molname")
+        molweight = self.get_attr("molweight")
+        Euparr = self._get_core_attr("Eup", pind=pind)
+        Elowarr = self._get_core_attr("Elow", pind=pind)
+        guparr = self._get_core_attr("gup", pind=pind)
+        glowarr = self._get_core_attr("glow", pind=pind)
+        wavenumarr = self._get_core_attr("wavenum", pind=pind)
+        Aarr = self._get_core_attr("A", pind=pind)
+        vuparr = self._get_core_attr("vup", pind=pind)
+        vlowarr = self._get_core_attr("vlow", pind=pind)
+        quparr = self._get_core_attr("qup", pind=pind)
+        qlowarr = self._get_core_attr("qlow", pind=pind)
+        #Sort the lists by E_low
+        sortinds = np.argsort(Elowarr)
+        Aarr = self._get_core_attr("A", pind=pind)
+        Euparr = Euparr[sortinds]
+        Elowarr = Elowarr[sortinds]
+        guparr = guparr[sortinds]
+        glowarr = glowarr[sortinds]
+        wavenumarr = wavenumarr[sortinds]
+        Aarr = Aarr[sortinds]
+        vuparr = vuparr[sortinds]
+        vlowarr = vlowarr[sortinds]
+        quparr = quparr[sortinds]
+        qlowarr = qlowarr[sortinds]
+
+        #Extract level population information
+        lpopdict = self.get_attr("_levelpopdicts")[pind]
+        Euniqarr = lpopdict["Euniq"]
+        guniqarr = lpopdict["guniq"]
+        numlevels = lpopdict["nume"]
+
+
+        ##Below Section: BUILD string to form the molecular data file
+        writestr = ""
+        writestr += "!MOLECULE\n{0:s}\n".format(molname)
+        writestr += "!MOLECULAR WEIGHT\n{0:4.1f}\n".format(molweight)
+        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(numlevels)
+        #Tack on unique levels, energies, and degeneracies
+        writestr += "!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q\n"
+        for ai in range(0, numlevels):
+            writestr += "{0:5d}{1:12.4f}{2:7.1f}{3:>15s}{4:>15s}\n".format(
+                            (ai+1), Euniqarr[ai], guniqarr[ai], vuniqarr[ai],
+                            quniqarr[ai])
+        #Tack on transitions
+        writestr += "!NUMBER OF RADIATIVE TRANSITIONS\n"
+        writestr += "{0:6d}\n".format(numtrans)
+        writestr += ("!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm^-1) + "
+                        +"E_u(cm^-1) + v_l + Q_p + Q_pp\n")
+        for ai in range(0, numtrans):
+            levu = np.where((np.abs(Euniqarr - Euparr[ai])
+                                /1.0/Euparr[ai]) < 1E-4)[0]
+            if Elowarr[ai] != 0: #If not down to 0-level
+                levl = np.where((np.abs(Euniqarr - Elowarr[ai])
+                                /1.0/Elowarr[ai]) < 1E-4)[0]
+            else:
+                levl = np.where(Euniqarr == 0)[0]
+            writestr += ("{0:5d}{1:5d}{2:5d}{3:12.3e}{4:16.7f}".format(
+                                (ai+1), levu[0]+1, levl[0]+1, Aarr[ai],
+                                wavenumarr[ai])
+                        +"{0:12.5f}{1:>15}{2:>15}{3:>15}{4:>15}\n".format(
+                                Euparr[ai], vuparr[ai], vlowarr[ai],
+                                quparr[ai], qlowarr[ai]))
+
+
+        ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(cpudir, "moldata.dat")
+        with open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+        return
+    #
+
+
+    @func_timer
+    def _write_gastemperatureinp(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing gas temperature information
+        #Extract temperature
+        gastemparr = self.get_attr("gastemperature") #Gas temperature data
+        rlen = len(self.get_attr("radius")) #Length of radius array
+        tlen = len(self.get_attr("theta")) #Half-length of theta array
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
+        #Fill in string with abundance information
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                writestr += "{0:.8e}\n".format(gastemparr[ti, ri])
+
+        ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(self.get_attr("inp_path"), "temperature.inp")
+        with open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+        return
     #
 
 
@@ -851,133 +1231,6 @@ class Radlite():
 
 
     @func_timer
-    def _write_moldatadat(self, cpudir, pind):
-        """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
-        Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
-        """
-        #Below Section: EXTRACT lists of info for line transitions
-        molname = self.get_attr("molname")
-        molweight = self.get_attr("molweight")
-        Euparr = self._get_attr_perprocess("Eup", pind=pind)
-        Elowarr = self._get_attr_perprocess("Elow", pind=pind)
-        guparr = self._get_attr_perprocess("gup", pind=pind)
-        glowarr = self._get_attr_perprocess("glow", pind=pind)
-        wavenumarr = self._get_attr_perprocess("wavenum", pind=pind)
-        Aarr = self._get_attr_perprocess("A", pind=pind)
-        vuparr = self._get_attr_perprocess("vup", pind=pind)
-        vlowarr = self._get_attr_perprocess("vlow", pind=pind)
-        quparr = self._get_attr_perprocess("qup", pind=pind)
-        qlowarr = self._get_attr_perprocess("qlow", pind=pind)
-        #Sort the lists by E_low
-        sortinds = np.argsort(Elowarr)
-        Euparr = Euparr[sortinds]
-        Elowarr = Elowarr[sortinds]
-        guparr = guparr[sortinds]
-        glowarr = glowarr[sortinds]
-        wavenumarr = wavenumarr[sortinds]
-        Aarr = Aarr[sortinds]
-        vuparr = vuparr[sortinds]
-        vlowarr = vlowarr[sortinds]
-        quparr = quparr[sortinds]
-        qlowarr = qlowarr[sortinds]
-
-
-        ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Writing moldata.dat...")
-            print("Counting up unique levels...")
-        #Combine energies, transitions, and degeneracies
-        Eallarr = np.concatenate((Elowarr, Euparr))
-        vallarr = np.concatenate((vlowarr, vuparr))
-        qallarr = np.concatenate((qlowarr, quparr))
-        gallarr = np.concatenate((glowarr, guparr))
-        #Sort combined lists by energies
-        sortinds = np.argsort(Eallarr)
-        Eallarr = Eallarr[sortinds]
-        vallarr = vallarr[sortinds]
-        qallarr = qallarr[sortinds]
-        gallarr = gallarr[sortinds]
-
-        #Extract indices for unique levels only
-        keepinds = [True]*len(Eallarr)
-        for ai in range(1, len(Eallarr)):
-            if ( #For non-unique E, v, and g value combinations
-                        ((np.abs(Eallarr[ai-1]-Eallarr[ai])
-                                /1.0/(Eallarr[ai]+0.1)) < 0.0001)
-                        and (vallarr[ai-1] == vallarr[ai])
-                        and (gallarr[ai-1] == gallarr[ai])):
-                keepinds[ai] = False
-        uniqinds = np.unique(np.where(keepinds)[0])
-
-        #Combine and apply indices
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Removing any duplicate levels...  "
-                    +"To start, there are "+str(len(Eallarr))+" levels.")
-        Eallarr = Eallarr[uniqinds]
-        vallarr = vallarr[uniqinds]
-        qallarr = qallarr[uniqinds]
-        gallarr = gallarr[uniqinds]
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print(str(len(uniqinds))+" unique indices found, "
-                        +"meaning "+str(len(Eallarr))+" unique levels.")
-
-
-        ##Below Section: STORE unique level results for levelpop use later
-        numlevels = len(Eallarr)
-        numtrans = len(wavenumarr)
-        levelpopdict = {"Eall":Eallarr, "gall":gallarr,
-                            "numlevels":numlevels, "numtrans":numtrans}
-        self._set_attr(attrname="_levelpopdict", attrval=levelpopdict)
-
-
-        ##Below Section: BUILD string to form the molecular data file
-        writestr = ""
-        writestr += "!MOLECULE\n{0:s}\n".format(molname)
-        writestr += "!MOLECULAR WEIGHT\n{0:4.1f}\n".format(molweight)
-        writestr += "!NUMBER OF ENERGY LEVELS\n{0:6d}\n".format(numlevels)
-        #Tack on unique levels, energies, and degeneracies
-        writestr += "!LEVEL + ENERGIES(cm^-1) + WEIGHT + v + Q\n"
-        for ai in range(0, numlevels):
-            writestr += "{0:5d}{1:12.4f}{2:7.1f}{3:>15s}{4:>15s}\n".format(
-                            (ai+1), Eallarr[ai], gallarr[ai], vallarr[ai],
-                            qallarr[ai])
-        #Tack on transitions
-        writestr += "!NUMBER OF RADIATIVE TRANSITIONS\n"
-        writestr += "{0:6d}\n".format(numtrans)
-        writestr += ("!TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(cm^-1) + "
-                        +"E_u(cm^-1) + v_l + Q_p + Q_pp\n")
-        for ai in range(0, numtrans):
-            levu = np.where((np.abs(Eallarr - Euparr[ai])
-                                /1.0/Euparr[ai]) < 1E-4)[0]
-            if Elowarr[ai] != 0: #If not down to 0-level
-                levl = np.where((np.abs(Eallarr - Elowarr[ai])
-                                /1.0/Elowarr[ai]) < 1E-4)[0]
-            else:
-                levl = np.where(Eallarr == 0)[0]
-            writestr += ("{0:5d}{1:5d}{2:5d}{3:12.3e}{4:16.7f}".format(
-                                (ai+1), levu[0]+1, levl[0]+1, Aarr[ai],
-                                wavenumarr[ai])
-                        +"{0:12.5f}{1:>15}{2:>15}{3:>15}{4:>15}\n".format(
-                                Euparr[ai], vuparr[ai], vlowarr[ai],
-                                quparr[ai], qlowarr[ai]))
-
-
-        ##Below Section: WRITE the results to file + EXIT function
-        outfilename = os.path.join(cpudir, "moldata.dat")
-        with open(outfilename, 'w') as openfile:
-            openfile.write(writestr)
-        return
-    #
-
-
-    @func_timer
     def _write_radliteinp(self):
         """
         DOCSTRING
@@ -993,7 +1246,7 @@ class Radlite():
         writestr = "" #Initialize string
         writestr += "104\t\tInput format version\n"
         writestr += "="*40+"\n"
-        writestr += str(self.get_attr("niter"))+"\t\tMaximum number\n"
+        writestr += str("-1")+"\t\tMaximum number; OBSOLETE NITER PARAMETER\n"
         writestr += "2\t\tIteration method\t\t(0=LI,1=ALI,2=ALI+Ng,-1=IS)\n"
         writestr += "0\t\tFlux conservation trick\t\t(0=disable)\n"
         writestr += "1.000e-06\t\tConvergence tolerance\n"
@@ -1111,13 +1364,15 @@ class Radlite():
             openfile.write(writestr)
         return
     #
-
-
-
-
-
-
 #
+
+
+
+
+
+
+
+
 
 
 

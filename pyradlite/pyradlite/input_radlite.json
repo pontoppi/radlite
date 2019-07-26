@@ -1,56 +1,156 @@
 {
-  "inp_path":   {
+  "inp_path":       {
                       "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/",
                       "comment":"Path to the folder containing all .inp files produced by RADMC (e.g., radius.inp)."
                     },
-  "hit_path":         {"value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
-                      "comment":
+  "exe_path":       {
+                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
+                      "comment":"Path to the folder containing the RADLite executable (i.e., RADlite.exe)."
+                    },
 
-  "psumfile":         "/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
-  "lambda_path":      "/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
-  "exe_path":         "/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
-  "run_dir":          "rundir",
-  "dodate":           false,
-  "verbose":          true,
 
-  "ncores":           1,
-  "niter":            200,
-  "image":           "spec",
+  "hit_path":       {
+                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
+                      "comment":"Path to the folder containing all HITRAN molecular data files (e.g., 01_hit12.par)."
+                    },
+  "psumfile":       {
+                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
+                      "comment":"Path+filename for the HITRAN partition sum file (i.e., ParSum.dat)."
+                    },
+  "lambda_path":    {
+                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
+                      "comment":"Path to the folder containing all LAMDA molecular data files (e.g., 12CO_lamda.dat)."
+                    },
 
-  "lte":              true,
-  "gas_decoup":       false,
-  "molname":          "12CO",
-  "ovp":              "all",
-  "collpartner":      0.0,
 
-  "gtd":              12800.0,
-  "freezefile":       "h2oabun_g2d_1280.sav",
-  "temp_fr":          false,
-  "coldfinger":       0.0,
-  "turb_broad":       0.9,
+  "run_dir":        {
+                      "value":"rundir",
+                      "comment":"Folder name to contain output files from any RADLite runs."
+                    },
+  "dodate":         {
+                      "value":false,
+                      "comment":"If true, will append the current date+time to the run_dir folder whenever RADLite is run."
+                    },
+  "verbose":        {
+                      "value":true,
+                      "comment":"If true, will print verbal descriptions of what is happening 'behind-the-scenes' whenever a method is run.  If false, will not print these descriptions out."
+                    },
 
-  "min_mu":           4.6,
-  "max_mu":           4.7,
-  "min_abun":         1.4E-8,
-  "max_abun":         1.4E-5,
-  "min_ins":          1E-90,
-  "max_Eup":          10000.0,
-  "max_vup":          1E90,
 
-  "incl":             15.0,
-  "vsampling":        1.5,
-  "ssampling":        0.1,
-  "passband":         70.0,
-  "vlsr":             0.0,
-  "dist":             1.0,
-  "imwidth":          10.0,
+  "numcores":       {
+                      "value":7,
+                      "comment":"Number of cores that will be used to run RADLite.  If this number is greater than <(available number of cores for your machine) - 1>, then this number will be decreased so that it is <(available number of cores for your machine) - 1>, or <1> if there is only one core available."
+                    },
+  "image":          {
+                      "value":"spec",
+                      "comment":"If 'spec', will calculate a position-velocity image cube.  If 'circ', will calculate a circular image."
+                    },
 
-  "alpha":            0.9,
-  "gamma":            1.4,
-  "mu":               2.3,
 
-  "cir_np":           150,
-  "b_per_r":          1,
-  "b_extra":          -60,
-  "noisrf":           true
+  "lte":            {
+                      "value":true,
+                      "comment":"If true, will perform level population calculations assuming local thermodynamic equilibrium (LTE).  If false, will not make this assumption."
+                    },
+  "molname":        {
+                      "value":"12CO",
+                      "comment":"Name of the desired molecule (case sensitive, with no spaces and no special characters).  Examples: '12CO', 'H218O', 'H2O'."
+                    },
+  "temp_fr":        {
+                      "value":false,
+                      "comment":"If false, assumes given molecule does not freeze out. If a number (e.g., 20), then sets the given number as the freeze-out temperature for the given molecule [in Kelvin]."
+                    },
+
+
+  "min_mu":         {
+                      "value":4.6,
+                      "comment":"Minimum wavelength [in microns] of molecular lines to include."
+                    },
+  "max_mu":         {
+                      "value":4.7,
+                      "comment":"Maximum wavelength [in microns] of molecular lines to include."
+                    },
+  "min_abun":       {
+                      "value":1.4E-8,
+                      "comment":"Minimum abundance (relative to H2, or 2H) of given molecular species to include."
+                    },
+  "max_abun":       {
+                      "value":1.4E-5,
+                      "comment":"Maximum abundance (relative to H2, or 2H) of given molecular species to include."
+                    },
+  "min_ins":        {
+                      "value":1E-90,
+                      "comment":"Minimum HITRAN intensity of given molecular species to include."
+                    },
+  "max_Eup":        {
+                      "value":1E4,
+                      "comment":"Maximum energy level [in cm^-1] of molecular lines to include."
+                    },
+  "max_vup":        {
+                      "value":1E90,
+                      "comment":"Maximum transition of molecular lines to include."
+                    },
+
+
+  "vsampling":      {
+                      "value":1.5,
+                      "comment":"Frequency sampling [in km/s]."
+                    },
+  "ssampling":      {
+                      "value":0.1,
+                      "comment":"Spatial sampling [in AU]."
+                    },
+  "passband":       {
+                      "value":70.0,
+                      "comment":"Range [in km/s] over which the molecular lines will be calculated (so, a given line would be calculated from -passband to +passband)."
+                    },
+  "vlsr":           {
+                      "value":0.0,
+                      "comment":"Velocity along the line-of-sight of the system."
+                    },
+
+
+  "incl":           {
+                      "value":15.0,
+                      "comment":"Angle [in degrees] between the observer and the polar axis."
+                    },
+  "dist":           {
+                      "value":1.0,
+                      "comment":"Distance [in pc] between the observer and the system."
+                    },
+  "imwidth":       {
+                      "value":10.0,
+                      "comment":"Image width [in AU]."
+                    },
+
+
+  "alpha":          {
+                      "value":0.9,
+                      "comment":"Value of the alpha-parameter for an alpha-viscosity disk."
+                    },
+  "gamma":          {
+                      "value":1.4,
+                      "comment":"Adiabatic constant for a diatomic gas."
+                    },
+  "mu":             {
+                      "value":2.3,
+                      "comment":"Mean molecular mass of the system."
+                    },
+
+
+  "cir_np":         {
+                      "value":150,
+                      "comment":"Number of azimuth points (150-300 are typical values)."
+                    },
+  "b_per_r":        {
+                      "value":1,
+                      "comment":"Number of radial rays per radial density grid cell (1-3 are good values)."
+                    },
+  "b_extra":        {
+                      "value":-60.0,
+                      "comment":"Number of extra points inside the rim impact parameter.  If the spectrum shows ripples, this value may have to be increased."
+                    },
+  "noisrf":         {
+                      "value":true,
+                      "comment":"true, but why???"
+                    }
 }
