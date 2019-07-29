@@ -103,9 +103,13 @@ class Radlite():
         modradmc = radmc.radmc_model("./")
         self._set_attr(attrname="radius", attrval=modradmc.radius)
         self._set_attr(attrname="theta", attrval=modradmc.theta)
+        self._set_attr(attrname="dustdensity",
+                            attrval=modradmc.read_dustdensity()[:,:,0].T)
         self._set_attr(attrname="dusttemperature",
                             attrval=modradmc.dusttemperature[:,:,0].T)
-        #NOTE: !!! Assuming one species read in; hence the [:,:,0]
+        self._set_attr(attrname="gastodust",
+                        attrval=float(modradmc.pars['gastodust'].split(";")[0]))
+        #NOTE: !!! Assuming one species read in; hence the [:,:,0] for duststuff
         ###TEMP. BLOCK END
 
 
@@ -114,6 +118,7 @@ class Radlite():
             print("Writing RADLite input files...")
             print("")
         self._write_abundanceinp() #Abundance
+        self._write_densityinp() #DGas density
         self._write_gastemperatureinp() #Gas temperature
         self._write_radliteinp() #Radlite input
         self._write_turbulenceinp() #Turbulence
@@ -130,31 +135,19 @@ class Radlite():
         ##Below Section: PREPARE molecular and population data per core
         numcores = self.get_attr("numcores")
         #Initialize private structure to hold level population info per core
-        self._set_attr(attrname="_levelpopdicts", attrval={})
+        #self._set_attr(attrname="_levelpopdicts", attrval={})
 
         #Prepare pool of cores
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("-"*10+"\n"+"Preparing molecular line data per core...")
             print("")
-        plist = []
-        for ai in range(0, numcores):
-            #Call core routine
-            phere = mp.Process(target=self._prep_mol_forcore, args=(ai,))
-            plist.append(phere)
-            #Start process
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Starting mol. line prep. for "+str(ai)+"th core...")
-            phere.start()
-
-        #Close pool of cores
+        with mp.Pool(numcores) as ppool:
+            lpopdicts = ppool.map(self._prep_mol_forcore,
+                                    range(0, numcores))
+        self._set_attr(attrname="_levelpopdicts", attrval=lpopdicts)
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done preparing molecular line data per core!")
             print("")
-        for ai in range(0, numcores):
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Closing "+str(ai)+"th core...")
-            plist[ai].join()
-        print("")
 
 
         ##Below Section: EXIT
@@ -419,11 +412,17 @@ class Radlite():
         Outputs:
         Notes:
         """
+        ##Below Section: COPY OVER radlite physics/structure input files
+        copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "linespectrum.inp", "radius.inp", "radlite.inp", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
+        for filehere in copyfiles:
+            comm = subprocess.call(["cp",
+                            os.path.join(self.get_attr("inp_path"), filehere),
+                            cpudir+"/"]) #Input file needed for RADLite
+
+
         ##Below Section: GENERATE radlite molecular line input files
-        self._write_coremoldatadat(cpudir=cpudir, pind=pind) #Mol. datafiles
-        self._write_corelevelpopinp(cpudir) #Level population input file
-        print("Done for now")
-        return
+        self._write_core_moldatadat(cpudir=cpudir, pind=pind) #Mol. data file
+        self._write_core_levelpopinp(cpudir=cpudir, pind=pind) #Level pop. file
 
 
         ##Below Section: RUN RADLITE
@@ -432,7 +431,8 @@ class Radlite():
                                 cwd=cpudir+"/", #Call within core subdir.
                                 stdout=openlogfile) #Send output to log file
 
-
+        print("Done for now")
+        return
         ##Below Section: EXTRACT output files
         comm = subprocess.call(["mv",
                             cpudir+"/moldata_"+str(pind)+".dat",
@@ -454,7 +454,6 @@ class Radlite():
 
 
     ##PREPARATION METHODS
-    @func_timer
     def _prep_mol_forcore(self, pind):
         """
         DOCSTRING
@@ -480,7 +479,7 @@ class Radlite():
         qlowarr = self._get_core_attr("qlow", dictname=dictname, pind=pind)
         #
         tlen = len(self.get_attr("theta"))//2
-        tempgasarr = self.get_attr("gastemperature")[:,0:tlen]
+        tempgasarr = self.get_attr("gastemperature")[0:tlen,:]
         psum = self.get_attr("psum")
         psumtemp = self.get_attr("psum_temp")
 
@@ -541,16 +540,11 @@ class Radlite():
         npoparr[npoparr < 1E-99] = 0.0
 
 
-        ##Below Section: STORE unique level results for levelpop use later
+        ##Below Section: STORE + RETURN unique level results + EXIT
         lpopdict = {"npop":npoparr, "Euniq":Euniqarr, "guniq":guniqarr,
                             "quniq":quniqarr, "vuniq":vuniqarr,
                             "numlevels":numlevels, "numtrans":numtrans}
-        lpopalldicts = self.get_attr("_levelpopdicts") #Level pop. for all cores
-        lpopalldicts[pind] = lpopdict #Record current level pop. with others
-
-
-        ##Below Section: EXIT
-        return
+        return lpopdict
     #
 
 
@@ -578,13 +572,16 @@ class Radlite():
             print("Dividing up the lines for "
                         +str(numcores)+" cores...")
         #Determine indices for splitting up the data
-        numpersplit = numlines // numcores #No remainder
-        splitinds = [[(ai*numpersplit),((ai+1)*numpersplit)]
-                        for ai in range(0, numcores)] #Divide indices
-        splitinds[-1][1] = numlines #Tack leftovers onto last core
+        tempsplits = np.array([numlines // numcores]*numcores) #Split per core
+        remainder = numlines % numcores #The remainder
+        tempsplits[0:remainder] += 1 #Spread remainder over cores
+        tempcumusplits = np.concatenate((np.array([0]),
+                                np.cumsum(tempsplits))) #Cumulate over splits
+        splitinds = [[tempcumusplits[ai], tempcumusplits[ai+1]]
+                                for ai in range(0, numcores)] #Split per core
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Here are the chosen line intervals per core:")
-            print([("core "+str(ehere[0])+": Interval "+str(ehere[1]))
+            print([("Core "+str(ehere[0])+": Interval "+str(ehere[1]))
                                     for ehere in enumerate(splitinds)])
         self._set_attr(attrname="_splitinds", attrval=splitinds) #Split lines
 
@@ -836,6 +833,34 @@ class Radlite():
     #
 
 
+    ###NOTE: _CALC_GASDENSITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
+    @func_timer
+    def _calc_gasdensity(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALCULATE gas density based on dust density
+        gastodustratio = self.get_attr("gastodust") #Gas to dust ratio
+        gasdensarr = self.get_attr("dustdensity").copy()*gastodustratio
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Calculating gas density from dust density...")
+
+
+        ##Below Section: RECORD calculated gas temperature + EXIT
+        self._set_attr(attrname="gasdensity", attrval=gasdensarr)
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done calculating gas density!\n")
+        return
+    #
+
+
     ###NOTE: _CALC_GASTEMPERATURE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     @func_timer
     def _calc_gastemperature(self):
@@ -1008,20 +1033,20 @@ class Radlite():
         #FOR LEVELPOP_MOLDATA
         #Set up string
         writestr = "" #Initialize string
-        writestr += "{0:d}\t{1:d}\t{2:d}\n".format(rlen, tlen, numlevels)
+        writestr += "{0:d}\t{1:d}\t{2:d}\t1\n".format(rlen, tlen, numlevels)
 
         #Convert energies and degeneracies into strings
-        Estr = "\n".join(Euniqarr)
-        gstr = "\n".join(guniqarr)
+        Estr = "\t".join((Euniqarr*c0*h0).astype(str))
+        gstr = "\t".join(guniqarr.astype(str))
         #Tack energies and degeneracies onto overall string
-        writestr += Estr
-        writestr += gstr
+        writestr += Estr + "\n"
+        writestr += gstr + "\n"
 
         #Fill in string with level populations
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                npopstrhere = "\n".join(npoparr[:, ti, ri])
-                writestr += npopstrhere
+                npopstrhere = "\n".join(npoparr[:, ti, ri].astype(str))
+                writestr += npopstrhere + "\n"
 
         #Write the results to file
         outfilename = os.path.join(cpudir, "levelpop_moldata.dat")
@@ -1061,19 +1086,20 @@ class Radlite():
         #Extract molecular line information
         molname = self.get_attr("molname")
         molweight = self.get_attr("molweight")
-        Euparr = self._get_core_attr("Eup", pind=pind)
-        Elowarr = self._get_core_attr("Elow", pind=pind)
-        guparr = self._get_core_attr("gup", pind=pind)
-        glowarr = self._get_core_attr("glow", pind=pind)
-        wavenumarr = self._get_core_attr("wavenum", pind=pind)
-        Aarr = self._get_core_attr("A", pind=pind)
-        vuparr = self._get_core_attr("vup", pind=pind)
-        vlowarr = self._get_core_attr("vlow", pind=pind)
-        quparr = self._get_core_attr("qup", pind=pind)
-        qlowarr = self._get_core_attr("qlow", pind=pind)
+        dictname = "_hitrandict"
+        Euparr = self._get_core_attr("Eup", pind=pind, dictname=dictname)
+        Elowarr = self._get_core_attr("Elow", pind=pind, dictname=dictname)
+        guparr = self._get_core_attr("gup", pind=pind, dictname=dictname)
+        glowarr = self._get_core_attr("glow", pind=pind, dictname=dictname)
+        wavenumarr = self._get_core_attr("wavenum", pind=pind,
+                                                dictname=dictname)
+        Aarr = self._get_core_attr("A", pind=pind, dictname=dictname)
+        vuparr = self._get_core_attr("vup", pind=pind, dictname=dictname)
+        vlowarr = self._get_core_attr("vlow", pind=pind, dictname=dictname)
+        quparr = self._get_core_attr("qup", pind=pind, dictname=dictname)
+        qlowarr = self._get_core_attr("qlow", pind=pind, dictname=dictname)
         #Sort the lists by E_low
         sortinds = np.argsort(Elowarr)
-        Aarr = self._get_core_attr("A", pind=pind)
         Euparr = Euparr[sortinds]
         Elowarr = Elowarr[sortinds]
         guparr = guparr[sortinds]
@@ -1089,7 +1115,10 @@ class Radlite():
         lpopdict = self.get_attr("_levelpopdicts")[pind]
         Euniqarr = lpopdict["Euniq"]
         guniqarr = lpopdict["guniq"]
-        numlevels = lpopdict["nume"]
+        vuniqarr = lpopdict["vuniq"]
+        quniqarr = lpopdict["quniq"]
+        numlevels = lpopdict["numlevels"]
+        numtrans = lpopdict["numtrans"]
 
 
         ##Below Section: BUILD string to form the molecular data file
@@ -1133,6 +1162,39 @@ class Radlite():
 
 
     @func_timer
+    def _write_densityinp(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string containing gas density information
+        #Extract gas density
+        gasdensarr = self.get_attr("gasdensity") #Gas density data
+        rlen = len(self.get_attr("radius")) #Length of radius array
+        tlen = len(self.get_attr("theta"))//2 #Half-length of theta array
+        #Set up string
+        writestr = "" #Initialize string
+        writestr += "{0:d}\t{1:d}\t1\n".format(rlen, tlen)
+        #Fill in string with abundance information
+        for ri in range(0, rlen):
+            for ti in range(0, tlen):
+                writestr += "{0:.8e}\n".format(gasdensarr[ti, ri])
+
+        ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(self.get_attr("inp_path"), "density.inp")
+        with open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+        return
+    #
+
+
+    @func_timer
     def _write_gastemperatureinp(self):
         """
         DOCSTRING
@@ -1148,14 +1210,14 @@ class Radlite():
         #Extract temperature
         gastemparr = self.get_attr("gastemperature") #Gas temperature data
         rlen = len(self.get_attr("radius")) #Length of radius array
-        tlen = len(self.get_attr("theta")) #Half-length of theta array
+        tlen = len(self.get_attr("theta"))//2 #Half-length of theta array
         #Set up string
         writestr = "" #Initialize string
-        writestr += "{0:d}\t{1:d}\n".format(rlen, tlen)
+        writestr += "{0:d}\t{1:d}\t1\n".format(rlen, tlen)
         #Fill in string with abundance information
         for ri in range(0, rlen):
             for ti in range(0, tlen):
-                writestr += "{0:.8e}\n".format(gastemparr[ti, ri])
+                writestr += "{0:.8f}\n".format(gastemparr[ti, ri])
 
         ##Below Section: WRITE the results to file + EXIT function
         outfilename = os.path.join(self.get_attr("inp_path"), "temperature.inp")
@@ -1166,7 +1228,7 @@ class Radlite():
 
 
     @func_timer
-    def _write_linespectruminp(self, cpudir):
+    def _write_linespectruminp(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.

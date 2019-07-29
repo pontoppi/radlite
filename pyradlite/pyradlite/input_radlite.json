@@ -146,7 +146,7 @@
                       "comment":"Number of radial rays per radial density grid cell (1-3 are good values)."
                     },
   "b_extra":        {
-                      "value":-60.0,
+                      "value":-60,
                       "comment":"Number of extra points inside the rim impact parameter.  If the spectrum shows ripples, this value may have to be increased."
                     },
   "noisrf":         {
