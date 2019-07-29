@@ -38,12 +38,12 @@
 
 
   "numcores":       {
-                      "value":7,
+                      "value":4,
                       "comment":"Number of cores that will be used to run RADLite.  If this number is greater than <(available number of cores for your machine) - 1>, then this number will be decreased so that it is <(available number of cores for your machine) - 1>, or <1> if there is only one core available."
                     },
   "image":          {
-                      "value":"spec",
-                      "comment":"If 'spec', will calculate a position-velocity image cube.  If 'circ', will calculate a circular image."
+                      "value":0,
+                      "comment":"If 0, will calculate a position-velocity image cube.  If 2, will calculate a circular image."
                     },
 
 

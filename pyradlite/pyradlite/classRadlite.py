@@ -244,7 +244,7 @@ class Radlite():
     def _check_inputs(self):
         ##Below Section: CHECK user inputs; make sure they are valid
         #Make sure that desired image cube output is valid
-        validimage = ["spec", "circ"]
+        validimage = [0, 2]
         if self.get_attr("image") not in validimage:
             raise ValueError("Sorry, the image you have chosen ("
                     +str(inpdict["image"])+") is not a valid image.  The "
@@ -271,13 +271,13 @@ class Radlite():
 
         ##Below Section: CHOOSE RADLite exec. based on desired output
         #Prepare executable for desired image cube output
-        if self.get_attr("image") == "spec": #If desired output is spectrum
+        if self.get_attr("image") == 0: #If desired output is spectrum
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Will prepare a spectrum-formatted image cube...")
                 print("")
             self._set_attr(attrname="executable",
                             attrval=self.get_attr("exe_path")+"RADlite")
-        elif self.get_attr("image") == "circ": #If desired output is circ.
+        elif self.get_attr("image") == 2: #If desired output is circ.
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Will prepare a circular-formatted image cube...")
                 print("")
@@ -298,7 +298,7 @@ class Radlite():
         Notes:
         """
         ##Below Section: SET UP lists of initial and input files
-        initfilelist = ["problem_params.pro", "line_params.ini"]
+        #initfilelist = ["problem_params.pro", "line_params.ini"]
         cpfilelist = ["radius.inp",
                         "theta.inp", "frequency.inp", "density.inp",
                         "dustdens.inp", "dusttemp_final.dat",
@@ -327,14 +327,14 @@ class Radlite():
                     +"following folder in the current directory: "+rundir)
 
         #Copy initial files into final directory
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Copying over initial data files into "+rundir+"...")
-        for iname in initfilelist:
-            comm = subprocess.call(["cp",
-                            os.path.join(self.get_attr("inp_path"), iname),
-                            rundir+"/"])
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Done copying over initial data files!\n")
+        #if self.get_attr("verbose"): #Verbal output, if so desired
+        #    print("Copying over initial data files into "+rundir+"...")
+        #for iname in initfilelist:
+        #    comm = subprocess.call(["cp",
+        #                    os.path.join(self.get_attr("inp_path"), iname),
+        #                    rundir+"/"])
+        #if self.get_attr("verbose"): #Verbal output, if so desired
+        #    print("Done copying over initial data files!\n")
 
 
         ##Below Section: PROCESS data for LTE/NLTE and mol. line treatment
@@ -356,30 +356,45 @@ class Radlite():
         numcores = self.get_attr("numcores")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Running RADLite on "+str(numcores)+" core(s)...")
+
+        #Prepare working directory for cores
+        workingdir = os.path.join('./', rundir, "workingdir")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Generating working directory for cores called: "+workingdir)
+        comm = subprocess.call(["mkdir", workingdir]) #Create subdirectory
+        if (comm != 0): #If directory already exists, replace it
+            comm = subprocess.call(["rm", "-r", workingdir]) #Erase prev. dir.
+            comm = subprocess.call(["mkdir", workingdir]) #New empty dir.
+
+        #Prepare final directory for core output
+        outputdir = os.path.join('./', rundir, "outputdir")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("All core outputs will be stored in: "+outputdir)
+        comm = subprocess.call(["mkdir", outputdir]) #Create subdirectory
+        if (comm != 0): #If directory already exists, replace it
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Replacing previous "+outputdir+"...")
+            comm = subprocess.call(["rm", "-r", outputdir]) #Erase prev. dir.
+            comm = subprocess.call(["mkdir", outputdir]) #New empty dir.
+
         #Prepare pool of cores
         plist = []
         for ai in range(0, numcores):
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Prepping "+str(ai)+"th core...")
 
-            #Make a directory for this run
-            cpudir = "./workingdir_cpu"+str(ai)+"/" #core-specific dir.
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Generating directory: "+cpudir)
-            try:
-                comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
-            except (comm != 0): #If directory already exists, replace it
-                comm = subprocess.call(["rm", "-r", cpudir]) #Erase prev. dir.
-                comm = subprocess.call(["mkdir", cpudir]) #New empty dir.
+            #Make a core-specific directory for this run
+            cpudir = os.path.join(workingdir, ("workingdir_cpu"+str(ai)+"/"))
+            comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
             #Copy initial files into this new core subdirectory
-            for iname in initfilelist:
-                comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
+            #for iname in initfilelist:
+            #    comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
 
             #Call core routine
             phere = mp.Process(target=self._run_core,
-                                    args=(ai, cpudir, rundir,))
+                                    args=(ai, cpudir, outputdir,))
             plist.append(phere)
-            #Start process
+            #Start this core
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Starting "+str(ai)+"th core in "+cpudir+"...")
             phere.start()
@@ -392,6 +407,11 @@ class Radlite():
                 print("Closing "+str(ai)+"th core...")
             plist[ai].join()
 
+        #Delete working directory for cores
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Deleting working directory used for cores...")
+        comm = subprocess.call(["rm", "-r", workingdir]) #Erase working dir.
+
 
         ##Below Section: FINISH and EXIT
         if self.get_attr("verbose"): #Verbal output, if so desired
@@ -401,7 +421,7 @@ class Radlite():
 
 
     @func_timer
-    def _run_core(self, pind, cpudir, rundir):
+    def _run_core(self, pind, cpudir, outputdir):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -412,8 +432,10 @@ class Radlite():
         Outputs:
         Notes:
         """
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print(str(pind)+"th core has started working...")
         ##Below Section: COPY OVER radlite physics/structure input files
-        copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "linespectrum.inp", "radius.inp", "radlite.inp", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
+        copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "radius.inp", "radlite.inp", "starspectrum.inp", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
         for filehere in copyfiles:
             comm = subprocess.call(["cp",
                             os.path.join(self.get_attr("inp_path"), filehere),
@@ -423,31 +445,40 @@ class Radlite():
         ##Below Section: GENERATE radlite molecular line input files
         self._write_core_moldatadat(cpudir=cpudir, pind=pind) #Mol. data file
         self._write_core_levelpopinp(cpudir=cpudir, pind=pind) #Level pop. file
+        self._write_core_linespectruminp(cpudir=cpudir, pind=pind) #Spec. file
 
 
         ##Below Section: RUN RADLITE
-        with open(cpudir+"RADLITE_core"+str(pind)+".log", 'w') as openlogfile:
+        with open(cpudir+"RADLITE_core.log", 'w') as openlogfile:
             comm = subprocess.call([self.get_attr("executable")], #Call RADLite
                                 cwd=cpudir+"/", #Call within core subdir.
                                 stdout=openlogfile) #Send output to log file
 
-        print("Done for now")
-        return
+
         ##Below Section: EXTRACT output files
+        #Move log file produced by this core
         comm = subprocess.call(["mv",
-                            cpudir+"/moldata_"+str(pind)+".dat",
-                            rundir+"/"]) #Molecular data used by this core
+                            cpudir+"/RADLITE_core.log",
+                            outputdir+"/RADLITE_core_"+str(pind)+".log"])
+        #Move molecular data used by this core
         comm = subprocess.call(["mv",
-                            cpudir+"/linespectrum_moldata_"+str(pind)+".dat",
-                            rundir+"/"]) #Line spectrum output
+                            cpudir+"/moldata.dat",
+                            outputdir+"/moldata_"+str(pind)+".dat"])
+        #Move line spectrum output produced by this core
+        comm = subprocess.call(["mv",
+                            cpudir+"/linespectrum_moldata.dat",
+                            outputdir+"/linespectrum_moldata_"+str(pind)+".dat"])
         if self.get_attr("image") == 2:
+            #Move circular 3D image cube output produced by this core
             comm = subprocess.call(["mv",
-                            cpudir+"/lineposvelcirc_moldata_"+str(pind)+".dat",
-                            rundir+"/"]) #Circular 3D image cube output
+                            cpudir+"/lineposvelcirc_moldata.dat",
+                            outputdir+"/lineposvelcirc_moldata_"+str(pind)+".dat"])
 
 
-        ##Below Section: DELETE subdir. + EXIT
-        comm = subprocess.call(["rm", "-r", cpudir]) #Erase core dir.
+        ##Below Section: EXIT
+        #comm = subprocess.call(["rm", "-r", cpudir]) #Erase core dir.
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print(str(pind)+"th core has finished working!")
         return
     #
 
@@ -694,7 +725,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _read_psum(self):
         """
         DOCSTRING
@@ -747,7 +778,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _read_starinfo(self):
         """
         DOCSTRING
@@ -786,7 +817,7 @@ class Radlite():
 
     ##CALCULATION METHODS
     ###NOTE: MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    @func_timer
+    #@func_timer
     def _calc_abundance(self):
         """
         DOCSTRING
@@ -834,7 +865,7 @@ class Radlite():
 
 
     ###NOTE: _CALC_GASDENSITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    @func_timer
+    #@func_timer
     def _calc_gasdensity(self):
         """
         DOCSTRING
@@ -862,7 +893,7 @@ class Radlite():
 
 
     ###NOTE: _CALC_GASTEMPERATURE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    @func_timer
+    #@func_timer
     def _calc_gastemperature(self):
         """
         DOCSTRING
@@ -890,7 +921,7 @@ class Radlite():
 
 
     ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    @func_timer
+    #@func_timer
     def _calc_turbulence(self):
         """
         DOCSTRING
@@ -930,7 +961,7 @@ class Radlite():
 
 
     ###NOTE: _CALC_VELOCITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING _CALC_VELOCITY METHODS
-    @func_timer
+    #@func_timer
     def _calc_velocity(self):
         """
         DOCSTRING
@@ -971,7 +1002,7 @@ class Radlite():
 
 
     ##WRITE METHODS
-    @func_timer
+    #@func_timer
     def _write_abundanceinp(self):
         """
         DOCSTRING
@@ -1053,16 +1084,15 @@ class Radlite():
         with  open(outfilename, 'w') as openfile:
             openfile.write(writestr)
 
-
-        #FOR LEVELPOP INFO - POSSIBLY COULD BE DELETED !!!
+        #FOR LEVELPOP INFO
         #Set up string
-        #writestr = "" #Initialize string
-        #writestr += "-3\nlevelpop_moldata.dat\n0"
+        writestr = "" #Initialize string
+        writestr += "-3\nlevelpop_moldata.dat\n0"
 
         #Write the results to file
-        #outfilename = os.path.join(cpudir, "levelpop.info")
-        #with  open(outfilename, 'w') as openfile:
-        #    openfile.write(writestr)
+        outfilename = os.path.join(cpudir, "levelpop.info")
+        with  open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
 
 
         ##Below Section: EXIT function
@@ -1070,7 +1100,73 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
+    def _write_core_linespectruminp(self, pind, cpudir):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: BUILD string to form the spectrum input file
+        writestr = ""
+        writestr += "{0:<8d}Format number\n".format(1)
+        writestr += "{0:<8d}Spectrum output style\n".format(1)
+        writestr += ("-"*63)+"\n"
+        writestr += "{0:<8d}Format number\n".format(2)
+        writestr += ("-"*63)+"\n"
+        writestr += "{0:<8.2f}{1:<50s}\n".format(
+                    self.get_attr("passband"), "Width of line passband [km/s]")
+        writestr += "{0:<8.2f}{1:<50s}\n".format(
+                    self.get_attr("vsampling"), "Velocity sampling [km/s]")
+        writestr += ("-"*65)+"\n"
+        writestr += "{0:<8d}Format number\n".format(2)
+        writestr += "moldata.dat\tMolecular data file\n"
+        writestr += "{0:<8d}{1:<50s}\n".format(self.get_attr("image"),
+                                "Command (0=spectrum, 2=image[3-D P/V cube])")
+        writestr += "{0:<8.1f}{1:<50s}\n".format(
+                    self.get_attr("dist"), "Distance in [pc]")
+        writestr += "{0:<8.1f}{1:<50s}\n".format(
+                    self.get_attr("incl"), "Inclination [deg]")
+        writestr += "{0:<8.1f}{1:<60s}\n".format(
+                    self.get_attr("vlsr"), "Radial velocity, rel. to local "
+                                        +"standard of rest [km/s]")
+        writestr += "{0:<8d}{1:<50s}\n".format(
+                    len(self._get_core_attr("wavenum",
+                                        pind=pind, dictname="_hitrandict")),
+                    "Nr of lines to make spectrum/image")
+        writestr += "{0:<8d}Starting line to make spectrum/image\n".format(1)
+        #
+        if self.get_attr("image") == 2: #For 3D image cube
+            npix = int(np.ceil(self.get_attr("imwidth")
+                                    /1.0/self.get_attr("ssampling")))
+            imwidth_cm = self.get_attr("imwidth")/1.0/au0
+            writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of x pixels")
+            writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of y pixels")
+            writestr += "{0:<8d}image size in cm?\n".format(1)
+            writestr += "{0:<8.1e}{1:<50s}\n".format(
+                            imwidth_cm, "size x direction")
+            writestr += "{0:<8.1e}{1:<50s}\n".format(
+                            imwidth_cm, "size y direction")
+            writestr += "{0:<8d}Phi offset?\n".format(0)
+            writestr += "{0:<8d}x offset?\n".format(0)
+            writestr += "{0:<8d}y offset?\n".format(0)
+            writestr += "{0:<8d}add star?\n".format(1)
+
+
+        ##Below Section: WRITE the results to file + EXIT function
+        outfilename = os.path.join(cpudir, "linespectrum.inp")
+        with  open(outfilename, 'w') as openfile:
+            openfile.write(writestr)
+        return
+    #
+
+
+    #@func_timer
     def _write_core_moldatadat(self, cpudir, pind):
         """
         DOCSTRING
@@ -1161,7 +1257,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _write_densityinp(self):
         """
         DOCSTRING
@@ -1194,7 +1290,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _write_gastemperatureinp(self):
         """
         DOCSTRING
@@ -1227,72 +1323,7 @@ class Radlite():
     #
 
 
-    @func_timer
-    def _write_linespectruminp(self):
-        """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
-        Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
-        """
-        ##Below Section: BUILD string to form the spectrum input file
-        writestr = ""
-        writestr += "{0:<8d}Format number\n".format(1)
-        writestr += "{0:<8d}Spectrum output style\n".format(1)
-        writestr += ("-"*63)+"\n"
-        writestr += "{0:<8d}Format number\n".format(2)
-        writestr += ("-"*63)+"\n"
-        writestr += "{0:<8.2f}{1:<50s}\n".format(
-                    self.get_attr("passband"), "Width of line passband [km/s]")
-        writestr += "{0:<8.2f}{1:<50s}\n".format(
-                    self.get_attr("vsampling"), "Velocity sampling [km/s]")
-        writestr += ("-"*65)+"\n"
-        writestr += "{0:<8d}Format number\n".format(2)
-        writestr += "{0:<8d}{1:<50s}\n".format(
-                    self.get_attr("image"),
-                    "Command (0=spectrum, 2=image[3-D P/V cube])")
-        writestr += "{0:<8.1f}{1:<50s}\n".format(
-                    self.get_attr("dist"), "Distance in [pc]")
-        writestr += "{0:<8.1f}{1:<50s}\n".format(
-                    self.get_attr("incl"), "Inclination [deg]")
-        writestr += "{0:<8.1f}{1:<60s}\n".format(
-                    self.get_attr("vlsr"), "Radial velocity, rel. to local "
-                                        +"standard of rest [km/s]")
-        writestr += "{0:<8d}{1:<50s}\n".format(
-                    self.get_attr("numlines"),
-                    "Nr of lines to make spectrum/image")
-        writestr += "{0:<8d}Starting line to make spectrum/image\n".format(1)
-        #
-        if self.get_attr("image") == 2: #For 3D image cube
-            npix = int(np.ceil(self.get_attr("imwidth")
-                                    /1.0/self.get_attr("ssampling")))
-            imwidth_cm = self.get_attr("imwidth")/1.0/au0
-            writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of x pixels")
-            writestr += "{0:<8d}{1:<50s}\n".format(npix, "Nr of y pixels")
-            writestr += "{0:<8d}image size in cm?\n".format(1)
-            writestr += "{0:<8.1e}{1:<50s}\n".format(
-                            imwidth_cm, "size x direction")
-            writestr += "{0:<8.1e}{1:<50s}\n".format(
-                            imwidth_cm, "size y direction")
-            writestr += "{0:<8d}Phi offset?\n".format(0)
-            writestr += "{0:<8d}x offset?\n".format(0)
-            writestr += "{0:<8d}y offset?\n".format(0)
-            writestr += "{0:<8d}add star?\n".format(1)
-
-
-        ##Below Section: WRITE the results to file + EXIT function
-        outfilename = os.path.join(cpudir, "linespectrum.inp")
-        with open(outfilename, 'w') as openfile:
-            openfile.write(writestr)
-        return
-    #
-
-
-    @func_timer
+    #@func_timer
     def _write_radliteinp(self):
         """
         DOCSTRING
@@ -1359,7 +1390,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _write_turbulenceinp(self):
         """
         DOCSTRING
@@ -1393,7 +1424,7 @@ class Radlite():
     #
 
 
-    @func_timer
+    #@func_timer
     def _write_velocityinp(self):
         """
         DOCSTRING
