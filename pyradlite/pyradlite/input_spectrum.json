@@ -1,0 +1,16 @@
+{
+  "dist":       {
+                      "value":150.0,
+                      "comment":"Distance [in pc] between observer and source."
+                    },
+  "obsres":       {
+                      "value":3.0,
+                      "comment":"Resolution of observation???."
+                    },
+  "ssampling":       {
+                      "value":3.0,
+                      "comment":"Set to 'none' if you want to use the sampling rate previously used by RADLiteModel."
+                    },
+verbose, run_paths
+
+  }

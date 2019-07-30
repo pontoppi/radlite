@@ -43,7 +43,7 @@ else:
 
 
 ##
-class Radlite():
+class RadliteModel():
     @func_timer
     def __init__(self, infilepath="./"):
         """
@@ -480,6 +480,11 @@ class Radlite():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(pind)+"th core has finished working!")
         return
+    #
+
+
+
+    ##OUTPUT DISPLAY METHODS
     #
 
 
@@ -1129,7 +1134,7 @@ class Radlite():
         writestr += "{0:<8d}{1:<50s}\n".format(self.get_attr("image"),
                                 "Command (0=spectrum, 2=image[3-D P/V cube])")
         writestr += "{0:<8.1f}{1:<50s}\n".format(
-                    self.get_attr("dist"), "Distance in [pc]")
+                    1.0, "Distance in [pc]")
         writestr += "{0:<8.1f}{1:<50s}\n".format(
                     self.get_attr("incl"), "Inclination [deg]")
         writestr += "{0:<8.1f}{1:<60s}\n".format(

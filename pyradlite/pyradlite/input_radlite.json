@@ -113,10 +113,6 @@
                       "value":15.0,
                       "comment":"Angle [in degrees] between the observer and the polar axis."
                     },
-  "dist":           {
-                      "value":1.0,
-                      "comment":"Distance [in pc] between the observer and the system."
-                    },
   "imwidth":       {
                       "value":10.0,
                       "comment":"Image width [in AU]."
