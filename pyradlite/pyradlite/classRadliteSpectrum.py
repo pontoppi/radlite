@@ -18,6 +18,8 @@ dotest = True
 if dotest:
     au0 = 1.49597870E13
     c0 = 2.99792458E10
+    cinmu0 = c0*1E4
+    cinkm0 = c0/1.0E5
     rsun0     = 6.9599E10
     msun0     = 1.9891E33
     lsun0     = 3.8525E33
@@ -33,6 +35,8 @@ else:
     amu0 = const.u.cgs.value #Atomic mass
     au0 = const.au.cgs.value
     c0 = const.c.cgs.value
+    cinmu0 = c0*1.0E4 #mu/s
+    cinkm0 = c0/1.0E5 #km/s
     G0 = const.G.cgs.value
     mp0 = const.m_p.cgs.value #Mass of proton
     msun0 = const.M_sun.cgs.value
@@ -171,55 +175,61 @@ class RadliteSpectrum():
 
         #FOR SPECTRUM FILE
         #Extract all spectral traits from spectrum file
-        numlines = int(specdata[4])
-        velinfo = specdata[6].split()
-        vwidth = float(velinfo[0])
-        vlsr = float(velinfo[1])
-        incl = float(velinfo[2])
+        numlines = int(specdata[4]) #Number of mol. lines
+        #maxnumpoints = int(specdata[5]) #Max number of data points per line
+        incl = float(specdata[6].split()[2]) #Velocity info
+        #vwidth = float(velinfo[0])
+        #vlsr = float(velinfo[1])
+        #incl = float(velinfo[2])
 
         #Iterate through molecular lines in subrun
-        fluxes_list = [None]*numlines #To hold all fluxes
-        vels_list = [None]*numlines #To hold all velocities
+        linedict_list = [{}]*numlines #To hold all fluxes
         iloc = 8 #Starting index within line files
         for ai in range(0, len(numlines)):
+            freqcen = float(specdata[iloc+2]) #Central frequency
             numpoints = int(specdata[iloc+4]) #Num of freq.
             #Extract section of data for current molecular line
             sechere = specdata[iloc:(iloc+6+numpoints)])
             #Convert into 2D array of floats
             sechere = np.array([lhere.split()
                                 for lhere in sechere]).astype(float)
-            vels_list[ai] = sechere[:,0] #Velocities
-            fluxes_list[ai] = sechere[:,1] #Fluxes
+            #Record information for this mol. line
+            linedict_list[ai]["vel"] = sechere[:,0] #Velocities
+            linedict_list[ai]["flux"] = sechere[:,1] #Fluxes
+            linedict_list[ai]["freqcen"] = freqcen #Central frequency
             #Increment place in overall file
             iloc = iloc + 6 + numpoints
 
         #FOR MOLECULAR DATA FILE
+        moldict = {} #Dictionary to hold molecular data
         #Extract molecular traits for this subrun
-        molname = moldata[1] #Name of molecule
-        molweight = float(moldata[3]) #Weight of molecule
-        numlevels = int(moldata[5]) #Number of energy levels
+        moldict["molname"] = moldata[1] #Name of molecule
+        moldict["molweight"] = float(moldata[3]) #Weight of molecule
+        moldict["numlevels"] = int(moldata[5]) #Number of energy levels
 
         #Extract transitions
         iloc = 5 + 1 + numlevels + 3 #Starting index of transitions
         sechere = moldata[iloc:len(moldata)] #Section containing all trans.
         sechere = np.array([lhere.split()
                                     for lhere in sechere]) #Split out spaces
-        gup_vals = sechere[:,1].astype(float) #Upper degeneracies
-        glow_vals = sechere[:,2].astype(float) #Lower degeneracies
-        A_vals = sechere[:,3].astype(float) #Einstein A coefficient
-        Eup_vals = sechere[:,4].astype(float) #Upper energies
-        freq_vals = sechere[:,5].astype(float) #Frequencies
-        lvib_vals = sechere[:,6] #Vibrational levels
-        lrot_vals = sechere[:,7] #Rotational levels
+        moldict["gup"] = sechere[:,1].astype(float) #Upper degeneracies
+        moldict["glow"] = sechere[:,2].astype(float) #Lower degeneracies
+        moldict["A"] = sechere[:,3].astype(float) #Einstein A coefficient
+        moldict["Eup"] = sechere[:,4].astype(float) #Upper energies
+        #freq_vals = sechere[:,5].astype(float) #Frequencies
+        moldict["lvib"] = sechere[:,6] #Vibrational levels
+        moldict["lrot"] = sechere[:,7] #Rotational levels
 
 
         ##Below Section: RETURN spectrum and molecular data + EXIT
-        return {"flux":fluxes_list, "vel":vels_list, "vwidth":vwidth,
-                    "molname":molname, "molweight":molweight,
-                    "numlevels":numlevels, "numlines":numlines,
-                    "lvib":lvib_vals, "lrot":lrot_vals,
-                    "vlsr":vlsr, "incl":incl, "gup":gup_vals, "glow":glow_vals,
-                    "A":A_vals, "Eup":Eup_vals, "freq":freq_vals}
+        #return {"flux":fluxes_list, "vel":vels_list, "vwidth":vwidth,
+        #            "maxnumpoints":maxnumpoints,
+        #            "molname":molname, "molweight":molweight,
+        #            "numlevels":numlevels, "numlines":numlines,
+        #            "lvib":lvib_vals, "lrot":lrot_vals,
+        #            "vlsr":vlsr, "incl":incl, "gup":gup_vals, "glow":glow_vals,
+        #            "A":A_vals, "Eup":Eup_vals, "freq":freq_vals}
+        return {"line":linedict_list, "mol":moldict}
     #
 
 
@@ -241,7 +251,8 @@ class RadliteSpectrum():
             print("Extracting all Radlite output from "+str(runpath_list)+"...")
 
         #Iterate through given RADLite runs
-        dict_list = [None]*len(runpath_list) #List to hold data from all subruns
+        linedict_list = [None]*len(runpath_list) #List to hold subrun line data
+        moldict_list = [None]*len(runpath_list) #List to hold subrun mol. data
         for ai in range(0, len(runpath_list)):
             pathhere = runpath_list[ai] #Path to current run
             #Assemble subruns (e.g., per core) in this run directory
@@ -272,31 +283,36 @@ class RadliteSpectrum():
             #Tack extracted subrun data to overall lists of data
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print(pathhere+" has "+str(len(subdicts))+" molecular lines.")
-            dict_list[ai] = subdicts
+            linedict_list[ai] = [shere["line"] for shere in subdicts] #Line data
+            moldict_list[ai] = [shere["mol"] for shere in subdicts] #Mol. data
 
-
-        ##Below Section: GROUP all mol. line data; KEEP only unique lines
         #Flatten list of lists into a 1D list
-        dict_list = [inlhere for outlhere in dict_list for inlhere in outlhere]
+        linedict_list = [inlhere for outlhere in linedict_list
+                        for inlhere in outlhere]
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done processing all RADLite runs!")
-            print("There are a total of "+str(len(dict_list))+" molecular "
+            print("There are a total of "+str(len(linedict_list))+" molecular "
                     +"lines across all given RADLite runs.")
+
+
+        ##Below Section: KEEP only unique lines
+        if self.get_attr("verbose"): #Verbal output, if so desired
             print("Removing any duplicate line occurrences...")
         #Keep only unique lines
         uniqnames_list = [(dhere["molname"]+dhere["lvib"]+dhere["lrot"]
                             +str(dhere["gup"])+str(dhere["glow"])
-                            +str(dhere["Eup"])) for dhere in dict_list]
+                            +str(dhere["Eup"])) for dhere in linedict_list]
         uniqinds = np.unique(uniqnames_list, return_index=True) #Uniq. line inds
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(len(uniqinds))+" molecular lines are being kept.")
-        dict_list = dict_list[uniqinds] #Keep only unique molecular lines
+        linedict_list = linedict_list[uniqinds] #Keep only unique mol. lines
 
 
         ##Below Section: STORE RADLite output + EXIT
-        self._set_attr(attrname="_radliteoutput", attrval=dict_list)
+        findicts = {"line":linedict_list, "mol":mol_list} #Line and mol. data
+        self._set_attr(attrname="_radliteoutput", attrval=findicts)
         if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Done with process of reading RADLite output!")
+            print("Done with process of reading RADLite output!\n")
         return
     #
 
@@ -314,13 +330,177 @@ class RadliteSpectrum():
         Outputs:
         Notes:
         """
-        ##Below Section:
-        dict_list = self.get_attr("_radliteoutput")
+        ##Below Section: ACCESS read-in RADLite output
+        linedict_list = self.get_attr("_radliteoutput")["line"]
+        moldict_list = self.get_attr("_radliteoutput")["mol"]
+        continterpkind = self.get_attr("cont_interp")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Starting to process read-in RADLite output...")
+
+
+        ##Below Section: DETERMINE largest encompassing mol. line 'box'
+        #NOTE: 'box' refers to x-axis span (e.g., velocity) that will be used...
+        #...to encompass each molecular line
+        #NOTE: 'vel' = velocity
+        #Extract max span of all mol. lines (each line is from -span to +span)
+        maxvspan = np.max([np.abs(dhere["vel"][0]) for dhere in linedict_list])
+        #Choose box width that is 3*maxvspan OR 3*(specified obs. resolution)
+        boxwidth = np.max([(3*maxvspan), (3*self.get_attr("obsres"))])
+        #Also extract finest velocity resolution used for mol. lines
+        indmax = np.argmax([dhere["maxnumpoints"]
+                            for dhere in linedict_list]) #Index of maximum
+        vres = linedict_list[indmax]["vel"][1] - linedict_list[indmax]["vel"][0]
+
+
+        ##Below Section: SUBTRACT out continuum for each mol. line
+        emonly_list = [None]*len(linedict_list) #Init. array for em. only
+        contcen_list = [None]*len(linedict_list) #Init. array for center cont.
+        #Iterate through mol. lines
+        for ai in range(0, len(linedict_list)):
+            dhere = linedict_list[ai] #Current mol. line
+            #Linearly interpolate continuum from line edges; calculate at vel=0
+            tempys = [dhere["flux"][0], dhere["flux"][-1]] #Fluxes to interp.
+            tempxs = [dhere["vel"][0], dhere["vel"][-1]] #Vels. to interp.
+            interpfunc = interper(x=tempxs, y=tempys, kind=continterpkind)
+            #Record central continuum and isolated emission for this line
+            emonly_list[ai] = dhere["flux"] - interpfunc(dhere["vel"]) #Em. only
+            contcen_list[ai] = interpfunc(0) #Continuum at central vel. (vel=0)
+
+
+        ##Below Section: PREPARE arrays to hold full spec. and output spec.
+        #Determine min. and max. wavelengths (wavelen.) [mu] for full spectrum
+        freqcen_list = np.array([dhere["freqcen"]
+                                    for dhere in linedict_list]) #Center freqs.
+        freqcen_list = freqcen_list[freqcen_list != 0] #Cut out any freq=0
+        #For min. mu
+        muminraw = np.min(cinmu0/1.0/freqcen_list) #Unbroadened min. mu value
+        mumin = muminraw - (boxwidth*1.0E9*muminraw/cinmu0) #Broad. by box width
+        #For max. mu
+        mumaxraw = np.max(cinmu0/1.0/freqcen_list) #Unbroadened max. mu value
+        mumax = mumaxraw + (boxwidth*1.0E9*mumaxraw/cinmu0) #Broad. by box width
+
+        #Prepare wavelen. [mu] array for full spectrum with uniform vel. spacing
+        growthfrac = (1 + (vres/1.0/cinkm0)) #Fraction by which mu will grow
+        maxlen = np.floor(np.log(mumax/1.0/mumin)
+                            / np.log(growthfrac)) + 1 #mu array size
+        fullmu_arr = np.array([(mumin*(growthfrac**ai))
+                                for ai in range(0, maxlen)])
+        #NOTE: Used compound interest equation to calculate maxlen, fullmu_arr
+        fullem_arr = np.zeros(maxlen) #Initialized; will hold full em-spec.
+
+        #Prepare wavelen. [mu] array for output spectrum at desired resolution
+        userres = self.get_attr("vsampling") #User-specified sampling res.
+        userfrac = (1 + (userres/1.0/cinkm0)) #Fraction by which mu will grow
+        userlen = np.floor(np.log(mumax/1.0/mumin)
+                            / np.log(userfrac)) + 1 #mu array size
+        outmu_arr = np.array([(mumin*(userfrac**ai))
+                                for ai in range(0, userlen)])
+
+
+        ##Below Section: INTERPOLATE + ADD each mol. emission into full em-spec.
+        #Iterate through mol. lines
+        for ai in range(0, len(linedict_list)):
+            dhere = linedict_list[ai] #Current mol. line
+            #Extend old vel. range by boxwidth and convert to [mu]
+            muolds = ((np.concatenate([[-1*boxwidth], dhere["vel"], [boxwidth]])
+                    *1.0E9/dhere["freqcen"]) + (cinmu0/1.0/dhere["freqcen"]))
+            #Extend edges of old em. flux range to reach full boxwidth
+            emolds = np.concatenate([[emonly_list[0]], emonly_list,
+                                    [emonly_list[-1]]]])
+
+            #Find indices in full spec. array where this em. will be added
+            newinds = np.where(((fullmu_arr <= muolds[1])
+                                & (fullmu_arr >= muolds[0])))[0]
+            #Interpolate  mol. em. across full spec. x-axis (span of box-width)
+            munews = fullmu_arr[newinds]
+            interpfunc = interper(x=muolds, y=emolds) #Interpolated function
+            emnews = interpfunc(munews, kind="cubic") #Interpolated y-values
+
+            #Add this mol. em. to the overall full em-spectrum
+            fullem_arr[newinds] = fullem_arr[newinds] + emnews
+
+
+        ##Below Section: INTERPOLATE continuum for entire full spec.
+        #Sort central continuum values (at vel=0) by ascending central mu
+        tempindsort = np.argsort([(cinmu0/1.0/dhere["freqcen"])
+                                for dhere in linedict_list])
+        tempmusort = np.array([(cinmu0/1.0/dhere["freqcen"])
+                                for dhere in linedict_list])[tempindsort]
+        tempcontcensort = np.array(contcen_list)[tempmusort] #Matching cen. cont
+        #Interpolate full array of continuum (corresponds to full em. array)
+        interpfunc = interper(x=tempmusort, y=tempcontcensort) #Interp. func.
+        fullcont_arr = interpfunc(fullmu_arr) #Interpolated cont. values
+
+
+        ##Below Section: COMBINE interp. line and continuum + UNIT CONVERSIONS
+        dist = self.get_attr("dist")
+        fullem_arr = fullem_arr * 1.0E23/(dist**2) #Em. -> [Jy] at [dist-pc]
+        fullcont_arr = fullcont_arr * 1.0E23/(dist**2) #Cont-> [Jy] at [dist-pc]
+        fully_arr = fullcont_arr + fullem_arr #Em. and cont. [Jy] at [dist-pc]
+
+
+        ##Below Section: CONVOLVE emission-spec. and line-spec.
+        #Define a gaussian kernel for convolution
+        numgauss = np.ceil(3.0*obsres/vres) #Number of kernel points
+        toppart = -1*2*((np.arange(0, numgauss) - ((numgauss-1)/2.0))**2)
+        botpart = ((obsres/1.0/vres)**2)*np.log(2.0)
+        kerngauss = np.exp(toppart/botpart)
+
+        #Convolve emission-spec. and line-spec.
+        #Edge behavior: outer vals reflected at input edge to fill missing vals
+        resem_arr = ndimage.convolve(fullem_arr, kerngauss, mode="reflect")
+        resy_arr = ndimage.convolve(fully_arr, kerngauss, mode="reflect")
+
+
+        ##Below Section: RESAMPLE at desired resolution of user
+        #For emission-spectrum (em. only)
+        interpfunc = interper(x=fullmu_arr, y=fullem_arr) #Interp. func.
+        outem_arr = interpfunc(outmu_arr) #Interpolated output emission-spec.
+        #For line-spectrum (em.+cont.)
+        interpfunc = interper(x=fullmu_arr, y=fully_arr) #Interp. func.
+        outy_arr = interpfunc(outmu_arr) #Interpolated output line-spec.
+        #For continuum (cont. only)
+        interpfunc = interper(x=fullmu_arr, y=fullcont_arr) #Interp. func.
+        outcont_arr = interpfunc(outmu_arr) #Interpolated output continuum
+
+
+        ##Below Section: STORE spectra and molecule information + EXIT
+        self._set_attr(attrname="flux_spec", attrval=outy_arr) #Line-spec.
+        self._set_attr(attrname="flux_em", attrval=outem_arr) #Em-spec.
+        self._set_attr(attrname="flux_cont", attrval=outcont_arr) #Continuum
+        self._set_attr(attrname="wavelength", attrval=outmu_arr) #Wavelen. [mu]
+        self._set_attr(attrname="molinfo", attrval=moldict_list) #All mol. info
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done processing all RADLite output!\n")
+        return
+        #
+
+
+
+
+
+        ##Below Section: EXTRACT continuum from mol. lines
+
+        #fullx_arr = np.ones(maxlen)*-1 #Initialize mu array
+        #fullx_arr[0] = mu_min #First point in array is min. mu value
+        #iind = 1 #Index to track location in array
+        #startval = mu_min*growthfrac #Next value to be stored in array
+        #while startval < max_mu:
+        #    fullx_arr[iind] = startval #Record latest value, grown by growthfrac
+        #    startval = startval*growthfrac #Grow next value
+        #    iind = iind + 1 #Increment place in array
+
+        #For x-axis arrays
+        fullx_arr = [
+        fullspec_arr = np #To hold y-axis points
+        fullx_arr =
+        #For output spectrum
+        outspec_arr = np
+        outx_arr =
+
 
     #
 
-
-start at bottom; minimal commands; min. interpolation done
 
 New proposal:
 > Extrapolate each line to max box width
