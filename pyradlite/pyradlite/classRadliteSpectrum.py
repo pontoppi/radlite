@@ -114,7 +114,8 @@ class RadliteSpectrum():
         """
         #Print params, if verbose (dist, ssampling, obsres)
         #Read in all RADLite output from given list of runs
-        self._read_radlite()
+        self._read_radliteoutput()
+        self._process_radliteoutput()
         #Check equal number of lines in line files and molfiles
         #Remove any duplicate lines
         #Calculate line continuum
@@ -149,7 +150,7 @@ class RadliteSpectrum():
 
 
     ##READ METHODS
-    def _read_core_radlite(self, filelist):
+    def _read_core_radliteoutput(self, filelist):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -203,23 +204,26 @@ class RadliteSpectrum():
         sechere = moldata[iloc:len(moldata)] #Section containing all trans.
         sechere = np.array([lhere.split()
                                     for lhere in sechere]) #Split out spaces
-        gup_vals = sechere[:,1] #Upper degeneracies
-        glow_vals = sechere[:,2] #Lower degeneracies
-        A_vals = sechere[:,3] #Einstein A coefficient
-        Eup_vals = sechere[:,4] #Upper energies
-        wavenum_vals = sechere[:,5] #Wavenumbers
+        gup_vals = sechere[:,1].astype(float) #Upper degeneracies
+        glow_vals = sechere[:,2].astype(float) #Lower degeneracies
+        A_vals = sechere[:,3].astype(float) #Einstein A coefficient
+        Eup_vals = sechere[:,4].astype(float) #Upper energies
+        freq_vals = sechere[:,5].astype(float) #Frequencies
+        lvib_vals = sechere[:,6] #Vibrational levels
+        lrot_vals = sechere[:,7] #Rotational levels
 
 
         ##Below Section: RETURN spectrum and molecular data + EXIT
         return {"flux":fluxes_list, "vel":vels_list, "vwidth":vwidth,
                     "molname":molname, "molweight":molweight,
                     "numlevels":numlevels, "numlines":numlines,
+                    "lvib":lvib_vals, "lrot":lrot_vals,
                     "vlsr":vlsr, "incl":incl, "gup":gup_vals, "glow":glow_vals,
-                    "A":A_vals, "Eup":Eup_vals, "wavenum":wavenum_vals}
+                    "A":A_vals, "Eup":Eup_vals, "freq":freq_vals}
     #
 
 
-    def _read_radlite(self):
+    def _read_radliteoutput(self):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -233,6 +237,7 @@ class RadliteSpectrum():
         ##Below Section: READ IN + PROCESS data from each given RADLite run
         runpath_list = self.get_attr("run_paths")
         if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Starting process of reading RADLite output...")
             print("Extracting all Radlite output from "+str(runpath_list)+"...")
 
         #Iterate through given RADLite runs
@@ -259,20 +264,138 @@ class RadliteSpectrum():
 
             #Prepare pool of cores to read mol. lines and data for each subrun
             numsubs = len(subspecfiles)
-            with mp.Pool(numsubs) as ppool:
+            with mp.Pool(self.get_attr("numcores")) as ppool:
                 subdicts = ppool.map(self._read_core_radlite,
                                         [[subspecfiles[bi], submolefiles[bi]]
                                             for bi in range(0, numsubs)])
 
             #Tack extracted subrun data to overall lists of data
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print(pathhere+" has "+str(len(subdicts))+" molecular lines.")
             dict_list[ai] = subdicts
 
 
-        ##Below Section: CONCATENATE all mol. line data; KEEP only unique lines
+        ##Below Section: GROUP all mol. line data; KEEP only unique lines
         #Flatten list of lists into a 1D list
         dict_list = [inlhere for outlhere in dict_list for inlhere in outlhere]
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done processing all RADLite runs!")
+            print("There are a total of "+str(len(dict_list))+" molecular "
+                    +"lines across all given RADLite runs.")
+            print("Removing any duplicate line occurrences...")
+        #Keep only unique lines
+        uniqnames_list = [(dhere["molname"]+dhere["lvib"]+dhere["lrot"]
+                            +str(dhere["gup"])+str(dhere["glow"])
+                            +str(dhere["Eup"])) for dhere in dict_list]
+        uniqinds = np.unique(uniqnames_list, return_index=True) #Uniq. line inds
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print(str(len(uniqinds))+" molecular lines are being kept.")
+        dict_list = dict_list[uniqinds] #Keep only unique molecular lines
 
-!!!
+
+        ##Below Section: STORE RADLite output + EXIT
+        self._set_attr(attrname="_radliteoutput", attrval=dict_list)
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done with process of reading RADLite output!")
+        return
+    #
+
+
+
+    ##PROCESS METHODS
+    def _process_radliteoutput(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section:
+        dict_list = self.get_attr("_radliteoutput")
+
+    #
+
+
+start at bottom; minimal commands; min. interpolation done
+
+New proposal:
+> Extrapolate each line to max box width
+        # - line 'box' width: max( 3*leftspan of vel or 3*obsres ); done per line, then take max across all lines
+        # - NOTE: defined new_vel to be 2*max_boxwidth*np.arange(0, num vels)/(num vels - 1) - max_boxwidth -> basically centers at 0 from -width to +width
+> Extrapolate continuum for each line from min to max box width
+> Subtract continuum from each line
+> Set up x_all and y_all
+        # - Determine min and max wavelengths from c/center_freq[where != 0]; then broaden by +/- max_vel*1E9*max_mu(or min_mu)/c
+        # - Define wavelength grid with const. vel. res.: from min_mu to max_mu, spacing done as: x_all[i+1] = x_all[i] * (1 + res_el/2.9979...E5); threw an error if point count exceeded 1E8
+> Interpolate line_only and cont. over x_all that fits them; add into y_all and some cont_all array of sorts
+> Fill x_all and y_all
+        # - x_mu = new_vel * 1E9 / center_freq + c/center_freq
+        # - y_Jy = lines_int here; gsubs = where x_all >= min(x_mu) and x_all <= max(x_mu) - so extract segment of x_all that fits this given line x_mu
+        # - y_all[gsubs] = y_all[gsubs] + <interpolate y_jy and x_mu over x_all[gsubs]>; so basically adding this line into overall final spectra, at overall final spectrum's resolution
+> Add continuum back in for spec
+> Convolve spec and line separately
+> Convolve
+> Resample
+-
+        # - line 'box' width: max( 3*leftspan of vel or 3*obsres ); done per line, then take max across all lines
+        # - find highest vel-res (line with most vel. points)
+        # - interpolate all other lines to have same vel-res (replace their old-vel)
+        # - number of vels: taken to be 2*max_boxwidth/res_el + 1, where res_el = vel[1] - vel[0] for any vel_arr, since now same for each line
+        # - defined an empty array of size (numlines, number of vels)
+        # - defined new_vel to be 2*max_boxwidth*np.arange(0, num vels)/(num vels - 1) - max_boxwidth -> basically centers at 0 from -width to +width
+        # - defined specx, specy, each of size numlines*num vels
+        # - PER LINE
+        # - interpolate cont. from leftmost to rightmost vel, flux of each line separately; interpolate over vel_arr
+        # - subtract continuum from line info
+        # - calculated line_int as interpolation of line, -maxvel to maxvel across new_vel
+        # - calculated freqs??? as (1+vel_arr*1E9/c)*wavenum_central(?)
+        # - recorded and stored line_flux = sorted freqs, line,/dist^2
+        # - calculated line widths:
+        #   - 2.35482*sqrt(TOTAL(line[gsubs]*vel_arr[gsubs]^2)/TOTAL(line[gsubs]) where gsubs = where(abs(line) > max(abs(line)*0.2)
+        # - saved l2cs[i] as max(line)/mean(cont)
+        # - DONE WITH PER LINE
+        # - Determine min and max wavelengths from c/center_freq[where != 0]; then broaden by +/- max_vel*1E9*max_mu(or min_mu)/c
+        # - Define wavelength grid with const. vel. res.: from min_mu to max_mu, spacing done as: x_all[i+1] = x_all[i] * (1 + res_el/2.9979...E5); threw an error if point count exceeded 1E8
+        # - Define wavelength grid on requested output velocity sampling: x_out, from min_mu to max_mu, with x_out[i+1] = x_out[i] * (1 + sampling / 2.9979...E5); same error if too many points
+        # - FOR EACH LINE
+        # - x_mu = new_vel * 1E9 / center_freq + c/center_freq
+        # - y_Jy = lines_int here; gsubs = where x_all >= min(x_mu) and x_all <= max(x_mu) - so extract segment of x_all that fits this given line x_mu
+        # - y_all[gsubs] = y_all[gsubs] + <interpolate y_jy and x_mu over x_all[gsubs]>; so basically adding this line into overall final spectra, at overall final spectrum's resolution
+        # - DONE WITH PER LINE
+        # - CONVOLUTION
+        # - Calculate ngauss as ceil(3*obsres/res_el)
+        # - Calculate obsres_sampling as obsres/res_el
+        # - Calculate gaus as exp(-(arange(0, ngauss)-(ngauss-1)/2.0)^2/obsres_sampling^2 * 2/log(2)
+        # - Sort then interpolate cont. (value at vel=0 for each line), c/center_freqs, across x_all
+        # - Set l_only = y_all * 1E23/dist^2
+        # - Added cont. as y_all = (y_all+c_all)*1E23/dist^2
+        # - Convolved as convol(y_all, gauss, total(gauss),/edge_truncate)
+        # - Convolved l_only in same way, using l_only instead of y_all
+        # - RESAMPLING
+        # - Interpolated y_out, l_only, c_all against x_all to be across x_out; multiplied 1E23/dist^2 into continuum since not done yet
+        # - Possibly able to add noise?
+        # - Record line, flux, spectrum
+        # - Write to fits file, if so desired (but also separate function)
+
+
+
+
+        # - Interpolate (linear) cont. from leftmost - rightmost vel, flux of each line
+        # -
+        #####Below Section: SORT + EXTRACT all spec. fluxes, cont., and mol. info
+        np.argsort(all
+        allcont_arr = np.concatenate(
+
+
+
+        #Throw error if inclination is not the same across all data
+
+
+
         allspec_arrs = [] #To hold each extracted molecular line
         allEu_vals = [] #To hold extracted upper energies
         allElow_vals = [] #To hold extracted lower energies
@@ -297,41 +420,6 @@ class RadliteSpectrum():
 
 
 
-        pass
-        filename = 'linespectrum_moldata_'+str(thread)+'.dat'
-        fullpath = os.path.join(self.path,filename)
-        file = open(fullpath,'r')
-
-        dum = file.readline()
-        dum = file.readline()
-        moldata_base = file.readline()
-        moldata_file = file.readline()
-        nlines = int(file.readline())
-        nfreq = int(file.readline())
-        deltav,vzero,incl = file.readline().split()
-        lines = []
-        for i in np.arange(nlines):
-            file.readline()
-            upper,lower = file.readline().strip().split()
-            upper = int(upper)
-            lower = int(lower)
-            freq = float(file.readline())
-            freq = float(freq)
-            vzero = float(file.readline())
-            nfreq = int(file.readline())
-
-            vels = np.zeros(nfreq)
-            fluxes = np.zeros(nfreq)
-
-            file.readline()
-            for j in np.arange(nfreq):
-                vel,flux = file.readline().strip().split()
-                vels[j] = float(vel)
-                fluxes[j] = float(flux)
-
-            lines.append({'velocity':vels,'flux':fluxes,'freq':freq,'upper':upper,'lower':lower})
-
-        return lines
     #
 
 
