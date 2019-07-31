@@ -5,11 +5,11 @@
                     },
   "obsres":       {
                       "value":3.0,
-                      "comment":"Resolution of observation???."
+                      "comment":"!!!."
                     },
-  "ssampling":       {
-                      "value":3.0,
-                      "comment":"Set to 'none' if you want to use the sampling rate previously used by RADLiteModel."
+  "vsampling":       {
+                      "value":1.5,
+                      "comment":"!!!."
                     },
 verbose, run_paths
 

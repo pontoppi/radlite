@@ -12,6 +12,10 @@ import os.listdir
 import re
 from classUtils import func_timer
 import astropy.constants as const
+try:
+    import astropy.io.fits as fitter
+except ImportError:
+    import pyfits as fitter
 
 #Set helpful constants
 dotest = True
@@ -116,23 +120,24 @@ class RadliteSpectrum():
         Outputs:
         Notes:
         """
-        #Print params, if verbose (dist, ssampling, obsres)
-        #Read in all RADLite output from given list of runs
+        ##Below Section: REVIEW user parameters for spectra
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Starting the gen_spec method!")
+            print("Reviewing user-defined parameters for spectra...")
+            print("Chosen dist [pc]: "+str(self.get_attr("dist")))
+            print("Chosen obsres [km/s]: "+str(self.get_attr("obsres")))
+            print("Chosen vsampling [km/s]: "+str(self.get_attr("vsampling")))
+
+
+        ##Below Section: READ IN + PROCESS all RADLite output from given runs
         self._read_radliteoutput()
         self._process_radliteoutput()
-        #Check equal number of lines in line files and molfiles
-        #Remove any duplicate lines
-        #Calculate line continuum
-        self._calc_continuum()
-        #Separate line and continuum
-        #Avoid extended line wings?
-        #Some wavelength grid stuff for requested velocity sampling
-        #Add continuum back
-        #Convolve to requested resolving power
-        #Resample to requested output grid
-        #Noise, maybe
-        #Make fits, maybe
-        pass
+
+
+        ##Below Section: EXIT
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done with gen_spec!\n")
+        return
     #
 
 
@@ -216,7 +221,7 @@ class RadliteSpectrum():
         moldict["glow"] = sechere[:,2].astype(float) #Lower degeneracies
         moldict["A"] = sechere[:,3].astype(float) #Einstein A coefficient
         moldict["Eup"] = sechere[:,4].astype(float) #Upper energies
-        #freq_vals = sechere[:,5].astype(float) #Frequencies
+        moldict["freq"] = sechere[:,5].astype(float) #Frequencies
         moldict["lvib"] = sechere[:,6] #Vibrational levels
         moldict["lrot"] = sechere[:,7] #Rotational levels
 
@@ -308,8 +313,17 @@ class RadliteSpectrum():
         linedict_list = linedict_list[uniqinds] #Keep only unique mol. lines
 
 
+        ##Below Section: CHECK for any incompatible values
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Checking for signs of incompatible sources...")
+        #Check that all sources have same inclination
+        if len(np.unique([dhere["incl"] for dhere in moldict_list])) > 1:
+            raise ValueError("Whoa! The RADLite runs you specified don't all "
+                            +"have the same source inclination!")
+
+
         ##Below Section: STORE RADLite output + EXIT
-        findicts = {"line":linedict_list, "mol":mol_list} #Line and mol. data
+        findicts = {"line":linedict_list, "mol":moldict_list} #Line and mol data
         self._set_attr(attrname="_radliteoutput", attrval=findicts)
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done with process of reading RADLite output!\n")
@@ -473,133 +487,6 @@ class RadliteSpectrum():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done processing all RADLite output!\n")
         return
-        #
-
-
-
-
-
-        ##Below Section: EXTRACT continuum from mol. lines
-
-        #fullx_arr = np.ones(maxlen)*-1 #Initialize mu array
-        #fullx_arr[0] = mu_min #First point in array is min. mu value
-        #iind = 1 #Index to track location in array
-        #startval = mu_min*growthfrac #Next value to be stored in array
-        #while startval < max_mu:
-        #    fullx_arr[iind] = startval #Record latest value, grown by growthfrac
-        #    startval = startval*growthfrac #Grow next value
-        #    iind = iind + 1 #Increment place in array
-
-        #For x-axis arrays
-        fullx_arr = [
-        fullspec_arr = np #To hold y-axis points
-        fullx_arr =
-        #For output spectrum
-        outspec_arr = np
-        outx_arr =
-
-
-    #
-
-
-New proposal:
-> Extrapolate each line to max box width
-        # - line 'box' width: max( 3*leftspan of vel or 3*obsres ); done per line, then take max across all lines
-        # - NOTE: defined new_vel to be 2*max_boxwidth*np.arange(0, num vels)/(num vels - 1) - max_boxwidth -> basically centers at 0 from -width to +width
-> Extrapolate continuum for each line from min to max box width
-> Subtract continuum from each line
-> Set up x_all and y_all
-        # - Determine min and max wavelengths from c/center_freq[where != 0]; then broaden by +/- max_vel*1E9*max_mu(or min_mu)/c
-        # - Define wavelength grid with const. vel. res.: from min_mu to max_mu, spacing done as: x_all[i+1] = x_all[i] * (1 + res_el/2.9979...E5); threw an error if point count exceeded 1E8
-> Interpolate line_only and cont. over x_all that fits them; add into y_all and some cont_all array of sorts
-> Fill x_all and y_all
-        # - x_mu = new_vel * 1E9 / center_freq + c/center_freq
-        # - y_Jy = lines_int here; gsubs = where x_all >= min(x_mu) and x_all <= max(x_mu) - so extract segment of x_all that fits this given line x_mu
-        # - y_all[gsubs] = y_all[gsubs] + <interpolate y_jy and x_mu over x_all[gsubs]>; so basically adding this line into overall final spectra, at overall final spectrum's resolution
-> Add continuum back in for spec
-> Convolve spec and line separately
-> Convolve
-> Resample
--
-        # - line 'box' width: max( 3*leftspan of vel or 3*obsres ); done per line, then take max across all lines
-        # - find highest vel-res (line with most vel. points)
-        # - interpolate all other lines to have same vel-res (replace their old-vel)
-        # - number of vels: taken to be 2*max_boxwidth/res_el + 1, where res_el = vel[1] - vel[0] for any vel_arr, since now same for each line
-        # - defined an empty array of size (numlines, number of vels)
-        # - defined new_vel to be 2*max_boxwidth*np.arange(0, num vels)/(num vels - 1) - max_boxwidth -> basically centers at 0 from -width to +width
-        # - defined specx, specy, each of size numlines*num vels
-        # - PER LINE
-        # - interpolate cont. from leftmost to rightmost vel, flux of each line separately; interpolate over vel_arr
-        # - subtract continuum from line info
-        # - calculated line_int as interpolation of line, -maxvel to maxvel across new_vel
-        # - calculated freqs??? as (1+vel_arr*1E9/c)*wavenum_central(?)
-        # - recorded and stored line_flux = sorted freqs, line,/dist^2
-        # - calculated line widths:
-        #   - 2.35482*sqrt(TOTAL(line[gsubs]*vel_arr[gsubs]^2)/TOTAL(line[gsubs]) where gsubs = where(abs(line) > max(abs(line)*0.2)
-        # - saved l2cs[i] as max(line)/mean(cont)
-        # - DONE WITH PER LINE
-        # - Determine min and max wavelengths from c/center_freq[where != 0]; then broaden by +/- max_vel*1E9*max_mu(or min_mu)/c
-        # - Define wavelength grid with const. vel. res.: from min_mu to max_mu, spacing done as: x_all[i+1] = x_all[i] * (1 + res_el/2.9979...E5); threw an error if point count exceeded 1E8
-        # - Define wavelength grid on requested output velocity sampling: x_out, from min_mu to max_mu, with x_out[i+1] = x_out[i] * (1 + sampling / 2.9979...E5); same error if too many points
-        # - FOR EACH LINE
-        # - x_mu = new_vel * 1E9 / center_freq + c/center_freq
-        # - y_Jy = lines_int here; gsubs = where x_all >= min(x_mu) and x_all <= max(x_mu) - so extract segment of x_all that fits this given line x_mu
-        # - y_all[gsubs] = y_all[gsubs] + <interpolate y_jy and x_mu over x_all[gsubs]>; so basically adding this line into overall final spectra, at overall final spectrum's resolution
-        # - DONE WITH PER LINE
-        # - CONVOLUTION
-        # - Calculate ngauss as ceil(3*obsres/res_el)
-        # - Calculate obsres_sampling as obsres/res_el
-        # - Calculate gaus as exp(-(arange(0, ngauss)-(ngauss-1)/2.0)^2/obsres_sampling^2 * 2/log(2)
-        # - Sort then interpolate cont. (value at vel=0 for each line), c/center_freqs, across x_all
-        # - Set l_only = y_all * 1E23/dist^2
-        # - Added cont. as y_all = (y_all+c_all)*1E23/dist^2
-        # - Convolved as convol(y_all, gauss, total(gauss),/edge_truncate)
-        # - Convolved l_only in same way, using l_only instead of y_all
-        # - RESAMPLING
-        # - Interpolated y_out, l_only, c_all against x_all to be across x_out; multiplied 1E23/dist^2 into continuum since not done yet
-        # - Possibly able to add noise?
-        # - Record line, flux, spectrum
-        # - Write to fits file, if so desired (but also separate function)
-
-
-
-
-        # - Interpolate (linear) cont. from leftmost - rightmost vel, flux of each line
-        # -
-        #####Below Section: SORT + EXTRACT all spec. fluxes, cont., and mol. info
-        np.argsort(all
-        allcont_arr = np.concatenate(
-
-
-
-        #Throw error if inclination is not the same across all data
-
-
-
-        allspec_arrs = [] #To hold each extracted molecular line
-        allEu_vals = [] #To hold extracted upper energies
-        allElow_vals = [] #To hold extracted lower energies
-        #allnumline_vals = [] #To hold extracted numbers of molecular lines
-        allnumfreq_vals = [] #To hold extracted number of frequency points
-        alldeltav_vals = [] #To hold extracted delta-velocities
-        allvlsr_vals = [] #To hold extracted vlsr values
-        allincl_vals = [] #To hold extracted source inclination values
-
-            #Iterate through
-
-
-
-
-
-
-
-
-
-        ##Below Section: Extract flux, velocity, frequency, and energy info
-
-
-
-
     #
 
 
@@ -610,7 +497,7 @@ New proposal:
 
 
     ##WRITE METHODS
-    def write_fits(self):
+    def write_fits(self, fitsname):
         """
         DOCSTRING
         Function:
@@ -620,7 +507,52 @@ New proposal:
         Outputs:
         Notes:
         """
-        pass
+        ##Below Section: LOAD spectra and molecular data
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Starting the write_fits method!")
+            print("Saving spectra and molecular info into .fits file...")
+        #Try to load spectra data
+        try:
+            fluxspec_arr = self.get_attr("flux_spec") #Line-spec.
+            fluxem_arr = self.get_attr("flux_em") #Em-spec.
+            fluxcont_arr = self.get_attr("flux_cont") #Continuum
+            wavelen_arr = self._set_attr("wavelength") #Wavelen. [mu]
+            moldict_list = self._set_attr("molinfo") #All mol. info
+        except AttributeError: #Throw an error if hasn't been processed yet
+            raise AttributeError("Whoa! Looks like you haven't processed "
+                        +"any RADLite output data yet. You can do so by "
+                        +"running the gen_spec() method for this class.")
+
+
+        ##Below Section: #ASSEMBLE data for .fits file
+        #Create primary header for .fits file
+        hdr = fitter.Header()
+        hdr["WAVEUNIT"] = "micron"
+        hdr["FLUXUNIT"] = "Jy"
+        hdr["INCL[deg]"] = moldict_list[0]["incl"]
+        hdr["DIST[pc]"] = self.get_attr("dist")
+        hdu_hdr = fitter.PrimaryHDU(header=hdr)
+
+        #Create and fill table container with flux data
+        c1 = fitter.Column(name="Wavelength", array=wavelen_arr, format='D')
+        c2 = fitter.Column(name="Emission", array=fluxem_arr, format='D')
+        c3 = fitter.Column(name="Spectrum", array=fluxspec_arr, format='D')
+        c4 = fitter.Column(name="Continuum", array=fluxcont_arr, format='D')
+        hdu_flux = fitter.BinTableHDU.from_columns([c1, c2, c3, c4])
+
+        #Create and fill table container with molecular data
+        namelist = [] !!!HERE
+        arrlist = []
+        formatlist = []
+        collist = [fitter.Column(name=namelist[ai], array=arrlist[ai],
+                                    format=formatlist[ai])
+                    for ai in range(0, len(moldict_list))]
+        hdu_mol = fitter.BinTableHDU.from_columns(collist)
+
+
+        ##Below Section: WRITE assembled data to .fits file + EXIT
+        hduall = fitter.HDUList([hdu_hdr, hdu_flux, hdu_mol])
+        hduall.writeto(fitsname)
     #
 #
 
