@@ -45,7 +45,7 @@ else:
 ##
 class RadliteModel():
     @func_timer
-    def __init__(self, infilepath="./"):
+    def __init__(self, infilename, hitranfilename):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -58,8 +58,7 @@ class RadliteModel():
         """
         ##Below Section: READ IN + STORE input files
         #Read in input RADLite data
-        with open(os.path.join(infilepath,
-                                    "input_radlite.json")) as openfile:
+        with open(os.path.join(infilename)) as openfile:
             inputdict = json.load(openfile)
         #Store in secret dictionary (stripping out comments)
         self._attrdict = {}
@@ -67,7 +66,7 @@ class RadliteModel():
             self._attrdict[key] = inputdict[key]["value"]
 
         #Read in HITRAN data and then extract desired molecule
-        with open(os.path.join(infilepath, "data_hitran.json")) as openfile:
+        with open(hitranfilename) as openfile:
             hitrandict = json.load(openfile)
         #Store molecular data for specified molecule
         moldict = hitrandict[self._attrdict["molname"]] #Extract mol. data
@@ -192,8 +191,11 @@ class RadliteModel():
             eval("self._read_"+attrname+"()") #Try reading it in
             return self._attrdict[attrname]
         except AttributeError: #If attribute not readable
-            raise AttributeError("'"+attrname+"' doesn't seem to be a valid "
-                            +"Attribute.  Valid attributes are:\n"
+            pass
+
+        #Otherwise, raise an error
+        raise AttributeError("'"+attrname+"' doesn't seem to be a valid "
+                            +"attribute.  Valid attributes are:\n"
                             +str(np.sort([key for key in self._attrdict]))+".\n"
                             +"Run the method run_radlite() (if you haven't "
                             +"yet) to automatically populate more "

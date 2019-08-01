@@ -1,16 +1,30 @@
 {
-  "dist":       {
-                      "value":150.0,
+  "dist":           {
+                      "value":140.0,
                       "comment":"Distance [in pc] between observer and source."
                     },
-  "obsres":       {
+  "obsres":         {
                       "value":3.0,
                       "comment":"!!!."
                     },
-  "vsampling":       {
+  "vsampling":      {
                       "value":1.5,
                       "comment":"!!!."
                     },
-verbose, run_paths
-
-  }
+  "verbose":        {
+                      "value":true,
+                      "comment":"!!!."
+                    },
+  "run_paths":      {
+                      "value":["/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/rundir/outputdir"],
+                      "comment":"!!!."
+                    },
+  "numcores":       {
+                      "value":7,
+                      "comment":"!!!."
+                    },
+  "interpolation":  {
+                      "value":"linear",
+                      "comment":"!!!."
+                    }
+}

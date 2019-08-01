@@ -38,7 +38,7 @@
 
 
   "numcores":       {
-                      "value":4,
+                      "value":7,
                       "comment":"Number of cores that will be used to run RADLite.  If this number is greater than <(available number of cores for your machine) - 1>, then this number will be decreased so that it is <(available number of cores for your machine) - 1>, or <1> if there is only one core available."
                     },
   "image":          {
@@ -56,7 +56,7 @@
                       "comment":"Name of the desired molecule (case sensitive, with no spaces and no special characters).  Examples: '12CO', 'H218O', 'H2O'."
                     },
   "temp_fr":        {
-                      "value":false,
+                      "value":20.0,
                       "comment":"If false, assumes given molecule does not freeze out. If a number (e.g., 20), then sets the given number as the freeze-out temperature for the given molecule [in Kelvin]."
                     },
 
