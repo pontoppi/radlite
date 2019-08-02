@@ -16,7 +16,7 @@
                       "comment":"!!!."
                     },
   "run_paths":      {
-                      "value":["/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/rundir/outputdir"],
+                      "value":["/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/rundir_1coreb/outputdir"],
                       "comment":"!!!."
                     },
   "numcores":       {

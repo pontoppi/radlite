@@ -30,6 +30,10 @@ if dotest:
     tsun0     = 5.78E3
     mu0     = 2.3
     amu0    = 1.6605402E-24
+    #BELOW FROM READ_MOLECULE_LAMBDA
+    #c0     = 2.99792458E10
+    #h0     = 6.62620755E-27
+    #kB0     = 1.380658E-16
 else:
     amu0 = const.u.cgs.value #Atomic mass
     au0 = const.au.cgs.value
@@ -437,7 +441,7 @@ class RadliteModel():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(pind)+"th core has started working...")
         ##Below Section: COPY OVER radlite physics/structure input files
-        copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "radius.inp", "radlite.inp", "starspectrum.inp", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
+        copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "radius.inp", "radlite.inp", "starspectrum.inp", "scatsource.dat", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
         for filehere in copyfiles:
             comm = subprocess.call(["cp",
                             os.path.join(self.get_attr("inp_path"), filehere),
@@ -470,6 +474,10 @@ class RadliteModel():
         comm = subprocess.call(["mv",
                             cpudir+"/linespectrum_moldata.dat",
                             outputdir+"/linespectrum_moldata_"+str(pind)+".dat"])
+        #Move level population output produced by this core
+        comm = subprocess.call(["mv",
+                            cpudir+"/levelpop_moldata.dat",
+                            outputdir+"/levelpop_moldata_"+str(pind)+".dat"])
         if self.get_attr("image") == 2:
             #Move circular 3D image cube output produced by this core
             comm = subprocess.call(["mv",
@@ -567,7 +575,7 @@ class RadliteModel():
         numtrans = len(wavenumarr)
         Euniqarr_K = Euniqarr*h0*c0/1.0/kB0 #[K]; Upper energy levels
         #Interpolate partition sum
-        psumfunc = interper(psumtemp, psum)
+        psumfunc = interper(psumtemp, psum, kind=self.get_attr("interpolation"))
         psuminterped = psumfunc(tempgasarr)
 
         #Calculate population levels
@@ -576,6 +584,11 @@ class RadliteModel():
                             for ai in range(0, numlevels)]) /1.0/psuminterped
         #Trim any ridiculously-low values
         npoparr[npoparr < 1E-99] = 0.0
+        #print(np.sum(npoparr))
+        #print(npoparr.shape)
+        #print(np.sum(tempgasarr))
+        #print(np.sum(Euniqarr_K))
+        #print("!!!")
 
 
         ##Below Section: STORE + RETURN unique level results + EXIT
