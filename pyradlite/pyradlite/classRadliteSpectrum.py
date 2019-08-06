@@ -201,10 +201,19 @@ class RadliteSpectrum():
     #
 
 
-
+!!!
     ##OUTPUT DISPLAY METHODS
     @func_timer
-    def plot_spec(self, attrname):
+    def plot_spec(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
+            s=30, linewidth=3, linestyle="-", marker="o", color="black",
+            xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
+            xlim=None, ylim=None,
+            xunit=None, yunit=None, cbarunit=None,
+            xlabel=None, ylabel=None, cbarlabel=None,
+            axisfontsize=16, titlefontsize=18, legfontsize=16,
+            tickfontsize=14, title="",
+            dolegend=False, leglabel="", legloc="best",
+            dopart=False, dosave=False, savename="testing.png"):
         """
         DOCSTRING
         Function:
@@ -214,10 +223,87 @@ class RadliteSpectrum():
         Outputs:
         Notes:
         """
-        attrval = self.get_attr(attrname)
-        wavelen_arr = self.get_attr("wavelength")
-        plt.plot(wavelen_arr, attrval)
+        ##Below Section: INITIALIZE empty plot, if no existing plot given
+        fig = plt.figure(figsize=figsize)
+
+
+        ##Below Section: FETCH x and y-axis values
+        #Fetch y-axis values
+        yvals = self.get_attr(yattrname)
+        #Generate numerical x-axis if none given
+        if xattrname is None:
+            xattrname = ""
+            xvals = np.arange(0, len(yvals))
+            xunit = ""
+        else:
+            xvals = self.get_attr(xattrname)
+
+
+        ##Below Section: SCALE plot axes, if so desired
+        #Log scale, if so desired
+        if xlog: #For x-axis
+            plt.xscale("log")
+        if ylog: #For y-axis
+            plt.yscale("log")
+
+        #Axis limits, if so desired
+        if xlim is not None:
+            plt.xlim(xlim)
+        if ylim is not None:
+            plt.ylim(ylim)
+
+
+        ##Below Section: LABEL plot axes, if so desired
+        #x-axis labels (with units), if so desired
+        if xlabel is None:
+            #Determine the unit, if not given
+            if xunit is None:
+                xunit = self.get_unit(xattrname) #Automatic unit
+            #Set the x-axis label
+            xlabel = xattrname.capitalize()
+            if xunit != "": #Tack on unit, if exists
+                xlabel = xlabel +" ["+xunit+"]"
+            plt.xlabel(xlabel, fontsize=axisfontsize)
+
+        #y-axis labels (with units), if so desired
+        if ylabel is None:
+            #Determine the unit, if not given
+            if yunit is None: #For y-axis
+                yunit = self.get_unit(yattrname) #Automatic unit
+            #Set the y-axis label
+            ylabel = yattrname.capitalize()
+            if yunit != "": #Tack on unit, if exists
+                ylabel = ylabel +" ["+yunit+"]"
+            plt.ylabel(ylabel, fontsize=axisfontsize)
+
+
+        ##Below Section: SET title + legend + tick label size
+        #For legend, if so desired
+        if dolegend:
+            plt.legend(loc=legloc, frameon=False, fontsize=legfontsize)
+
+        #For title
+        plt.title(title, fontsize=titlefontsize)
+
+        #Set font size of tick labels
+        plt.xticks(fontsize=tickfontsize)
+        plt.yticks(fontsize=tickfontsize)
+
+
+        ##Below Section: FINALIZE + EXIT
+        #Stop here, if these commands are part of an external plot
+        if dopart:
+            return
+
+        #Otherwise, save the figure, if so desired
+        if dosave:
+            plt.savefig(savename)
+            plt.close()
+            return
+
+        #Otherwise, display the figure
         plt.show()
+        return
     #
 
 

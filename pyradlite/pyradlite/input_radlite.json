@@ -24,7 +24,7 @@
 
 
   "run_dir":        {
-                      "value":"rundir_1coreb",
+                      "value":"rundir",
                       "comment":"Folder name to contain output files from any RADLite runs."
                     },
   "dodate":         {
@@ -38,7 +38,7 @@
 
 
   "numcores":       {
-                      "value":1,
+                      "value":7,
                       "comment":"Number of cores that will be used to run RADLite.  If this number is greater than <(available number of cores for your machine) - 1>, then this number will be decreased so that it is <(available number of cores for your machine) - 1>, or <1> if there is only one core available."
                     },
   "image":          {

@@ -6,6 +6,7 @@
 import subprocess
 import multiprocessing as mp
 import numpy as np
+import matplotlib.pyplot as plt
 import json
 import os.path
 from datetime import datetime as dater
@@ -68,6 +69,8 @@ class RadliteModel():
         self._attrdict = {}
         for key in inputdict:
             self._attrdict[key] = inputdict[key]["value"]
+        self._attrdict["units"] = {} #Inner dictionary to hold units
+        #NOTE: Unit dictionary for calculated quantities only! NOT inputs
 
         #Read in HITRAN data and then extract desired molecule
         with open(hitranfilename) as openfile:
@@ -104,12 +107,15 @@ class RadliteModel():
         ###TEMP. BLOCK START
         ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
         modradmc = radmc.radmc_model("./")
-        self._set_attr(attrname="radius", attrval=modradmc.radius)
-        self._set_attr(attrname="theta", attrval=modradmc.theta)
+        self._set_attr(attrname="radius", attrval=modradmc.radius,
+                        attrunit="cm")
+        self._set_attr(attrname="theta", attrval=modradmc.theta, attrunit="rad")
         self._set_attr(attrname="dustdensity",
-                            attrval=modradmc.read_dustdensity()[:,:,0].T)
+                            attrval=modradmc.read_dustdensity()[:,:,0].T,
+                            attrunit=r"cm$^{-3}$")
         self._set_attr(attrname="dusttemperature",
-                            attrval=modradmc.dusttemperature[:,:,0].T)
+                            attrval=modradmc.dusttemperature[:,:,0].T,
+                            attrunit="K")
         self._set_attr(attrname="gastodust",
                         attrval=float(modradmc.pars['gastodust'].split(";")[0]))
         #NOTE: !!! Assuming one species read in; hence the [:,:,0] for duststuff
@@ -121,7 +127,7 @@ class RadliteModel():
             print("Writing RADLite input files...")
             print("")
         self._write_abundanceinp() #Abundance
-        self._write_densityinp() #DGas density
+        self._write_densityinp() #Gas density
         self._write_gastemperatureinp() #Gas temperature
         self._write_radliteinp() #Radlite input
         self._write_turbulenceinp() #Turbulence
@@ -187,27 +193,59 @@ class RadliteModel():
         try:
             eval("self._calc_"+attrname+"()") #Try calculating it
             return self._attrdict[attrname]
-        except AttributeError: #If attribute not calculable...
+        except AttributeError:
+            pass
+        except KeyError: #If attribute not calculable...
             pass
 
         #If that doesn't work, try reading it in
         try:
             eval("self._read_"+attrname+"()") #Try reading it in
             return self._attrdict[attrname]
-        except AttributeError: #If attribute not readable
+        except AttributeError:
+            pass
+        except KeyError: #If attribute not readable
             pass
 
         #Otherwise, raise an error
         raise AttributeError("'"+attrname+"' doesn't seem to be a valid "
-                            +"attribute.  Valid attributes are:\n"
+                            +"attribute.  Valid attributes are "
+                            +"(in alphabetical order):\n"
                             +str(np.sort([key for key in self._attrdict]))+".\n"
                             +"Run the method run_radlite() (if you haven't "
                             +"yet) to automatically populate more "
                             +"attributes.\n"
                             +"Alternatively, you can pass the name of a "
-                            +"supported physics component (e.g., 'velocity'"
+                            +"supported physics component (e.g., 'velocity_phi'"
                             +") to the get_attr() method to populate that "
                             +"component on its own.")
+    #
+
+
+    def get_unit(self, attrname):
+        """
+        DOCSTRING
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: RETURN unit of attribute under given name + EXIT
+        try:
+            return self._attrdict["units"][attrname]
+        except KeyError:
+            raise KeyError("No unit returned because this attribute is either "
+                            +"invalid or has not been populated yet.  If the "
+                            +"latter is the case, then you can run "
+                            +"the method run_radlite() (if you haven't "
+                            +"yet) to automatically populate more "
+                            +"attributes.\n"
+                            +"Alternatively, you can pass the name of a "
+                            +"supported physics component (e.g., 'velocity'"
+                            +") to the get_attr() method to populate that "
+                            +"component, and therefore its unit, on its own.")
     #
 
 
@@ -228,7 +266,7 @@ class RadliteModel():
     #
 
 
-    def _set_attr(self, attrname, attrval):
+    def _set_attr(self, attrname, attrval, attrunit=""):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -241,6 +279,8 @@ class RadliteModel():
         """
         ##Below Section: RECORD given attribute under given name + EXIT
         self._attrdict[attrname] = attrval
+        if attrunit is not None:
+            self._attrdict["units"][attrname] = attrunit #Assign unit, if given
         return
     #
 
@@ -409,9 +449,9 @@ class RadliteModel():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done running core(s)!")
         for ai in range(0, numcores):
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Closing "+str(ai)+"th core...")
             plist[ai].join()
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print(str(ai)+"th core finished and closed!")
 
         #Delete working directory for cores
         if self.get_attr("verbose"): #Verbal output, if so desired
@@ -495,6 +535,151 @@ class RadliteModel():
 
 
     ##OUTPUT DISPLAY METHODS
+    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
+            s=30, linewidth=3, linestyle="-", marker="o", color="black",
+            xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
+            xlim=None, ylim=None,
+            xunit=None, yunit=None, cbarunit=None,
+            xlabel=None, ylabel=None, cbarlabel=None,
+            axisfontsize=16, titlefontsize=18, legfontsize=16,
+            tickfontsize=14, title="",
+            dolegend=False, leglabel="", legloc="best",
+            dopart=False, dosave=False, savename="testing.png"):
+        """
+        DOCSTRING
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: INITIALIZE empty plot, if no existing plot given
+        fig = plt.figure(figsize=figsize)
+
+
+        ##Below Section: FETCH x and y-axis values
+        #Fetch y-axis values
+        yvals = self.get_attr(yattrname)
+        #Generate numerical x-axis if none given
+        if xattrname is None:
+            xattrname = ""
+            xvals = np.arange(0, len(yvals))
+            xunit = ""
+        else:
+            xvals = self.get_attr(xattrname)
+
+
+        ##Below Section: PLOT as either 2D gradient or 1D line+scatter
+        ndim = len(np.asarray(yvals).shape) #Number of dimensions for plot
+        xshape = np.asarray(xvals).shape #Shape of x-array
+        if ndim == 2: #If 2D quantity (assumed axes are radius vs. theta)
+            #Set desired 2D quantity to new variable z
+            zattrname = yattrname
+            zvals = self.get_attr(zattrname) #2D quantity
+            zunit = self.get_unit(zattrname) #Unit for 2D quantity
+            zscaler = yscaler
+            #Extract radius and theta for x and y-axes
+            yattrname = "theta"
+            yvals = self.get_attr(yattrname) #y-axis values
+            yunit = self.get_unit(yattrname) #Unit for y-axis
+            xattrname = "radius"
+            xvals = self.get_attr(xattrname) #x-axis values
+            xunit = self.get_unit(xattrname) #Unit for x-axis
+            #Plot gradient
+            grad = plt.imshow(zvals*zscaler, cmap=color)
+        elif (ndim == 1) and (len(xshape) == 1): #If 1D quantities
+            #Plot line plot
+            plt.plot(xvals*xscaler, yvals*yscaler, color=color,
+                    linewidth=linewidth, linestyle=linestyle,
+                    alpha=alpha, label=leglabel)
+            #Plot scatter plot
+            plt.scatter(xvals*xscaler, yvals*yscaler, color=color,
+                    marker=marker, s=s, alpha=alpha, label=leglabel)
+        else: #If neither 1D nor 2D
+            raise ValueError("Oh no!  Make sure you've passed in y and/or x "
+                            +"attributes to plot_attr() that have either 1D or "
+                            +"2D values.")
+
+
+        ##Below Section: SCALE plot axes, if so desired
+        #Log scale, if so desired
+        if xlog: #For x-axis
+            plt.xscale("log")
+        if ylog: #For y-axis
+            plt.yscale("log")
+
+        #Axis limits, if so desired
+        if xlim is not None:
+            plt.xlim(xlim)
+        if ylim is not None:
+            plt.ylim(ylim)
+
+
+        ##Below Section: GENERATE colorbar, if this is a 2D plot
+        if ndim == 2:
+            if cbarlabel is None:
+                #Determine the unit, if not given
+                if cbarunit is None:
+                    cbarunit = self.get_unit(zattrname) #Automatic unit
+                cbarlabel = zattrname.capitalize()
+                if cbarunit != "": #Tack on unit, if exists
+                    cbarlabel = cbarlabel + " ["+cbarunit+"]"
+            cbar = plt.colorbar(grad, label=cbarlabel)
+            cbar.ax.tick_params(labelsize=tickfontsize)
+
+
+        ##Below Section: LABEL plot axes, if so desired
+        #x-axis labels (with units), if so desired
+        if xlabel is None:
+            #Determine the unit, if not given
+            if xunit is None:
+                xunit = self.get_unit(xattrname) #Automatic unit
+            #Set the x-axis label
+            xlabel = xattrname.capitalize()
+            if xunit != "": #Tack on unit, if exists
+                xlabel = xlabel +" ["+xunit+"]"
+            plt.xlabel(xlabel, fontsize=axisfontsize)
+
+        #y-axis labels (with units), if so desired
+        if ylabel is None:
+            #Determine the unit, if not given
+            if yunit is None: #For y-axis
+                yunit = self.get_unit(yattrname) #Automatic unit
+            #Set the y-axis label
+            ylabel = yattrname.capitalize()
+            if yunit != "": #Tack on unit, if exists
+                ylabel = ylabel +" ["+yunit+"]"
+            plt.ylabel(ylabel, fontsize=axisfontsize)
+
+
+        ##Below Section: SET title + legend + tick label size
+        #For legend, if so desired
+        if dolegend:
+            plt.legend(loc=legloc, frameon=False, fontsize=legfontsize)
+
+        #For title
+        plt.title(title, fontsize=titlefontsize)
+
+        #Set font size of tick labels
+        plt.xticks(fontsize=tickfontsize)
+        plt.yticks(fontsize=tickfontsize)
+
+
+        ##Below Section: FINALIZE + EXIT
+        #Stop here, if these commands are part of an external plot
+        if dopart:
+            return
+
+        #Otherwise, save the figure, if so desired
+        if dosave:
+            plt.savefig(savename)
+            plt.close()
+            return
+
+        #Otherwise, display the figure
+        plt.show()
+        return
     #
 
 
@@ -532,8 +717,7 @@ class RadliteModel():
 
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
         if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Writing moldata.dat...")
-            print("Counting up unique levels...")
+            print("Counting up unique levels for "+str(pind)+"th core...")
         #Combine energies, transitions, and degeneracies
         Eallarr = np.concatenate((Elowarr, Euparr))
         vallarr = np.concatenate((vlowarr, vuparr))
@@ -789,8 +973,10 @@ class RadliteModel():
 
         ##Below Section: STORE partition info + EXIT
         self._set_attr(attrname="psum", attrval=psumarr)
-        self._set_attr(attrname="psum_temp", attrval=psumtemparr)
-        self._set_attr(attrname="psum_molmass", attrval=molmassarr[iind])
+        self._set_attr(attrname="psum_temp", attrval=psumtemparr,
+                        attrunit="K")
+        self._set_attr(attrname="psum_molmass", attrval=molmassarr[iind],
+                        attrunit="g")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Partition information for "+self.get_attr("molname")+" "
                                         +"has been successfully extracted!\n")
@@ -827,9 +1013,9 @@ class RadliteModel():
         starinfodict = {"mstar":mstar, "rstar":rstar, "teff":teff}
         #Store together and individually
         self._set_attr(attrname="starinfo", attrval=starinfodict)
-        self._set_attr(attrname="mstar", attrval=mstar)
-        self._set_attr(attrname="rstar", attrval=rstar)
-        self._set_attr(attrname="teff", attrval=teff)
+        self._set_attr(attrname="mstar", attrval=mstar, attrunit="g")
+        self._set_attr(attrname="rstar", attrval=rstar, attrunit="cm")
+        self._set_attr(attrname="teff", attrval=teff, attrunit="K")
         return
     #
 
@@ -905,7 +1091,8 @@ class RadliteModel():
 
 
         ##Below Section: RECORD calculated gas temperature + EXIT
-        self._set_attr(attrname="gasdensity", attrval=gasdensarr)
+        self._set_attr(attrname="gasdensity", attrval=gasdensarr,
+                        attrunit=r"cm$^{-3}$")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done calculating gas density!\n")
         return
@@ -933,7 +1120,8 @@ class RadliteModel():
 
 
         ##Below Section: RECORD calculated gas temperature + EXIT
-        self._set_attr(attrname="gastemperature", attrval=gastemparr)
+        self._set_attr(attrname="gastemperature", attrval=gastemparr,
+                        attrunit="K")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done calculating gas temperature!\n")
         return
@@ -973,7 +1161,8 @@ class RadliteModel():
 
 
         ##Below Section: RECORD calculated turbulence + EXIT
-        self._set_attr(attrname="turbulence", attrval=turbarr)
+        self._set_attr(attrname="turbulence", attrval=turbarr,
+                        attrunit=r"cm s$^{-1}$")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done calculating turbulence!\n")
         return
@@ -1001,21 +1190,76 @@ class RadliteModel():
         mstar = self.get_attr("starinfo")["mstar"] #Stellar mass
         rstar = self.get_attr("starinfo")["rstar"] #Stellar radius
         if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Calculating velocity field...")
+            print("Calculating velocity field components...")
             print("Used starinfo.inp file for mstar and rstar...")
 
 
         ##Below Section: CALCULATE Keplerian velocity
-        vdict = {} #Dictionary to hold different velocity dimensions
-        vdict["r"] = np.zeros(shape=(tlen, rlen)) #Radial velocity
-        vdict["th"] = np.zeros(shape=(tlen, rlen)) #Theta velocity
-        vdict["phi"] = np.sqrt(G0*mstar/1.0/rexparr) #Phi velocity
+        vel_radial = np.zeros(shape=(tlen, rlen)) #Radial velocity
+        vel_theta = np.zeros(shape=(tlen, rlen)) #Theta velocity
+        vel_phi = np.sqrt(G0*mstar/1.0/rexparr) #Phi velocity
 
 
-        ##Below Section: RECORD velocity and EXIT
-        self._set_attr("velocity", vdict) #Record velocity
+        ##Below Section: RECORD velocity components and EXIT
+        self._set_attr(attrname="velocity_theta", attrval=vel_theta,
+                            attrunit=r"cm s$^{-1}$")
+        self._set_attr(attrname="velocity_radial", attrval=vel_radial,
+                            attrunit=r"cm s$^{-1}$")
+        self._set_attr(attrname="velocity_phi", attrval=vel_phi,
+                            attrunit=r"cm s$^{-1}$")
         if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Done calculating velocity!\n")
+            print("Done calculating velocity components!\n")
+        return
+    #
+
+
+    def _calc_velocity_radial(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general velocity calculator
+        self._calc_velocity()
+        return
+    #
+
+
+    def _calc_velocity_theta(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general velocity calculator
+        self._calc_velocity()
+        return
+    #
+
+
+    def _calc_velocity_phi(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general velocity calculator
+        self._calc_velocity()
         return
     #
 
@@ -1458,7 +1702,9 @@ class RadliteModel():
         """
         ##Below Section: BUILD string containing velocity information
         #Extract velocity
-        velarr = self.get_attr("velocity") #Velocity data
+        vel_radial = self.get_attr("velocity_radial") #Radial velocity data
+        vel_theta = self.get_attr("velocity_theta") #Theta velocity data
+        vel_phi = self.get_attr("velocity_phi") #Phi velocity data
         rlen = len(self.get_attr("radius")) #Length of radius array
         tlen = len(self.get_attr("theta"))//2 #Length of theta array
         #Set up string
@@ -1468,8 +1714,9 @@ class RadliteModel():
         for ri in range(0, rlen):
             for ti in range(0, tlen):
                 writestr += "{0:.8f}\t{1:.8f}\t{2:.8f}\n".format(
-                                velarr["r"][ti, ri], velarr["th"][ti, ri],
-                                velarr["phi"][ti, ri])
+                                vel_radial[ti, ri],
+                                vel_theta[ti, ri],
+                                vel_phi[ti, ri])
 
         ##Below Section: WRITE the results to file + EXIT function
         outfilename = os.path.join(self.get_attr("inp_path"), "velocity.inp")
