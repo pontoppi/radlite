@@ -15,7 +15,7 @@ from os import listdir as listdirer
 from scipy.interpolate import interp1d as interper
 from scipy import ndimage as ndimager
 import subprocess
-import radmc #!!!!!!!!!!!!!!!!!!
+import radmc_namechange as radmc #!!!!!!!!!!!!!!!!!!
 try:
     import astropy.io.fits as fitter
 except ImportError:
@@ -41,6 +41,8 @@ if dotest:
     #c0     = 2.99792458E10
     #h0     = 6.62620755E-27
     #kB0     = 1.380658E-16
+    cinmu0 = c0*1.0E4 #mu/s
+    cinkm0 = c0/1.0E5 #km/s
 else:
     amu0 = const.u.cgs.value #Atomic mass
     au0 = const.au.cgs.value
@@ -50,6 +52,8 @@ else:
     msun0 = const.M_sun.cgs.value
     rsun0 = const.R_sun.cgs.value
     h0 = const.h.cgs.value
+    cinmu0 = c0*1.0E4 #mu/s
+    cinkm0 = c0/1.0E5 #km/s
 
 
 
@@ -211,6 +215,10 @@ class RadliteModel():
                 - Example: 1.0E33
                 - Description: The value of the given attribute.
         Notes:
+            > If the desired attribute has not been stored before, then the code
+              ...will try to read in its value.  If that doesn't work, then the
+              ...code will try to calculate its value.  And if that doesn't
+              ...work, then the code will stop trying (see note below).
             > If an invalid name is given, then the code will return an error
               ...listing all available attributes.
         """
@@ -336,24 +344,23 @@ class RadliteModel():
         WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
             > Sets the given value for the given attribute in the underlying
-              ...database.
+              ...attribute database.
         Inputs: 2 required, 1 optional
             > attrname (required)
                 - Type: string
                 - Example: "mstar"
-                - Description: Name of a desired attribute (such as "mstar" for
-                  ...the stellar mass).
+                - Description: Name of the desired attribute (such as "mstar"
+                  ...for the stellar mass).
             > attrval (required)
                 - Type: Varies
                 - Example: 1.0E33
                 - Description: Desired value for the given attribute.
-            > attrunit (optional)
+            > attrunit (optional; default="")
                 - Type: string
-                - Example: 2
-                - Description: Index (starting from 0) of the core.
+                - Example: "g"
+                - Description: Unit of the given attribute value.
         Outputs: N/A
-        Notes:
-            > Only certain attributes can/should be accessed with this method.
+        Notes: N/A
         """
         ##Below Section: RECORD given attribute under given name + EXIT
         self._attrdict[attrname] = attrval
@@ -363,8 +370,20 @@ class RadliteModel():
 
 
 
-    ##CHECK METHODS
+    #!!!!!! finish input checks ##CHECK METHODS
     def _check_inputs(self):
+        """
+        Method: _check_inputs
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
+        Purpose:
+            > Checks that the user has initialized this class instance with the
+              ...minimum set of inputs necessary to run the run_radlite()
+              ...method.
+        Inputs: N/A
+        Outputs: N/A
+        Notes:
+            > Will raise an error if any of the necessary inputs are missing.
+        """
         ##Below Section: CHECK user inputs; make sure they are valid
         #Make sure that desired image cube output is valid
         validimage = [0, 2]
@@ -412,16 +431,23 @@ class RadliteModel():
     @func_timer
     def run_radlite(self):
         """
-        DOCSTRING
-        Function:
+        Method: run_radlite
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Runs RADLite on the number of cores requested during
+              ...initialization of this class.
+            > Organizes RADLite input/working/output files in the run directory
+              ...specified during initiialization.
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > Working directories will be created and deleted during this
+              ...process.
+            > If the specified run directory already exists, then old files
+              ...in that directory will be overwritten!
+            > After running run_radlite(), use the gen_spec() method in the
+              ...RadliteSpectrum() class to read and process the RADLite output.
         """
         ##Below Section: SET UP lists of initial and input files
-        #initfilelist = ["problem_params.pro", "line_params.ini"]
         cpfilelist = ["radius.inp",
                         "theta.inp", "frequency.inp", "density.inp",
                         "dustdens.inp", "dusttemp_final.dat",
@@ -448,31 +474,6 @@ class RadliteModel():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("All input files and final data will be saved to the "
                     +"following folder in the current directory: "+rundir)
-
-        #Copy initial files into final directory
-        #if self.get_attr("verbose"): #Verbal output, if so desired
-        #    print("Copying over initial data files into "+rundir+"...")
-        #for iname in initfilelist:
-        #    comm = subprocess.call(["cp",
-        #                    os.path.join(self.get_attr("inp_path"), iname),
-        #                    rundir+"/"])
-        #if self.get_attr("verbose"): #Verbal output, if so desired
-        #    print("Done copying over initial data files!\n")
-
-
-        ##Below Section: PROCESS data for LTE/NLTE and mol. line treatment
-        #Read in either LTE or NLTE data
-        if self.get_attr("lte"): #If LTE treatment desired
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Extracting LTE molecular data...")
-                print("")
-            self._read_hitran()
-        else: #Else, if non-LTE treatment desired
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Extracting NLTE molecular data...")
-                print("")
-            molfile = "molfile.dat"
-            self._read_lambda()
 
 
         ##Below Section: RUN RADLITE on single/multiple cores in subfolders
@@ -509,13 +510,10 @@ class RadliteModel():
             #Make a core-specific directory for this run
             cpudir = os.path.join(workingdir, ("workingdir_cpu"+str(ai)+"/"))
             comm = subprocess.call(["mkdir", cpudir]) #Create subdirectory
-            #Copy initial files into this new core subdirectory
-            #for iname in initfilelist:
-            #    comm = subprocess.call(["cp", rundir+"/"+iname, cpudir])
 
             #Call core routine
             phere = mp.Process(target=self._run_core,
-                                    args=(ai, cpudir, outputdir,))
+                                args=(ai, cpudir, outputdir,))
             plist.append(phere)
             #Start this core
             if self.get_attr("verbose"): #Verbal output, if so desired
@@ -546,14 +544,15 @@ class RadliteModel():
     @func_timer
     def _run_core(self, pind, cpudir, outputdir):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _run_core
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > A submethod called by the run_radlite() method.
+            > Runs RADLite on core #pind.
+            > Organizes RADLite input/working/output files for core #pind.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(pind)+"th core has started working...")
@@ -612,27 +611,45 @@ class RadliteModel():
 
 
     ##OUTPUT DISPLAY METHODS
-    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
-        s=30, linewidth=3, linestyle="-", marker="o", color="black",
-        xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
-        xlim=None, ylim=None,
-        xunit=None, yunit=None, cbarunit=None,
-        xlabel=None, ylabel=None, cbarlabel=None,
-        cbarrotation=270, cbarlabelpad=25,
-        axisfontsize=16, titlefontsize=18, legfontsize=16,
-        tickfontsize=14, title="",
-        dolegend=False, leglabel="", legloc="best",
-        dopart=False, dosave=False, savename="testing.png"):
+    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10), s=30, linewidth=3, linestyle="-", marker="o", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+
         """
-        DOCSTRING
-        Function:
+        Method: plot_attr
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Plots the given attribute(s).
+        Inputs: 1 required, 24 optional
+            > yattrname (required)
+                - Type: string
+                - Example: "velocity_phi"
+                - Description: Name of the attribute (such as "velocity_phi" for
+                  ...the phi component of the velocity) to either plot as a
+                  ...gradient (if 2D) or plot as the y-axis of a line+scatter
+                  ...plot (if 1D).
+            > xattrname (optional; default=None)
+                - Type: string OR None
+                - Example: "radius"
+                - Description: Name of the attribute (such as "radius" for the
+                  ...radius data points) to plot along the x-axis.  This
+                  ...parameter is used only when yattrname is a 1D attribute.
+                  ...When used, it must have the same dimensions as the
+                  ...attribute given by yattrname.
+            > fig (optional; default=None)
+                - Type: <matplotlib.pyplot Figure instance> OR None
+                - Example: matplotlib.pyplot.figure()
+                - Description: A figure upon which to plot the given attribute.
+                  ...See matplotlib.pyplot documentation for Figure.
+        Outputs: Nothing OR displays a plot OR saves a plot
         Notes:
+            > If a 2D attribute is given for yattrname, then the code will plot
+              ...that attribute as a gradient with theta and radius along the
+              ...axes.
+            > If a 1D attribute is given for yattrname, then the code will plot
+              ...that attribute along the y-axis in a line+scatter plot.
+            > If a figure is passed for fig and dopart is True, then the figure
+              ...will be populated in the background and will not be erased or
+              ...shown.
         """
-        ##Below Section: INITIALIZE empty plot, if no existing plot given
+#fig=None, figsize=(10,10), s=30, linewidth=3, linestyle="-", marker="o", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png")        ##Below Section: INITIALIZE empty plot, if no existing plot given
         if fig is None:
             fig = plt.figure(figsize=figsize)
 
@@ -674,7 +691,7 @@ class RadliteModel():
                     alpha=alpha, label=leglabel)
             #Plot scatter plot
             plt.scatter(xvals*xscaler, yvals*yscaler, color=color,
-                    marker=marker, s=s, alpha=alpha, label=leglabel)
+                    marker=marker, s=s, alpha=alpha)
         else: #If neither 1D nor 2D
             raise ValueError("Oh no!  Make sure you've passed in y and/or x "
                             +"attributes to plot_attr() that have either 1D or "
@@ -864,7 +881,6 @@ class RadliteModel():
     #
 
 
-    @func_timer
     def _prep_mol_forall(self):
         """
         DOCSTRING
@@ -909,7 +925,6 @@ class RadliteModel():
 
 
     ##READ METHODS
-    @func_timer
     def _read_hitran(self):
         """
         DOCSTRING
@@ -921,6 +936,11 @@ class RadliteModel():
         Outputs:
         Notes:
         """
+        #!!!!!
+        if not self.get_attr("lte"):
+            raise ValueError("Non-LTE not supported yet...")
+
+
         ##Below Section: EXTRACT necessary parameters
         isonum = self.get_attr("isonum")
         wavenumrange = [1.0E4/self.get_attr("max_mu"),
@@ -1027,7 +1047,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _read_psum(self):
         """
         DOCSTRING
@@ -1099,7 +1118,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _read_starinfo(self):
         """
         DOCSTRING
@@ -1155,7 +1173,6 @@ class RadliteModel():
 
     ##CALCULATION METHODS
     ###NOTE: MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    #@func_timer
     def _calc_abundance(self):
         """
         DOCSTRING
@@ -1203,7 +1220,6 @@ class RadliteModel():
 
 
     ###NOTE: _CALC_GASDENSITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    #@func_timer
     def _calc_gasdensity(self):
         """
         DOCSTRING
@@ -1232,7 +1248,6 @@ class RadliteModel():
 
 
     ###NOTE: _CALC_GASTEMPERATURE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    #@func_timer
     def _calc_gastemperature(self):
         """
         DOCSTRING
@@ -1261,7 +1276,6 @@ class RadliteModel():
 
 
     ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
-    #@func_timer
     def _calc_turbulence(self):
         """
         DOCSTRING
@@ -1302,7 +1316,6 @@ class RadliteModel():
 
 
     ###NOTE: _CALC_VELOCITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING _CALC_VELOCITY METHODS
-    #@func_timer
     def _calc_velocity(self):
         """
         DOCSTRING
@@ -1398,7 +1411,6 @@ class RadliteModel():
 
 
     ##WRITE METHODS
-    #@func_timer
     def _write_abundanceinp(self):
         """
         DOCSTRING
@@ -1496,7 +1508,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_core_linespectruminp(self, pind, cpudir):
         """
         DOCSTRING
@@ -1562,7 +1573,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_core_moldatadat(self, cpudir, pind):
         """
         DOCSTRING
@@ -1653,7 +1663,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_densityinp(self):
         """
         DOCSTRING
@@ -1686,7 +1695,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_gastemperatureinp(self):
         """
         DOCSTRING
@@ -1719,7 +1727,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_radliteinp(self):
         """
         DOCSTRING
@@ -1786,7 +1793,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_turbulenceinp(self):
         """
         DOCSTRING
@@ -1820,7 +1826,6 @@ class RadliteModel():
     #
 
 
-    #@func_timer
     def _write_velocityinp(self):
         """
         DOCSTRING
