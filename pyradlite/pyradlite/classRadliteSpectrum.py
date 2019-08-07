@@ -2,7 +2,7 @@
 ##PURPOSE:
 
 
-##Below Section: IMPORT necessary functions
+##Below Section: IMPORT necessary packages
 import numpy as np
 import matplotlib.pyplot as plt
 import multiprocessing as mp
@@ -72,6 +72,8 @@ class RadliteSpectrum():
         self._attrdict = {}
         for key in inputdict:
             self._attrdict[key] = inputdict[key]["value"]
+        self._attrdict["units"] = {} #Inner dictionary to hold units
+        #NOTE: Unit dictionary for calculated quantities only! NOT inputs
 
 
         ##Below Section: EXIT
@@ -114,6 +116,29 @@ class RadliteSpectrum():
     #
 
 
+    def get_unit(self, attrname):
+        """
+        DOCSTRING
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: RETURN unit of attribute under given name + EXIT
+        try:
+            return self._attrdict["units"][attrname]
+        except KeyError:
+            raise KeyError("No unit returned because this attribute is either "
+                            +"invalid or has not been populated yet.  If the "
+                            +"latter is the case, then you can run "
+                            +"the method gen_spec() (if you haven't "
+                            +"yet) to automatically populate more "
+                            +"attributes.\n")
+    #
+
+
     def change_attr(self, attrname, attrval):
         """
         DOCSTRING
@@ -141,7 +166,7 @@ class RadliteSpectrum():
     #
 
 
-    def _set_attr(self, attrname, attrval):
+    def _set_attr(self, attrname, attrval, attrunit=""):
         """
         DOCSTRING
         WARNING: This function is not intended for direct use by user.
@@ -154,6 +179,7 @@ class RadliteSpectrum():
         """
         ##Below Section: RECORD given attribute under given name + EXIT
         self._attrdict[attrname] = attrval
+        self._attrdict["units"][attrname] = attrunit #Assign unit
         return
     #
 
@@ -201,19 +227,18 @@ class RadliteSpectrum():
     #
 
 
-!!!
+
     ##OUTPUT DISPLAY METHODS
     @func_timer
     def plot_spec(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
-            s=30, linewidth=3, linestyle="-", marker="o", color="black",
-            xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
-            xlim=None, ylim=None,
-            xunit=None, yunit=None, cbarunit=None,
-            xlabel=None, ylabel=None, cbarlabel=None,
-            axisfontsize=16, titlefontsize=18, legfontsize=16,
-            tickfontsize=14, title="",
-            dolegend=False, leglabel="", legloc="best",
-            dopart=False, dosave=False, savename="testing.png"):
+        linewidth=3, linestyle="-", color="black",
+        xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
+        xlim=None, ylim=None, xunit=None, yunit=None,
+        xlabel=None, ylabel=None,
+        axisfontsize=16, titlefontsize=18, legfontsize=16,
+        tickfontsize=14, title="",
+        dolegend=False, leglabel="", legloc="best",
+        dopart=False, dosave=False, savename="testing.png"):
         """
         DOCSTRING
         Function:
@@ -224,19 +249,23 @@ class RadliteSpectrum():
         Notes:
         """
         ##Below Section: INITIALIZE empty plot, if no existing plot given
-        fig = plt.figure(figsize=figsize)
+        if fig is None:
+            fig = plt.figure(figsize=figsize)
 
 
         ##Below Section: FETCH x and y-axis values
         #Fetch y-axis values
         yvals = self.get_attr(yattrname)
-        #Generate numerical x-axis if none given
+        #Fetch x-axis values
         if xattrname is None:
-            xattrname = ""
-            xvals = np.arange(0, len(yvals))
-            xunit = ""
-        else:
-            xvals = self.get_attr(xattrname)
+            xattrname = "wavelength" #Sets x-axis to wavelength, if none given
+        xvals = self.get_attr(xattrname)
+
+
+        ##Below Section: PLOT the desired attributes
+        plt.plot(xvals*xscaler, yvals*yscaler, color=color,
+                    linewidth=linewidth, linestyle=linestyle,
+                    alpha=alpha, label=leglabel)
 
 
         ##Below Section: SCALE plot axes, if so desired
@@ -256,25 +285,25 @@ class RadliteSpectrum():
         ##Below Section: LABEL plot axes, if so desired
         #x-axis labels (with units), if so desired
         if xlabel is None:
-            #Determine the unit, if not given
-            if xunit is None:
-                xunit = self.get_unit(xattrname) #Automatic unit
             #Set the x-axis label
             xlabel = xattrname.capitalize()
-            if xunit != "": #Tack on unit, if exists
-                xlabel = xlabel +" ["+xunit+"]"
-            plt.xlabel(xlabel, fontsize=axisfontsize)
+        #Determine the unit, if not given
+        if xunit is None:
+            xunit = self.get_unit(xattrname) #Automatic unit
+        if xunit != "": #Tack on unit, if exists
+            xlabel = xlabel +" ["+xunit+"]"
+        plt.xlabel(xlabel, fontsize=axisfontsize)
 
         #y-axis labels (with units), if so desired
         if ylabel is None:
-            #Determine the unit, if not given
-            if yunit is None: #For y-axis
-                yunit = self.get_unit(yattrname) #Automatic unit
             #Set the y-axis label
             ylabel = yattrname.capitalize()
-            if yunit != "": #Tack on unit, if exists
-                ylabel = ylabel +" ["+yunit+"]"
-            plt.ylabel(ylabel, fontsize=axisfontsize)
+        #Determine the unit, if not given
+        if yunit is None: #For y-axis
+            yunit = self.get_unit(yattrname) #Automatic unit
+        if yunit != "": #Tack on unit, if exists
+            ylabel = ylabel +" ["+yunit+"]"
+        plt.ylabel(ylabel, fontsize=axisfontsize)
 
 
         ##Below Section: SET title + legend + tick label size
@@ -689,10 +718,14 @@ class RadliteSpectrum():
 
 
         ##Below Section: STORE spectra and molecule information + EXIT
-        self._set_attr(attrname="spectrum", attrval=outy_arr) #Line-spec.
-        self._set_attr(attrname="emission", attrval=outem_arr) #Em-spec.
-        self._set_attr(attrname="continuum", attrval=outcont_arr) #Continuum
-        self._set_attr(attrname="wavelength", attrval=outmu_arr) #Wavelen. [mu]
+        self._set_attr(attrname="spectrum", attrval=outy_arr,
+                        attrunit="Jy") #Line-spec.
+        self._set_attr(attrname="emission", attrval=outem_arr,
+                        attrunit="Jy") #Em-spec.
+        self._set_attr(attrname="continuum", attrval=outcont_arr,
+                        attrunit="Jy") #Continuum
+        self._set_attr(attrname="wavelength", attrval=outmu_arr,
+                        attrunit=r"$\mu$m") #Wavelen. [mu]
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done processing RADLite spectrum!\n")
         return

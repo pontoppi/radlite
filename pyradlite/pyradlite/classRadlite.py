@@ -1,8 +1,8 @@
-##FILE:
-##PURPOSE:
+##FILE: Radlite
+##PURPOSE: Contains the classes RadliteModel() and RadliteSpectrum().
 
 
-##Below Section: IMPORT necessary functions
+##Below Section: IMPORT necessary packages
 import subprocess
 import multiprocessing as mp
 import numpy as np
@@ -52,14 +52,32 @@ class RadliteModel():
     @func_timer
     def __init__(self, infilename, hitranfilename):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: __init__
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Initializes an instance of the RadliteModel() class.
+            > Checks that input file (infilename) has minimum required
+              ...parameters to run the run_radlite() method.
+            > Processes all molecular lines that fit within the user's defined
+              ...criteria.
+            > Splits work for running RADLite for the processed lines across the
+              ...given number of cores.
+        Inputs: 2 required
+            > infilename
+                - Type: string
+                - Example: "/User/path/to/file/input_radlite.json"
+                - Description: A .json file containing ALL input parameters
+                  ...for this class instance.
+                - The user MUST pass in a value for this parameter.
+            > hitranfilename
+                - Type: string
+                - Example: "/User/path/to/file/data_hitran.json"
+                - Description: A .json file containing ALL molecular information
+                  ...and names of the associated HITRAN file.
+        Outputs: N/A
         Notes:
+            > Creates an underlying dictionary to hold all input parameters...
+              ...and future attributes.
         """
         ##Below Section: READ IN + STORE input files
         #Read in input RADLite data
@@ -173,14 +191,24 @@ class RadliteModel():
     ##STORE AND FETCH METHODS
     def get_attr(self, attrname):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: get_attr
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Fetches the value of the given attribute.
+        Inputs: 1
+            > attrname
+                - Type: string
+                - Example: "mstar"
+                - Description: Name of a desired attribute (such as "mstar" for
+                  ...the stellar mass).
+                - The user MUST pass in a value for this parameter.
+        Outputs: 1
+            > <Attribute value>
+                - Type: Varies
+                - Example: 1.0E33
+                - Description: The value of the given attribute.
         Notes:
+            > If an invalid name is given, then the code will return an error
+              ...listing all available attributes.
         """
         ##Below Section: DETERMINE requested attribute
         #Try accessing it
@@ -224,13 +252,26 @@ class RadliteModel():
 
     def get_unit(self, attrname):
         """
-        DOCSTRING
-        Function:
+        Method: get_unit
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Fetches the automatic unit of the given attribute.
+        Inputs: 1
+            > attrname
+                - Type: string
+                - Example: "mstar"
+                - Description: Name of a desired attribute (such as "mstar" for
+                  ...the stellar mass).
+                - The user MUST pass in a value for this parameter.
+        Outputs: 1
+            > <Attribute value>
+                - Type: string
+                - Example: "g"
+                - Description: The automatic unit of the given attribute.
         Notes:
+            > If the given attribute is unitless, then the code will return
+              ...an empty string.
+            > If an invalid name is given, then the code will return an error
+              ...listing all available attributes.
         """
         ##Below Section: RETURN unit of attribute under given name + EXIT
         try:
@@ -251,14 +292,29 @@ class RadliteModel():
 
     def _get_core_attr(self, attrname, dictname, pind):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _get_core_attr
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Fetches the portion of the given attribute that has been
+              ...partitioned for core number #pind.  Only certain attributes
+              ...can/should be accessed with this method.
+        Inputs: 3
+            > attrname
+                - Type: string
+                - Example: "Eup"
+                - Description: Name of a desired attribute (such as "mstar" for
+                  ...the stellar mass).
+                - The user MUST pass in a value for this parameter.
+        Outputs: 1
+            > <Attribute value>
+                - Type: string
+                - Example: "g"
+                - Description: The automatic unit of the given attribute.
         Notes:
+            > If the given attribute is unitless, then the code will return
+              ...an empty string.
+            > If an invalid name is given, then the code will return an error
+              ...listing all available attributes.
         """
         boundshere = self.get_attr("_splitinds")[pind]
         return self.get_attr(dictname)[attrname][
@@ -279,8 +335,7 @@ class RadliteModel():
         """
         ##Below Section: RECORD given attribute under given name + EXIT
         self._attrdict[attrname] = attrval
-        if attrunit is not None:
-            self._attrdict["units"][attrname] = attrunit #Assign unit, if given
+        self._attrdict["units"][attrname] = attrunit #Assign unit
         return
     #
 
@@ -536,15 +591,16 @@ class RadliteModel():
 
     ##OUTPUT DISPLAY METHODS
     def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
-            s=30, linewidth=3, linestyle="-", marker="o", color="black",
-            xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
-            xlim=None, ylim=None,
-            xunit=None, yunit=None, cbarunit=None,
-            xlabel=None, ylabel=None, cbarlabel=None,
-            axisfontsize=16, titlefontsize=18, legfontsize=16,
-            tickfontsize=14, title="",
-            dolegend=False, leglabel="", legloc="best",
-            dopart=False, dosave=False, savename="testing.png"):
+        s=30, linewidth=3, linestyle="-", marker="o", color="black",
+        xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
+        xlim=None, ylim=None,
+        xunit=None, yunit=None, cbarunit=None,
+        xlabel=None, ylabel=None, cbarlabel=None,
+        cbarrotation=270, cbarlabelpad=25,
+        axisfontsize=16, titlefontsize=18, legfontsize=16,
+        tickfontsize=14, title="",
+        dolegend=False, leglabel="", legloc="best",
+        dopart=False, dosave=False, savename="testing.png"):
         """
         DOCSTRING
         Function:
@@ -555,7 +611,8 @@ class RadliteModel():
         Notes:
         """
         ##Below Section: INITIALIZE empty plot, if no existing plot given
-        fig = plt.figure(figsize=figsize)
+        if fig is None:
+            fig = plt.figure(figsize=figsize)
 
 
         ##Below Section: FETCH x and y-axis values
@@ -625,32 +682,34 @@ class RadliteModel():
                 cbarlabel = zattrname.capitalize()
                 if cbarunit != "": #Tack on unit, if exists
                     cbarlabel = cbarlabel + " ["+cbarunit+"]"
-            cbar = plt.colorbar(grad, label=cbarlabel)
+            cbar = plt.colorbar(grad)
+            cbar.set_label(label=cbarlabel, fontsize=titlefontsize,
+                            rotation=cbarrotation, labelpad=cbarlabelpad)
             cbar.ax.tick_params(labelsize=tickfontsize)
 
 
         ##Below Section: LABEL plot axes, if so desired
         #x-axis labels (with units), if so desired
         if xlabel is None:
-            #Determine the unit, if not given
-            if xunit is None:
-                xunit = self.get_unit(xattrname) #Automatic unit
             #Set the x-axis label
             xlabel = xattrname.capitalize()
-            if xunit != "": #Tack on unit, if exists
-                xlabel = xlabel +" ["+xunit+"]"
-            plt.xlabel(xlabel, fontsize=axisfontsize)
+        #Determine the unit, if not given
+        if xunit is None:
+            xunit = self.get_unit(xattrname) #Automatic unit
+        if xunit != "": #Tack on unit, if exists
+            xlabel = xlabel +" ["+xunit+"]"
+        plt.xlabel(xlabel, fontsize=axisfontsize)
 
         #y-axis labels (with units), if so desired
         if ylabel is None:
-            #Determine the unit, if not given
-            if yunit is None: #For y-axis
-                yunit = self.get_unit(yattrname) #Automatic unit
             #Set the y-axis label
             ylabel = yattrname.capitalize()
-            if yunit != "": #Tack on unit, if exists
-                ylabel = ylabel +" ["+yunit+"]"
-            plt.ylabel(ylabel, fontsize=axisfontsize)
+        #Determine the unit, if not given
+        if yunit is None: #For y-axis
+            yunit = self.get_unit(yattrname) #Automatic unit
+        if yunit != "": #Tack on unit, if exists
+            ylabel = ylabel +" ["+yunit+"]"
+        plt.ylabel(ylabel, fontsize=axisfontsize)
 
 
         ##Below Section: SET title + legend + tick label size
@@ -929,6 +988,23 @@ class RadliteModel():
     #
 
 
+    def _read_mstar(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general stellar info reader
+        self._read_starinfo()
+        return
+    #
+
+
     #@func_timer
     def _read_psum(self):
         """
@@ -984,6 +1060,23 @@ class RadliteModel():
     #
 
 
+    def _read_rstar(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general stellar info reader
+        self._read_starinfo()
+        return
+    #
+
+
     #@func_timer
     def _read_starinfo(self):
         """
@@ -1016,6 +1109,23 @@ class RadliteModel():
         self._set_attr(attrname="mstar", attrval=mstar, attrunit="g")
         self._set_attr(attrname="rstar", attrval=rstar, attrunit="cm")
         self._set_attr(attrname="teff", attrval=teff, attrunit="K")
+        return
+    #
+
+
+    def _read_teff(self):
+        """
+        DOCSTRING
+        WARNING: This function is not intended for direct use by user.
+        Function:
+        Purpose:
+        Inputs:
+        Variables:
+        Outputs:
+        Notes:
+        """
+        ##Below Section: CALL general stellar info reader
+        self._read_starinfo()
         return
     #
 

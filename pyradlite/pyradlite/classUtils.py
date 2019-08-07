@@ -3,6 +3,7 @@
 
 
 ##Below Section: Import necessary functions
+from functools import wraps #Updates decorator with inner function attributes
 doutils = True
 if doutils:
     import time
@@ -13,6 +14,7 @@ def func_timer(func):
     if not doutils:
         return func
 
+    @wraps(func)
     def wrapper(*args, **kwargs):
         timestart = time.time()
         funcres = func(*args, **kwargs)
