@@ -550,8 +550,23 @@ class RadliteModel():
             > A submethod called by the run_radlite() method.
             > Runs RADLite on core #pind.
             > Organizes RADLite input/working/output files for core #pind.
-        Inputs: N/A
-        Outputs: N/A
+        Inputs: 3 rqeuired
+            > cpudir (required)
+                - Type: string
+                - Example: "workingdir"
+                - Description: Path to the working directory for this core.
+            > outputdir (required)
+                - Type: string
+                - Example: "outputdir"
+                - Description: Path to the output directory for the RADLite run.
+            > pind (required)
+                - Type: int
+                - Example: 2
+                - Description: Index (starting from 0) of the core.
+        Outputs: 1 (written, not returned)
+            > "RADLITE_core_<pind>.log", "moldata_<pind>.dat",
+              ..."linespectrum_moldata_<pind>.dat", and
+              ..."levelpop_moldata_<pind>.dat" are placed in outputdir.
         Notes: N/A
         """
         if self.get_attr("verbose"): #Verbal output, if so desired
@@ -611,7 +626,7 @@ class RadliteModel():
 
 
     ##OUTPUT DISPLAY METHODS
-    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10), s=30, linewidth=3, linestyle="-", marker="o", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10), markersize=30, linewidth=3, linestyle="-", markerstyle="o", color="black", markercolor="blue", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
 
         """
         Method: plot_attr
@@ -633,11 +648,211 @@ class RadliteModel():
                   ...parameter is used only when yattrname is a 1D attribute.
                   ...When used, it must have the same dimensions as the
                   ...attribute given by yattrname.
+            > alpha (optional; default=1.0)
+                - Type: integer OR float; in [0,1]
+                - Example: 0.5
+                - Description: Measure of transparency of the line+scatter plot.
+                  ...1 is fully opaque and 0 is fully transparent.
+            > axisfontsize (optional; default=16)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the x-axis and y-axis labels and
+                  ...for the colorbar label (if yattrname attribute is 2D).
+            > cbarlabel (optional; default=None)
+                - Type: string OR None
+                - Example: "Z-axis Values"
+                - Description: This parameter is used only when the attribute
+                  ...given by yattrname is 2D.
+                  ...It is the label for the colorbar.  If None, then
+                  ...the capitalized name of the 2D attribute will be used for
+                  ...the label.
+            > cbarlabelpad (optional; default=25)
+                - Type: integer OR float
+                - Example: -5
+                - Description: This parameter is used only when the attribute
+                  ...given by yattrname is 2D.
+                  ...It is the space between the colorbar label and the
+                  ...colorbar ticks.  Negative and positive numbers will move
+                  ...the label left and right, respectively.
+            > cbarrotation (optional; default=270)
+                - Type: string OR None
+                - Example: 90
+                - Description: This parameter is used only when the attribute
+                  ...given by yattrname is 2D.
+                  ...It is the rotation of the colorbar label in [degrees].
+            > cbarunit (optional; default=None)
+                - Type: string OR None
+                - Example: "kilometers/second"
+                - Description: This parameter is used only when the attribute
+                  ...given by yattrname is 2D.
+                  ...If cbarunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested 2D
+                  ...attribute.  If xunit is a string, then the code will use
+                  ...the given string as part of the label for the colorbar.
+                  ...It will be wrapped in square brackets.
+                - Notes: Useful if, for example, the user scaled the 2D
+                  ...attribute and thus changed the unit of its values.
+            > color (optional; default="black")
+                - Type: string OR <matplotlib.pyplot Colormap instance>
+                - Example: "black" OR plt.cm.afmhot_r
+                - Description: If the plot is 1D, then this should be the name
+                  ...of a color available from matplotlib.pyplot.  If the plot
+                  ...is 2D, then this should be the name of a colormap available
+                  ...from matplotlib.pyplot.
+            > dolegend (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will show a legend on the plot.
+                - Notes: The value for leglabel will be shown on the legend.
+            > dopart (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will exit the function without saving
+                  ...or displaying the plot.
+                - Notes: Useful for overplotting different attributes and/or
+                  ...different class instances onto the same figure, which can
+                  ...be done using multiple plot_attr() calls.  Requires that a
+                  ...<matplotlib.pyplot Figure instance> be passed for fig.
+            > dosave (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will save the plot as savename.
             > fig (optional; default=None)
                 - Type: <matplotlib.pyplot Figure instance> OR None
                 - Example: matplotlib.pyplot.figure()
                 - Description: A figure upon which to plot the given attribute.
                   ...See matplotlib.pyplot documentation for Figure.
+            > figsize (optional; default=(10,10))
+                - Type: list-like, with 2 values
+                - Example: (10,10)
+                - Description: 2 values indicating the figure size along the
+                  ...x-axis and y-axis.
+            > legfontsize (optional; default=16)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the legend (if dolegend=True).
+            > leglabel (optional; default="")
+                - Type: string OR None
+                - Example: "Y-axis Values"
+                - Description: The label for the line+scatter plot.  Will be
+                  ...displayed only if dolegend=True.
+            > legloc (optional; default="best")
+                - Type: string
+                - Example: "lower left"
+                - Description: The location for the plot legend.  It should
+                  ...should be a location supported by matplotlib.pyplot.legend.
+                  ...Will be used only if dolegend=True.
+            > linestyle (optional; default="-")
+                - Type: string
+                - Example: "-"
+                - Description: Style of the line in the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot.plot() are
+                ...accepted here.
+            > linewidth (optional; default=3)
+                - Type: integer OR float
+                - Example: 3
+                - Description: Thickness of the line in the line+scatter plot.
+                - Notes: Set to 0 if no line is desired.
+            > markersize (optional; default=30)
+                - Type: integer OR float
+                - Example: 30
+                - Description: Size of the markers for the line+scatter plot.
+                - Notes: Set to 0 if no markers are desired.
+            > markerstyle (optional; default="o")
+                - Type: string
+                - Example: "o"
+                - Description: Style of the markers for the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot.scatter() are
+                ...accepted here.
+            > savename (optional; default="testing.png")
+                - Type: string
+                - Example: "plot_folder/snazzy_plot.png"
+                - Description: Filepath+filename for saving the figure.  Only
+                  ...used if dosave=True.
+            > tickfontsize (optional; default=14)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the x-axis and y-axis ticks,
+                  ...and for the colorbar (if the yattrname attribute is 2D).
+            > title (optional; default="")
+                - Type: string
+                - Example: "A Snazzy Plot"
+                - Description: The title for the overall plot.
+            > titlefontsize (optional; default=18)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the figure title.
+            > xlabel (optional; default=None)
+                - Type: string OR None
+                - Example: "X-axis Values"
+                - Description: The label for the x-axis.  If None, then
+                  ...the capitalized name of the x-axis attribute (xattrname)
+                  ...will be used for the label.
+            > xlim (optional; default=None)
+                - Type: list-like with 2 values OR None
+                - Example: [50,200]
+                - Description: The x-axis range for the plot.  If None, then
+                  ...the x-axis range will not be changed.
+            > xlog (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will set the x-axis to log-scale.  If
+                  ...False, will leave the x-axis as is.
+            > xscaler (optional; default=1.0)
+                - Type: integer OR float
+                - Example: 0.01
+                - Description: A factor by which to multiply the x-axis values.
+                - Notes: Useful for changing the unit of the x-axis (e.g., a
+                ...value of 0.01 to change from cm to m).
+            > xunit (optional; default=None)
+                - Type: string OR None
+                - Example: "centimeters"
+                - Description: If xunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested x-axis
+                  ...attribute.  If xunit is a string, then the code will use
+                  ...the given string as part of the label for the x-axis.
+                  ...It will be wrapped in square brackets.
+                - Notes: Useful if, for example, the user scaled the x-axis with
+                  ...xscaler and thus changed the unit of the x-axis values.
+                  ...If the user does not want a unit shown at all, then the
+                  ...user should set xunit to an empty string ("").
+            > ylabel (optional; default=None)
+                - Type: string OR None
+                - Example: "Y-axis Values"
+                - Description: The label for the y-axis.  If None, then
+                  ...the capitalized name of the y-axis attribute (yattrname)
+                  ...will be used for the label.
+            > ylim (optional; default=None)
+                - Type: List-like with 2 values OR None
+                - Example: [50,200]
+                - Description: The y-axis range for the plot.  If None, then
+                  ...the y-axis range will not be changed.
+            > ylog (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will set the y-axis to log-scale.  If
+                  ...False, will leave the y-axis as is.
+            > yscaler (optional; default=1.0)
+                - Type: integer OR float
+                - Example: 0.01
+                - Description: If the attribute given by yattrname is 1D, then
+                  ...this is a factor by which to multiply the y-axis values, OR
+                  ...if the attribute given by yattrname is 2D, then this is a
+                  ...factor by which to multiply the z-axis values.
+                - Notes: Useful for changing the unit of the y-axis OR z-axis
+                  ...(e.g., a value of 0.01 to change from cm to m).
+            > yunit (optional; default=None)
+                - Type: string OR None
+                - Example: "radians"
+                - Description: If yunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested y-axis
+                  ...attribute.  If yunit is a string, then the code will use
+                  ...the given string as part of the label for the y-axis.
+                  ...It will be wrapped in square brackets.
+                  ...If the user does not want a unit shown at all, then the
+                  ...user should set xunit to an empty string ("").
+                - Notes: Useful if, for example, the user scaled the y-axis with
+                  ...yscaler and thus changed the unit of the y-axis values.
         Outputs: Nothing OR displays a plot OR saves a plot
         Notes:
             > If a 2D attribute is given for yattrname, then the code will plot
@@ -649,7 +864,8 @@ class RadliteModel():
               ...will be populated in the background and will not be erased or
               ...shown.
         """
-#fig=None, figsize=(10,10), s=30, linewidth=3, linestyle="-", marker="o", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png")        ##Below Section: INITIALIZE empty plot, if no existing plot given
+
+        ##Below Section: INITIALIZE empty plot, if no existing plot given
         if fig is None:
             fig = plt.figure(figsize=figsize)
 
@@ -687,11 +903,9 @@ class RadliteModel():
         elif (ndim == 1) and (len(xshape) == 1): #If 1D quantities
             #Plot line plot
             plt.plot(xvals*xscaler, yvals*yscaler, color=color,
+                    markercolor=markercolor, markersize=markersize,
                     linewidth=linewidth, linestyle=linestyle,
-                    alpha=alpha, label=leglabel)
-            #Plot scatter plot
-            plt.scatter(xvals*xscaler, yvals*yscaler, color=color,
-                    marker=marker, s=s, alpha=alpha)
+                    alpha=alpha, label=leglabel, marker=markerstyle)
         else: #If neither 1D nor 2D
             raise ValueError("Oh no!  Make sure you've passed in y and/or x "
                             +"attributes to plot_attr() that have either 1D or "
@@ -785,14 +999,29 @@ class RadliteModel():
     ##PREPARATION METHODS
     def _prep_mol_forcore(self, pind):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _prep_mol_forcore
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Determines unique levels (e.g., energy) for core number #pind.
+            > Calculates level populations for this core.
+        Inputs: 1 required
+            > pind (required)
+                - Type: int
+                - Example: 2
+                - Description: Index (starting from 0) of this core.
+        Outputs: 1
+            > <dictionary>
+                - Key-Value Pairs:
+                    o "Euniq": Array of unique energy levels
+                    o "guniq": Array of corresponding degeneracies
+                    o "quniq": Array of corresponding rotational levels
+                    o "vuniq": Array of corresponding vibrational levels
+                    o "npop": Array of level populations
+                    o "numlevels": Number of unique energy levels
+                    o "numtrans": Number of unique molecular transitions (lines)
+                - Description: Dictionary containing level population
+                  ...information for this core.
+        Notes: N/A
         """
         #Below Section: EXTRACT lists of info for line transitions
         dictname = "_hitrandict"
@@ -809,8 +1038,6 @@ class RadliteModel():
         #
         tlen = len(self.get_attr("theta"))//2
         tempgasarr = self.get_attr("gastemperature")[0:tlen,:]
-        psum = self.get_attr("psum")
-        psumtemp = self.get_attr("psum_temp")
 
 
         ##Below Section: COMBINE levels + REMOVE duplicates to get unique levels
@@ -852,14 +1079,12 @@ class RadliteModel():
                         +"meaning "+str(len(Euniqarr))+" unique levels.")
 
 
-        ##Below Section: CALCULATE partition sum and level populations
+        ##Below Section: CALCULATE level populations
         numlevels = len(Euniqarr)
         numtrans = len(wavenumarr)
         Euniqarr_K = Euniqarr*h0*c0/1.0/kB0 #[K]; Upper energy levels
-        #Interpolate partition sum
-        psumfunc = interper(psumtemp, psum, kind=self.get_attr("interpolation"))
-        psuminterped = psumfunc(tempgasarr)
-
+        #Fetch interpolated partition sum
+        psuminterped = self.get_attr("_psum_interped")
         #Calculate population levels
         npoparr = np.array([(guniqarr[ai]
                                     *np.exp(-1.0*Euniqarr_K[ai]/tempgasarr))
@@ -883,18 +1108,28 @@ class RadliteModel():
 
     def _prep_mol_forall(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _prep_mol_forall
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads in HITRAN molecular data and partition sum information.
+            > Splits molecular lines across the number of cores specified by
+              ...the user at initialization.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
-        ##Below Section: CALL functions to read molecular line data
+        ##Below Section: Determine molecular line and partition sum information
+        #Read molecular line and partition data
         self._read_hitran()
         self._read_psum()
+        #Set up partition sum calculation
+        psum = self.get_attr("_psum")
+        psumtemp = self.get_attr("_psum_temp")
+        tlen = len(self.get_attr("theta"))//2
+        tempgasarr = self.get_attr("gastemperature")[0:tlen,:]
+        #Interpolate and store partition sum
+        psumfunc = interper(psumtemp, psum, kind=self.get_attr("interpolation"))
+        self._set_attr(attrname="_psum_interped", attrval=psumfunc(tempgasarr))
 
 
         ##Below Section: SPLIT data across given number of cores
@@ -927,14 +1162,17 @@ class RadliteModel():
     ##READ METHODS
     def _read_hitran(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_hitran
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads the HITRAN file for the molecule specified by the user
+              ...during initialization.
+            > Extracts molecular lines that adhere to the criteria (e.g.,
+              ...minimum and maximum abundances) specified by the user during
+              ...initialization.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         #!!!!!
         if not self.get_attr("lte"):
@@ -1032,14 +1270,15 @@ class RadliteModel():
 
     def _read_mstar(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_mstar
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _read_starinfo.
+            > Allows an avenue for the stellar mass ("mstar") to be 'read-in'
+              ...using the get_attr() framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general stellar info reader
         self._read_starinfo()
@@ -1049,14 +1288,14 @@ class RadliteModel():
 
     def _read_psum(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_psum
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads in the partition sum data from the psumfile specified by the
+              ...user during initialization.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: PROCESS all filelines in partition sum file
         #Read in all filelines
@@ -1089,10 +1328,10 @@ class RadliteModel():
 
 
         ##Below Section: STORE partition info + EXIT
-        self._set_attr(attrname="psum", attrval=psumarr)
-        self._set_attr(attrname="psum_temp", attrval=psumtemparr,
+        self._set_attr(attrname="_psum", attrval=psumarr)
+        self._set_attr(attrname="_psum_temp", attrval=psumtemparr,
                         attrunit="K")
-        self._set_attr(attrname="psum_molmass", attrval=molmassarr[iind],
+        self._set_attr(attrname="_psum_molmass", attrval=molmassarr[iind],
                         attrunit="g")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Partition information for "+self.get_attr("molname")+" "
@@ -1103,14 +1342,15 @@ class RadliteModel():
 
     def _read_rstar(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_rstar
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _read_starinfo.
+            > Allows an avenue for the stellar radius ("rstar") to be 'read-in'
+              ...using the get_attr() framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general stellar info reader
         self._read_starinfo()
@@ -1120,14 +1360,14 @@ class RadliteModel():
 
     def _read_starinfo(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_starinfo
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads in stellar information from the RADMC output file
+              ...("starinfo.inp").
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: PROCESS all lines in file
         filepathandname = os.path.join(
@@ -1155,14 +1395,15 @@ class RadliteModel():
 
     def _read_teff(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_teff
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _read_starinfo.
+            > Allows an avenue for the stellar effective temperature ("teff")
+              ...to be 'read-in' using the get_attr() framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general stellar info reader
         self._read_starinfo()
@@ -1172,17 +1413,25 @@ class RadliteModel():
 
 
     ##CALCULATION METHODS
-    ###NOTE: MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     def _calc_abundance(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_abundance
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Calculates the abundance of the molecule given the criteria
+              ...(e.g., freeze-out temperature) specified by the user during
+              ...initialization.
+              ...If the freeze-out temperature is None, then the abundance will
+              ...be constant across the source (set to "max_abund").  If the
+              ...freeze-out temperature is a number, then the abundance will be
+              ...set to "max_abund" at temperatures >= freeze-out temperature
+              ...and set to "min_abund" at temperatures < freeze-out
+              ...temperature.
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > This method could most certainly be overwritten in a super-class
+              ...(which would inherit this base class).
         """
         ##Below Section: EXTRACT structural information
         temparr = self.get_attr("dusttemperature")
@@ -1219,17 +1468,18 @@ class RadliteModel():
     #
 
 
-    ###NOTE: _CALC_GASDENSITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     def _calc_gasdensity(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_gasdensity
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Calculates the gas density of the source, assuming that the gas
+              ...density is equal to (dust density * ("gastodust")).
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > This method could most certainly be overwritten in a super-class
+              ...(which would inherit this base class).
         """
         ##Below Section: CALCULATE gas density based on dust density
         gastodustratio = self.get_attr("gastodust") #Gas to dust ratio
@@ -1247,17 +1497,18 @@ class RadliteModel():
     #
 
 
-    ###NOTE: _CALC_GASTEMPERATURE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     def _calc_gastemperature(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_gastemperature
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Calculates the gas temperature of the source, assuming that it
+              ...is equal to the dust temperature.
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > This method could most certainly be overwritten in a super-class
+              ...(which would inherit this base class).
         """
         ##Below Section: EXTRACT gas information
         gastemparr = self.get_attr("dusttemperature").copy()
@@ -1275,17 +1526,19 @@ class RadliteModel():
     #
 
 
-    ###NOTE: _CALC_TURBULENCE WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING METHODS
     def _calc_turbulence(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_turbulence
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Calculates the turbulence of the source, assuming that it is equal
+              ...to the scaled sound speed and thermal broadening added in
+              ...quadrature.
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > This method could most certainly be overwritten in a super-class
+              ...(which would inherit this base class).
         """
         ##Below Section: EXTRACT gas information
         temparr = self.get_attr("dusttemperature")
@@ -1315,17 +1568,20 @@ class RadliteModel():
     #
 
 
-    ###NOTE: _CALC_VELOCITY WILL BE MOVED TO BASEMODEL CLASS; MORE COMPLEX STRUCTURES WILL HAVE OVERRIDING _CALC_VELOCITY METHODS
     def _calc_velocity(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_abundance
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Calculates the gas velocity of the source, assuming that the gas
+              ...is Keplerian.
+              ...Three components are calculated: phi ("velocity_phi"),
+              ...theta ("velocity_theta"), and radial ("velocity_radial").
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > This method could most certainly be overwritten in a super-class
+              ...(which would inherit this base class).
         """
         ##Below Section: EXTRACT stellar information
         rarr = self.get_attr("radius") #Radii
@@ -1360,14 +1616,16 @@ class RadliteModel():
 
     def _calc_velocity_radial(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_velocity_radial
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _calc_velocity.
+            > Allows an avenue for the radial velocity component
+              ...("velocity_radial") to be 'calculated' using the get_attr()
+              ...framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general velocity calculator
         self._calc_velocity()
@@ -1377,14 +1635,16 @@ class RadliteModel():
 
     def _calc_velocity_theta(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_velocity_theta
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _calc_velocity.
+            > Allows an avenue for the theta velocity component
+              ...("velocity_theta") to be 'calculated' using the get_attr()
+              ...framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general velocity calculator
         self._calc_velocity()
@@ -1394,14 +1654,16 @@ class RadliteModel():
 
     def _calc_velocity_phi(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _calc_velocity_phi
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > PURE WRAPPER: Calls _calc_velocity.
+            > Allows an avenue for the phi velocity component
+              ...("velocity_phi") to be 'calculated' using the get_attr()
+              ...framework.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: CALL general velocity calculator
         self._calc_velocity()
@@ -1413,14 +1675,15 @@ class RadliteModel():
     ##WRITE METHODS
     def _write_abundanceinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_abundanceinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "abundance.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "abundance.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string containing abundance information
         #Extract abundance
@@ -1448,14 +1711,23 @@ class RadliteModel():
     @func_timer
     def _write_core_levelpopinp(self, cpudir, pind):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_core_levelpopinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "levelpop_moldata.dat" and "levelpop.info" input
+              ...files for core #pind to use for running RADLite.
+        Inputs: 2 required
+            > cpudir (required)
+                - Type: string
+                - Example: "workingdir"
+                - Description: Path to the working directory for this core.
+            > pind (required)
+                - Type: int
+                - Example: 2
+                - Description: Index (starting from 0) of the core.
+        Outputs: 2 (written, not returned)
+            > "levelpop_moldata.dat" and "levelpop.info" are written to cpudir.
+        Notes: N/A
         """
         ##Below Section: EXTRACT level population and partition sum information
         #Extract level population information
@@ -2048,15 +2320,8 @@ class RadliteSpectrum():
 
     ##OUTPUT DISPLAY METHODS
     @func_timer
-    def plot_spec(self, yattrname, xattrname=None, fig=None, figsize=(10,10),
-        linewidth=3, linestyle="-", color="black",
-        xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0,
-        xlim=None, ylim=None, xunit=None, yunit=None,
-        xlabel=None, ylabel=None,
-        axisfontsize=16, titlefontsize=18, legfontsize=16,
-        tickfontsize=14, title="",
-        dolegend=False, leglabel="", legloc="best",
-        dopart=False, dosave=False, savename="testing.png"):
+    def plot_spec(self, yattrname, xattrname=None, fig=None, figsize=(10,10), linewidth=3, linestyle="-", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, xlabel=None, ylabel=None, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+
         """
         DOCSTRING
         Function:
