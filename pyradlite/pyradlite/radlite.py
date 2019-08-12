@@ -447,14 +447,6 @@ class RadliteModel():
             > After running run_radlite(), use the gen_spec() method in the
               ...RadliteSpectrum() class to read and process the RADLite output.
         """
-        ##Below Section: SET UP lists of initial and input files
-        cpfilelist = ["radius.inp",
-                        "theta.inp", "frequency.inp", "density.inp",
-                        "dustdens.inp", "dusttemp_final.dat",
-                        "dustopac.inp", "dustopac_*.inp", "abundance.inp",
-                        "temperature.inp", "velocity.inp"]
-
-
         ##Below Section: SET UP result directory
         rundir = self.get_attr("run_dir")
         if self.get_attr("dodate"): #If date should be appended to dir. name
