@@ -196,6 +196,62 @@ class RadliteModel():
     #
 
 
+    #!!!!!! finish input checks ##CHECK METHODS
+    def _check_inputs(self):
+        """
+        Method: _check_inputs
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
+        Purpose:
+            > Checks that the user has initialized this class instance with the
+              ...minimum set of inputs necessary to run the run_radlite()
+              ...method.
+        Inputs: N/A
+        Outputs: N/A
+        Notes:
+            > Will raise an error if any of the necessary inputs are missing.
+        """
+        ##Below Section: CHECK user inputs; make sure they are valid
+        #Make sure that desired image cube output is valid
+        validimage = [0, 2]
+        if self.get_attr("image") not in validimage:
+            raise ValueError("Sorry, the image you have chosen ("
+                    +str(inpdict["image"])+") is not a valid image.  The "
+                    +"value of image must be one of the following: "
+                    +str(validimage)+".")
+
+        #Truncate number of cores, if too many requested
+        maxcores = mp.cpu_count()
+        if self.get_attr("numcores") > (maxcores - 1):
+            newnumcores = max([(maxcores - 1), 1])
+            print("Whoa, looks like you requested too many cores (you "
+                    +"requested "+str(self.get_attr("numcores"))+")!")
+            print("Looks like you only have "+str(maxcores)+" available in "
+                    +"total, so we're reducing the number of cores down to "
+                    +str(newnumcores)+".")
+            self._set_attr(attrnum="numcores", attrval=newnumcores)
+
+        #Make sure that desired LTE format is valid
+        if not isinstance(self.get_attr("lte"), bool):
+            raise ValueError("Sorry, the lte you have chosen ("
+                    +str(self.get_attr("lte"))+") is not a valid lte.  "
+                    +"The value of lte must be a boolean (True or False).")
+
+
+        ##Below Section: CHOOSE RADLite exec. based on desired output
+        #Prepare executable for desired image cube output
+        if self.get_attr("image") == 0: #If desired output is spectrum
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Will prepare a spectrum-formatted image cube...")
+                print("")
+            self._set_attr(attrname="executable",
+                            attrval=self.get_attr("exe_path")+"RADlite")
+        elif self.get_attr("image") == 2: #If desired output is circ.
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Will prepare a circular-formatted image cube...")
+                print("")
+    #
+
+
 
     ##STORE AND FETCH METHODS
     def get_attr(self, attrname):
@@ -266,7 +322,8 @@ class RadliteModel():
         """
         Method: get_unit
         Purpose:
-            > Fetches the automatic unit of the given attribute.
+            > Fetches the automatic unit of the given attribute.  Will not
+              ...return any units for inputs from initialization.
         Inputs: 1 required
             > attrname (required)
                 - Type: string
@@ -366,63 +423,6 @@ class RadliteModel():
         self._attrdict[attrname] = attrval
         self._attrdict["units"][attrname] = attrunit #Assign unit
         return
-    #
-
-
-
-    #!!!!!! finish input checks ##CHECK METHODS
-    def _check_inputs(self):
-        """
-        Method: _check_inputs
-        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
-        Purpose:
-            > Checks that the user has initialized this class instance with the
-              ...minimum set of inputs necessary to run the run_radlite()
-              ...method.
-        Inputs: N/A
-        Outputs: N/A
-        Notes:
-            > Will raise an error if any of the necessary inputs are missing.
-        """
-        ##Below Section: CHECK user inputs; make sure they are valid
-        #Make sure that desired image cube output is valid
-        validimage = [0, 2]
-        if self.get_attr("image") not in validimage:
-            raise ValueError("Sorry, the image you have chosen ("
-                    +str(inpdict["image"])+") is not a valid image.  The "
-                    +"value of image must be one of the following: "
-                    +str(validimage)+".")
-
-        #Truncate number of cores, if too many requested
-        maxcores = mp.cpu_count()
-        if self.get_attr("numcores") > (maxcores - 1):
-            newnumcores = max([(maxcores - 1), 1])
-            print("Whoa, looks like you requested too many cores (you "
-                    +"requested "+str(self.get_attr("numcores"))+")!")
-            print("Looks like you only have "+str(maxcores)+" available in "
-                    +"total, so we're reducing the number of cores down to "
-                    +str(newnumcores)+".")
-            self._set_attr(attrnum="numcores", attrval=newnumcores)
-
-        #Make sure that desired LTE format is valid
-        if not isinstance(self.get_attr("lte"), bool):
-            raise ValueError("Sorry, the lte you have chosen ("
-                    +str(self.get_attr("lte"))+") is not a valid lte.  "
-                    +"The value of lte must be a boolean (True or False).")
-
-
-        ##Below Section: CHOOSE RADLite exec. based on desired output
-        #Prepare executable for desired image cube output
-        if self.get_attr("image") == 0: #If desired output is spectrum
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Will prepare a spectrum-formatted image cube...")
-                print("")
-            self._set_attr(attrname="executable",
-                            attrval=self.get_attr("exe_path")+"RADlite")
-        elif self.get_attr("image") == 2: #If desired output is circ.
-            if self.get_attr("verbose"): #Verbal output, if so desired
-                print("Will prepare a circular-formatted image cube...")
-                print("")
     #
 
 
@@ -696,9 +696,11 @@ class RadliteModel():
                 - Type: string OR <matplotlib.pyplot Colormap instance>
                 - Example: "black" OR plt.cm.afmhot_r
                 - Description: If the plot is 1D, then this should be the name
-                  ...of a color available from matplotlib.pyplot.  If the plot
-                  ...is 2D, then this should be the name of a colormap available
-                  ...from matplotlib.pyplot.
+                  ...of a color available from matplotlib.pyplot and will be
+                  ...used for the plotted line.  If the plot is 2D, then this
+                  ...should be the name of a colormap available from
+                  ...matplotlib.pyplot and will be the colormap used for the
+                  ...gradient.
             > dolegend (optional; default=False)
                 - Type: boolean
                 - Example: True
@@ -753,6 +755,12 @@ class RadliteModel():
                 - Example: 3
                 - Description: Thickness of the line in the line+scatter plot.
                 - Notes: Set to 0 if no line is desired.
+            > markercolor (optional; default="blue")
+                - Type: string
+                - Example: "blue"
+                - Description: Color of the markers for the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot are accepted
+                  ...here.
             > markersize (optional; default=30)
                 - Type: integer OR float
                 - Example: 30
@@ -1782,14 +1790,23 @@ class RadliteModel():
 
     def _write_core_linespectruminp(self, pind, cpudir):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_core_linespectruminp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "linespectrum.inp" input file for core #pind to use
+              ...for running RADLite.
+        Inputs: 2 required
+            > cpudir (required)
+                - Type: string
+                - Example: "workingdir"
+                - Description: Path to the working directory for this core.
+            > pind (required)
+                - Type: int
+                - Example: 2
+                - Description: Index (starting from 0) of the core.
+        Outputs: 1 (written, not returned)
+            > "linespectrum.inp" is written to cpudir.
+        Notes: N/A
         """
         ##Below Section: BUILD string to form the spectrum input file
         writestr = ""
@@ -1847,14 +1864,23 @@ class RadliteModel():
 
     def _write_core_moldatadat(self, cpudir, pind):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_core_moldatadat
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "moldata.data" input files for core #pind to use
+              ...for running RADLite.
+        Inputs: 2 required
+            > cpudir (required)
+                - Type: string
+                - Example: "workingdir"
+                - Description: Path to the working directory for this core.
+            > pind (required)
+                - Type: int
+                - Example: 2
+                - Description: Index (starting from 0) of the core.
+        Outputs: 1 (written, not returned)
+            > "moldata.dat" is written to cpudir.
+        Notes: N/A
         """
         #Below Section: EXTRACT lists of info for line transitions
         #Extract molecular line information
@@ -1937,14 +1963,15 @@ class RadliteModel():
 
     def _write_densityinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_densityinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "density.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "density.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string containing gas density information
         #Extract gas density
@@ -1969,14 +1996,15 @@ class RadliteModel():
 
     def _write_gastemperatureinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_gastemperatureinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "temperature.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "temperature.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string containing gas temperature information
         #Extract temperature
@@ -2001,14 +2029,15 @@ class RadliteModel():
 
     def _write_radliteinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_radliteinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "radlite.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "radlite.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string to form the input file
         writestr = "" #Initialize string
@@ -2067,14 +2096,15 @@ class RadliteModel():
 
     def _write_turbulenceinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_turbulenceinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "turbulence.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "turbulence.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string containing turbulence information
         #Extract turbulence
@@ -2100,14 +2130,15 @@ class RadliteModel():
 
     def _write_velocityinp(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _write_velocityinp
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the "velocity.inp" input file for RADLite.
+        Inputs: N/A
+        Outputs: 1 (written, not returned)
+            > "velocity.inp" is written to the inp_path directory specified
+              ...during initialization.
+        Notes: N/A
         """
         ##Below Section: BUILD string containing velocity information
         #Extract velocity
@@ -2140,19 +2171,26 @@ class RadliteModel():
 
 
 ##
-##
 class RadliteSpectrum():
     @func_timer
     def __init__(self, infilename):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: __init__
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Initializes an instance of the RadliteSpectrum() class.
+            > Checks that input file (infilename) has minimum required
+              ...parameters to run the gen_spec() method.
+        Inputs: 1 required
+            > infilename (required)
+                - Type: string
+                - Example: "/User/path/to/file/input_spectrum.json"
+                - Description: A .json file containing ALL input parameters
+                  ...for this class instance.
+        Outputs: N/A
         Notes:
+            > Creates an underlying dictionary to hold all input parameters...
+              ...and future attributes.
         """
         ##Below Section: READ IN + STORE input file
         #Read in input spectrum data
@@ -2176,18 +2214,58 @@ class RadliteSpectrum():
     #
 
 
+    #!!!!!! finish input checks ##CHECK METHODS
+    def _check_inputs(self):
+        """
+        Method: _check_inputs
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
+        Purpose:
+            > Checks that the user has initialized this class instance with the
+              ...minimum set of inputs necessary to run the gen_spec()
+              ...method.
+        Inputs: N/A
+        Outputs: N/A
+        Notes:
+            > Will raise an error if any of the necessary inputs are missing.
+        """
+        ##Below Section: CHECK user inputs; make sure they are valid
+        #Truncate number of cores, if too many requested
+        maxcores = mp.cpu_count()
+        if self.get_attr("numcores") > (maxcores - 1):
+            newnumcores = max([(maxcores - 1), 1])
+            print("Whoa, looks like you requested too many cores (you "
+                    +"requested "+str(self.get_attr("numcores"))+")!")
+            print("Looks like you only have "+str(maxcores)+" available in "
+                    +"total, so we're reducing the number of cores down to "
+                    +str(newnumcores)+".")
+            self._set_attr(attrnum="numcores", attrval=newnumcores)
+    #
+
+
 
     ##STORE AND FETCH METHODS
     def get_attr(self, attrname):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: get_attr
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Fetches the value of the given attribute.
+        Inputs: 1 required
+            > attrname (required)
+                - Type: string
+                - Example: "dist"
+                - Description: Name of the given attribute (such as "dist" for
+                  ...distance to the source).
+        Outputs: 1
+            > <Attribute value>
+                - Type: Varies
+                - Example: 140
+                - Description: The value of the given attribute.
         Notes:
+            > If the desired attribute has not been stored before, then the code
+              ...will try to read in its value.  If that doesn't work, then
+              ...the code will stop trying (see note below).
+            > If an invalid name is given, then the code will return an error
+              ...listing all available attributes.
         """
         ##Below Section: DETERMINE requested attribute
         #Try accessing it
@@ -2208,13 +2286,26 @@ class RadliteSpectrum():
 
     def get_unit(self, attrname):
         """
-        DOCSTRING
-        Function:
+        Method: get_unit
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Fetches the automatic unit of the given attribute.  Will not
+              ...return any units for inputs from initialization.
+        Inputs: 1 required
+            > attrname (required)
+                - Type: string
+                - Example: "spectrum"
+                - Description: Name of the given attribute (such as "spectrum"
+                  ...for the spectrum).
+        Outputs: 1
+            > <Attribute value>
+                - Type: string
+                - Example: "Jy"
+                - Description: The automatic unit of the given attribute.
         Notes:
+            > If the given attribute is unitless, then the code will return
+              ...an empty string.
+            > If an invalid name is given, then the code will return an error
+              ...listing all available attributes.
         """
         ##Below Section: RETURN unit of attribute under given name + EXIT
         try:
@@ -2229,43 +2320,29 @@ class RadliteSpectrum():
     #
 
 
-    def change_attr(self, attrname, attrval):
-        """
-        DOCSTRING
-        Function:
-        Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
-        """
-        ##Below Section: CHANGE value of given attribute
-        #NOTE: Currently this acts as a user-friendly wrapper of _set_attr()...
-        #...and could be changed if underlying data structures were changed.
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("You called the change_attr() method for "+attrname+"!")
-            print("Note that this will override any previous values.")
-        #Set new value for given attribute
-        self._set_attr(attrname=attrname, attrval=attrval)
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("New value has successfully been set!\n")
-
-
-        ##Below Section: EXIT
-        return
-    #
-
-
     def _set_attr(self, attrname, attrval, attrunit=""):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _set_attr
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Sets the given value for the given attribute in the underlying
+              ...attribute database.
+        Inputs: 2 required, 1 optional
+            > attrname (required)
+                - Type: string
+                - Example: "mstar"
+                - Description: Name of the desired attribute (such as "mstar"
+                  ...for the stellar mass).
+            > attrval (required)
+                - Type: Varies
+                - Example: 1.0E33
+                - Description: Desired value for the given attribute.
+            > attrunit (optional; default="")
+                - Type: string
+                - Example: "g"
+                - Description: Unit of the given attribute value.
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: RECORD given attribute under given name + EXIT
         self._attrdict[attrname] = attrval
@@ -2279,13 +2356,22 @@ class RadliteSpectrum():
     @func_timer
     def gen_spec(self):
         """
-        DOCSTRING
-        Function:
+        Method: gen_spec
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
+            > Reads in and processes data from RADLite runs specified during
+              ...initialization.
+            > Puts the molecular lines together into a single spectrum
+              ...(removing any duplicate lines).
+        Inputs: N/A
+        Outputs: N/A
         Notes:
+            > After gen_spec() completes, the spectra can be accessed using the
+              ...get_attr() method, like so:
+              - get_attr('wavelength') for the wavelengths
+              - get_attr('frequency') for the frequencies
+              - get_attr('spectrum') for the full spectrum
+              - get_attr('emission') for the emission only
+              - get_attr('continuum') for the continuum
         """
         ##Below Section: REVIEW user parameters for spectra
         if self.get_attr("verbose"): #Verbal output, if so desired
@@ -2311,6 +2397,7 @@ class RadliteSpectrum():
             print("get_attr('emission') for the emission only")
             print("get_attr('continuum') for the continuum")
             print("get_attr('wavelength') for the wavelengths")
+            print("get_attr('frequency') for the frequencies")
             print("You can also plot them using the plot_spec() method, "
                     +"using the same keywords just written above.\n")
         return
@@ -2320,16 +2407,194 @@ class RadliteSpectrum():
 
     ##OUTPUT DISPLAY METHODS
     @func_timer
-    def plot_spec(self, yattrname, xattrname=None, fig=None, figsize=(10,10), linewidth=3, linestyle="-", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, xlabel=None, ylabel=None, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+    def plot_spec(self, yattrname, xattrname="wavelength", fig=None, figsize=(10,10), linewidth=3, linestyle="-", markersize=0, markerstyle="o", markercolor="blue", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, xlabel=None, ylabel=None, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
 
         """
-        DOCSTRING
-        Function:
+        Method: plot_attr
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Plots the given attribute(s).
+        Inputs: 1 required, 24 optional
+            > yattrname (required)
+                - Type: string
+                - Example: "spectrum"
+                - Description: Name of the attribute (such as "spectrum" for
+                  ...the full spectrum) to plot as a line+scatter plot.
+            > xattrname (optional; default="wavelength")
+                - Type: string
+                - Example: "frequency"
+                - Description: Name of the attribute (such as "frequency" for
+                  ...the frequencies) to plot along the x-axis.
+            > alpha (optional; default=1.0)
+                - Type: integer OR float; in [0,1]
+                - Example: 0.5
+                - Description: Measure of transparency of the line+scatter plot.
+                  ...1 is fully opaque and 0 is fully transparent.
+            > axisfontsize (optional; default=16)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the x-axis and y-axis labels and
+                  ...for the colorbar label (if yattrname attribute is 2D).
+            > color (optional; default="black")
+                - Type: string
+                - Example: "black"
+                - Description: This should be the name of a color available
+                  ...from matplotlib.pyplot.
+            > dolegend (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will show a legend on the plot.
+                - Notes: The value for leglabel will be shown on the legend.
+            > dopart (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will exit the function without saving
+                  ...or displaying the plot.
+                - Notes: Useful for overplotting different attributes and/or
+                  ...different class instances onto the same figure, which can
+                  ...be done using multiple plot_spec() calls.  Requires that a
+                  ...<matplotlib.pyplot Figure instance> be passed for fig.
+            > dosave (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will save the plot as savename.
+            > fig (optional; default=None)
+                - Type: <matplotlib.pyplot Figure instance> OR None
+                - Example: matplotlib.pyplot.figure()
+                - Description: A figure upon which to plot the given attribute.
+                  ...See matplotlib.pyplot documentation for Figure.
+            > figsize (optional; default=(10,10))
+                - Type: list-like, with 2 values
+                - Example: (10,10)
+                - Description: 2 values indicating the figure size along the
+                  ...x-axis and y-axis.
+            > legfontsize (optional; default=16)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the legend (if dolegend=True).
+            > leglabel (optional; default="")
+                - Type: string OR None
+                - Example: "Y-axis Values"
+                - Description: The label for the line+scatter plot.  Will be
+                  ...displayed only if dolegend=True.
+            > legloc (optional; default="best")
+                - Type: string
+                - Example: "lower left"
+                - Description: The location for the plot legend.  It should
+                  ...should be a location supported by matplotlib.pyplot.legend.
+                  ...Will be used only if dolegend=True.
+            > linestyle (optional; default="-")
+                - Type: string
+                - Example: "-"
+                - Description: Style of the line in the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot.plot() are
+                ...accepted here.
+            > linewidth (optional; default=3)
+                - Type: integer OR float
+                - Example: 3
+                - Description: Thickness of the line in the line+scatter plot.
+                - Notes: Set to 0 if no line is desired.
+            > markercolor (optional; default="blue")
+                - Type: string
+                - Example: "blue"
+                - Description: Color of the markers for the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot are accepted
+                  ...here.
+            > markersize (optional; default=30)
+                - Type: integer OR float
+                - Example: 30
+                - Description: Size of the markers for the line+scatter plot.
+                - Notes: Set to 0 if no markers are desired.
+            > markerstyle (optional; default="o")
+                - Type: string
+                - Example: "o"
+                - Description: Style of the markers for the line+scatter plot.
+                - Notes: All values accepted by matplotlib.pyplot.scatter() are
+                ...accepted here.
+            > savename (optional; default="testing.png")
+                - Type: string
+                - Example: "plot_folder/snazzy_plot.png"
+                - Description: Filepath+filename for saving the figure.  Only
+                  ...used if dosave=True.
+            > tickfontsize (optional; default=14)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the x-axis and y-axis ticks.
+            > title (optional; default="")
+                - Type: string
+                - Example: "A Snazzy Plot"
+                - Description: The title for the overall plot.
+            > titlefontsize (optional; default=18)
+                - Type: integer OR float
+                - Example: 10
+                - Description: The fontsize for the figure title.
+            > xlabel (optional; default=None)
+                - Type: string OR None
+                - Example: "X-axis Values"
+                - Description: The label for the x-axis.  If None, then
+                  ...the capitalized name of the x-axis attribute (xattrname)
+                  ...will be used for the label.
+            > xlim (optional; default=None)
+                - Type: list-like with 2 values OR None
+                - Example: [50,200]
+                - Description: The x-axis range for the plot.  If None, then
+                  ...the x-axis range will not be changed.
+            > xlog (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will set the x-axis to log-scale.  If
+                  ...False, will leave the x-axis as is.
+            > xscaler (optional; default=1.0)
+                - Type: integer OR float
+                - Example: 0.01
+                - Description: A factor by which to multiply the x-axis values.
+                - Notes: Useful for changing the unit of the x-axis (e.g., a
+                ...value of 0.01 to change from cm to m).
+            > xunit (optional; default=None)
+                - Type: string OR None
+                - Example: "GHz"
+                - Description: If xunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested x-axis
+                  ...attribute.  If xunit is a string, then the code will use
+                  ...the given string as part of the label for the x-axis.
+                  ...It will be wrapped in square brackets.
+                - Notes: Useful if, for example, the user scaled the x-axis with
+                  ...xscaler and thus changed the unit of the x-axis values.
+                  ...If the user does not want a unit shown at all, then the
+                  ...user should set xunit to an empty string ("").
+            > ylabel (optional; default=None)
+                - Type: string OR None
+                - Example: "Y-axis Values"
+                - Description: The label for the y-axis.  If None, then
+                  ...the capitalized name of the y-axis attribute (yattrname)
+                  ...will be used for the label.
+            > ylim (optional; default=None)
+                - Type: List-like with 2 values OR None
+                - Example: [50,200]
+                - Description: The y-axis range for the plot.  If None, then
+                  ...the y-axis range will not be changed.
+            > ylog (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will set the y-axis to log-scale.  If
+                  ...False, will leave the y-axis as is.
+            > yscaler (optional; default=1.0)
+                - Type: integer OR float
+                - Example: 1000
+                - Description: A factor by which to multiply the y-axis values.
+                - Notes: Useful for changing the unit of the y-axis
+                  ...(e.g., a value of 1000 to change from Jy to mJy).
+            > yunit (optional; default=None)
+                - Type: string OR None
+                - Example: "microJanskies"
+                - Description: If yunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested y-axis
+                  ...attribute.  If yunit is a string, then the code will use
+                  ...the given string as part of the label for the y-axis.
+                  ...It will be wrapped in square brackets.
+                  ...If the user does not want a unit shown at all, then the
+                  ...user should set xunit to an empty string ("").
+                - Notes: Useful if, for example, the user scaled the y-axis with
+                  ...yscaler and thus changed the unit of the y-axis values.
         """
         ##Below Section: INITIALIZE empty plot, if no existing plot given
         if fig is None:
@@ -2340,8 +2605,6 @@ class RadliteSpectrum():
         #Fetch y-axis values
         yvals = self.get_attr(yattrname)
         #Fetch x-axis values
-        if xattrname is None:
-            xattrname = "wavelength" #Sets x-axis to wavelength, if none given
         xvals = self.get_attr(xattrname)
 
 
@@ -2423,14 +2686,30 @@ class RadliteSpectrum():
     ##READ METHODS
     def _read_core_radliteoutput(self, filedict):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_core_radliteoutput
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads in and processes a single set of molecular line files output
+              ...by RADLite.
+        Inputs: 1 required
+            > filedict (required)
+                - Type: dictionary
+                - Key-Value Pairs:
+                    o "spec": "linespectrum_moldata.dat" file produced by one
+                      ...core during one RADLite run.
+                    o "mol": "moldata.dat" file produced by one core during one
+                      ...RADLite run.
+                - Description: Dictionary containing molecular line and
+                  ...data fileset produced by one core during one RADLite run.
+        Outputs: 1
+            > <dictionary>
+                - Key-Value Pairs:
+                    o "line": Data extracted from "linespectrum_moldata.dat" file produced by one core during one RADLite run.
+                    o "mol": Data extracted from "moldata.dat" file produced by one core during one RADLite run.
+                - Description: Dictionary containing processed molecular line
+                  ...and molecular info from one fileset produced by one core
+                  ...during one RADLite run.
+        Notes: N/A
         """
         ##Below Section: READ IN + PROCESS data from given RADLite subrun
         specfilename = filedict["spec"]
@@ -2469,9 +2748,6 @@ class RadliteSpectrum():
         numlines = int(specdata[4]) #Number of mol. lines
         incl = float(specdata[6].split()[2]) #Velocity info
         maxnumpoints = int(specdata[5]) #Max. number of data points per line
-        #vwidth = float(velinfo[0])
-        #vlsr = float(velinfo[1])
-        #incl = float(velinfo[2])
 
         #Iterate through molecular lines in subrun
         linedict_list = [{} for ai in range(0, numlines)] #To hold all fluxes
@@ -2520,14 +2796,16 @@ class RadliteSpectrum():
     @func_timer
     def _read_radliteoutput(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _read_radliteoutput
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Reads in and processes sets of molecular line files produced by
+              ...RADLite for all runs specified by user during initialization.
+            > Removes any duplicate line occurrences encountered from the given
+              ...files.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: READ IN + PROCESS data from each given RADLite run
         runpath_list = self.get_attr("run_paths")
@@ -2637,14 +2915,16 @@ class RadliteSpectrum():
     @func_timer
     def _process_spectrum(self):
         """
-        DOCSTRING
-        WARNING: This function is not intended for direct use by user.
-        Function:
+        Method: _process_spectrum
+        WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Synthesizes spectrum from processed RADLite output.
+            > Interpolates the continuum from the molecular lines.
+            > Records the full spectrum, the emission-only spectrum, and the
+              ...continuum.
+        Inputs: N/A
+        Outputs: N/A
+        Notes: N/A
         """
         ##Below Section: ACCESS read-in RADLite output
         linedict_list = self.get_attr("_radlitelineoutput")
@@ -2798,6 +3078,8 @@ class RadliteSpectrum():
         #For continuum (cont. only)
         interpfunc = interper(x=fullmu_arr, y=fullcont_arr) #Interp. func.
         outcont_arr = interpfunc(outmu_arr) #Interpolated output continuum
+        #For frequencies
+        outfreq_arr = c0/(outmu_arr*1.0E-6) #Hz
 
 
         ##Below Section: STORE spectra and molecule information + EXIT
@@ -2808,7 +3090,9 @@ class RadliteSpectrum():
         self._set_attr(attrname="continuum", attrval=outcont_arr,
                         attrunit="Jy") #Continuum
         self._set_attr(attrname="wavelength", attrval=outmu_arr,
-                        attrunit=r"$\mu$m") #Wavelen. [mu]
+                        attrunit=r"$\mu$m") #Wavelength [mu]
+        self._set_attr(attrname="frequency", attrval=outfreq_arr,
+                        attrunit="Hz") #Frequency [Hz]
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Done processing RADLite spectrum!\n")
         return
@@ -2818,15 +3102,26 @@ class RadliteSpectrum():
 
     ##WRITE METHODS
     @func_timer
-    def write_fits(self, fitsname, overwrite):
+    #!!!FINISH THIS
+    def write_fits(self, fitsname, overwrite=False):
         """
-        DOCSTRING
-        Function:
+        Method: write_fits
         Purpose:
-        Inputs:
-        Variables:
-        Outputs:
-        Notes:
+            > Writes the spectrum data generated by the gen_spec() method to
+              ...a .fits file.
+        Inputs: 1 required, 1 optional
+            > fitsname (required)
+                - Type: string
+                - Example: "folder/testfits.fits"
+                - Description: Name of the output .fits file.
+            > overwrite (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will overwrite any previous files that
+                  ...have the same file name as that given by fitsname.  If
+                  ...False, will not overwrite any previous files.
+        Outputs: 1 (written, not returned)
+            > The .fits file will be written to the given fitsname.
         """
         ##Below Section: LOAD spectra and molecular data
         if self.get_attr("verbose"): #Verbal output, if so desired
