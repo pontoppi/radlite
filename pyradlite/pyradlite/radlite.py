@@ -235,11 +235,15 @@ class RadliteModel():
                     +str(newnumcores)+".")
             self._set_attr(attrnum="numcores", attrval=newnumcores)
 
-        #Make sure that desired LTE format is valid
-        if not isinstance(self.get_attr("lte"), bool):
-            raise ValueError("Sorry, the lte you have chosen ("
-                    +str(self.get_attr("lte"))+") is not a valid lte.  "
-                    +"The value of lte must be a boolean (True or False).")
+        #!!!!! ###Make sure that desired LTE format is valid
+        if not self.get_attr("lte"):
+            raise ValueError("Sorry, currently we only support LTE "
+                                +"calculations.  Please set lte to false
+                                +"in the input file.")
+        if not self.get_attr("ovp"):
+            raise ValueError("Sorry, currently we do not distinguish between "
+                                +"ortho and para lines.  Please set ovp to "
+                                +"false in the input file".)
 
 
         ##Below Section: CHOOSE RADLite exec. based on desired output
@@ -1195,11 +1199,6 @@ class RadliteModel():
         Outputs: N/A
         Notes: N/A
         """
-        #!!!!!
-        if not self.get_attr("lte"):
-            raise ValueError("Non-LTE not supported yet...")
-
-
         ##Below Section: EXTRACT necessary parameters
         isonum = self.get_attr("isonum")
         wavenumrange = [1.0E4/self.get_attr("max_mu"),
