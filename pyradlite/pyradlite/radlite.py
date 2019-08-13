@@ -54,6 +54,21 @@ else:
     h0 = const.h.cgs.value
     cinmu0 = c0*1.0E4 #mu/s
     cinkm0 = c0/1.0E5 #km/s
+#
+
+#Prepare the welcome message
+welcome_message = (
+    "--------------------------------------------------\n"
+    +"Welcome to RADLite Version 1.3.0!\n\n"
+    +"RADLite Version 1.2 (in IDL) was written by:\n"
+    +"Klaus Pontoppidan (pontoppi@stsci.edu)\n"
+    +"Kees Dullemond\n"
+    +"Alex Lockwood\n"
+    +"Rowin Meijerink\n\n"
+    +"RADLite Version 1.3.0 (in Python) was written by:\n"
+    +"Jamila Pegues (jamila.pegues@cfa.harvard.edu)\n"
+    +"Klaus Pontoppidan (pontoppi@stsci.edu)\n"
+    +"--------------------------------------------------\n\n")
 
 
 
@@ -109,22 +124,9 @@ class RadliteModel():
         self._attrdict["molmass"] = moldict["molweight"]*amu0 #Mol. mass
 
 
-        ##Below Section: PRINT a welcome message, if so desired
+        ##Below Section: PRINT the welcome message, if so desired
         if self.get_attr("verbose"):
-            print("--------------------------------------------------")
-            print("Welcome to RADLite Version 1.3!")
-            print("")
-            print("RADLite Version 1.2 (in IDL) was written by:")
-            print("Klaus Pontoppidan (pontoppi@stsci.edu)")
-            print("Kees Dullemond")
-            print("Alex Lockwood")
-            print("Rowin Meijerink")
-            print("")
-            print("RADLite Version 1.3 (in Python) was written by:")
-            print("Jamila Pegues (jamila.pegues@cfa.harvard.edu)")
-            print("Klaus Pontoppidan (pontoppi@stsci.edu)")
-            print("--------------------------------------------------")
-            print("")
+            print(welcome_message)
             print("")
             print("-"*10+"\n"+"Now preparing all RADLite input files...")
             print("")
@@ -2215,6 +2217,12 @@ class RadliteSpectrum():
         #NOTE: Unit dictionary for calculated quantities only! NOT inputs
 
 
+        ##Below Section: PRINT the welcome message, if so desired
+        if self.get_attr("verbose"):
+            print(welcome_message)
+            print("")
+
+
         ##Below Section: EXIT
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Welcome!  You have successfully initialized an instance "
@@ -2287,7 +2295,7 @@ class RadliteSpectrum():
 
         #Otherwise, raise an error
         raise AttributeError("'"+attrname+"' doesn't seem to be a valid "
-                            +"attribute.  Valid attributes are:\n"
+                            +"attribute.  Valid attributes (sorted) are:\n"
                             +str(np.sort([key for key in self._attrdict]))+".\n"
                             +"Run the method gen_spec() (if you haven't "
                             +"yet) to automatically populate more "
@@ -2418,7 +2426,7 @@ class RadliteSpectrum():
 
     ##OUTPUT DISPLAY METHODS
     @func_timer
-    def plot_spec(self, yattrname, xattrname="wavelength", fig=None, figsize=(10,10), linewidth=3, linestyle="-", markersize=0, markerstyle="o", markercolor="blue", color="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, xlabel=None, ylabel=None, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+    def plot_spec(self, yattrname, xattrname="wavelength", fig=None, figsize=(10,10), linewidth=3, linestyle="-", markersize=0, markerstyle="o", markercolor="blue", linecolor="black", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, xlabel=None, ylabel=None, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
 
         """
         Method: plot_attr
@@ -2445,11 +2453,6 @@ class RadliteSpectrum():
                 - Example: 10
                 - Description: The fontsize for the x-axis and y-axis labels and
                   ...for the colorbar label (if yattrname attribute is 2D).
-            > color (optional; default="black")
-                - Type: string
-                - Example: "black"
-                - Description: This should be the name of a color available
-                  ...from matplotlib.pyplot.
             > dolegend (optional; default=False)
                 - Type: boolean
                 - Example: True
@@ -2493,6 +2496,11 @@ class RadliteSpectrum():
                 - Description: The location for the plot legend.  It should
                   ...should be a location supported by matplotlib.pyplot.legend.
                   ...Will be used only if dolegend=True.
+            > linecolor (optional; default="black")
+                - Type: string
+                - Example: "black"
+                - Description: This should be the name of a color available
+                  ...from matplotlib.pyplot.
             > linestyle (optional; default="-")
                 - Type: string
                 - Example: "-"
@@ -2620,7 +2628,7 @@ class RadliteSpectrum():
 
 
         ##Below Section: PLOT the desired attributes
-        plt.plot(xvals*xscaler, yvals*yscaler, color=color,
+        plt.plot(xvals*xscaler, yvals*yscaler, color=linecolor,
                     markerfacecolor=markercolor, markeredgecolor=markercolor,
                     markersize=markersize, marker=markerstyle,
                     linewidth=linewidth, linestyle=linestyle,
@@ -2735,7 +2743,7 @@ class RadliteSpectrum():
 
         #FOR MOLECULAR DATA FILE
         #Extract molecular traits for this subrun
-        molname = moldata[1] #Name of molecule
+        molname = moldata[1].split("\n")[0] #Name of molecule (newline stripped)
         molweight = float(moldata[3]) #Weight of molecule
         numlevels = int(moldata[5]) #Number of energy levels
         numtrans = int(moldata[7+numlevels+1]) #Number of transitions
@@ -2794,7 +2802,7 @@ class RadliteSpectrum():
             moldict_list[ai]["glow"] = glow_arr[ai]
             #For einstein coefficient, central wavenumber, and upper energy
             moldict_list[ai]["A"] = A_arr[ai]
-            moldict_list[ai]["wavenumcen"] = wavenum_arr[ai]
+            moldict_list[ai]["wavenum"] = wavenum_arr[ai]
             moldict_list[ai]["Eup"] = Eup_arr[ai]
             #For vibrational and rotational levels
             moldict_list[ai]["lvib"] = lvib_arr[ai]
@@ -3092,7 +3100,7 @@ class RadliteSpectrum():
         interpfunc = interper(x=fullmu_arr, y=fullcont_arr) #Interp. func.
         outcont_arr = interpfunc(outmu_arr) #Interpolated output continuum
         #For frequencies
-        outfreq_arr = c0/(outmu_arr*1.0E-6) #Hz
+        outfreq_arr = c0/(outmu_arr*1.0E-4) #Hz
 
 
         ##Below Section: STORE spectra and molecule information + EXIT
@@ -3115,7 +3123,6 @@ class RadliteSpectrum():
 
     ##WRITE METHODS
     @func_timer
-    #!!!FINISH THIS
     def write_fits(self, fitsname, overwrite=False):
         """
         Method: write_fits
@@ -3145,7 +3152,8 @@ class RadliteSpectrum():
             fluxspec_arr = self.get_attr("spectrum") #Line-spec.
             fluxem_arr = self.get_attr("emission") #Em-spec.
             fluxcont_arr = self.get_attr("continuum") #Continuum
-            wavelen_arr = self.get_attr("wavelength") #Wavelen. [mu]
+            wavelen_arr = self.get_attr("wavelength") #Wavelength [mu]
+            freq_arr = self.get_attr("frequency") #Frequency [Hz]
             moldict_list = self.get_attr("molinfo") #All mol. info
         except AttributeError: #Throw an error if hasn't been processed yet
             raise AttributeError("Whoa! Looks like you haven't processed "
@@ -3157,25 +3165,35 @@ class RadliteSpectrum():
         #Create primary header for .fits file
         hdr = fitter.Header()
         hdr["WAVEUNIT"] = "micron"
+        hdr["FREQUNIT"] = "Hz"
         hdr["FLUXUNIT"] = "Jy"
         hdr["INCL_deg"] = moldict_list[0]["incl"]
         hdr["DIST_pc"] = self.get_attr("dist")
         hdu_hdr = fitter.PrimaryHDU(header=hdr)
 
         #Create and fill table container with flux data
-        c1 = fitter.Column(name="Wavelength", array=wavelen_arr)#, format='D')
-        c2 = fitter.Column(name="Emission", array=fluxem_arr)#, format='D')
-        c3 = fitter.Column(name="Spectrum", array=fluxspec_arr)#, format='D')
-        c4 = fitter.Column(name="Continuum", array=fluxcont_arr)#, format='D')
-        hdu_flux = fitter.BinTableHDU.from_columns([c1, c2, c3, c4])
+        c1 = fitter.Column(name="wavelength", array=wavelen_arr, format='D')
+        c2 = fitter.Column(name="frequency", array=freq_arr, format='D')
+        c3 = fitter.Column(name="emission", array=fluxem_arr, format='D')
+        c4 = fitter.Column(name="spectrum", array=fluxspec_arr, format='D')
+        c5 = fitter.Column(name="continuum", array=fluxcont_arr, format='D')
+        hdu_flux = fitter.BinTableHDU.from_columns([c1, c2, c3, c4, c5])
+
+        #Determine format types for all molecular data
+        namelist = [key for key in moldict_list[0]] #Key-names of mol. data
+        formatlist = ['D']*len(namelist) #Init. formats as floats
+        #Change format to strings as applicable
+        for ai in range(0, len(namelist)):
+            key = namelist[ai] #Current name of molecular data
+            if isinstance(moldict_list[0][key], str): #If string, change format
+                formatlist[ai] = 'A' #String format (instead of float format)
 
         #Create and fill table container with molecular data
-        namelist = [key for key in moldict_list[0]] #Names of mol. data
-        arrlist = [np.array([dhere[key] for dhere in moldict_list[0]])
+        arrlist = [np.array([dhere[key] for dhere in moldict_list])
                     for key in namelist] #Arrays corresponding to data names
-        collist = [fitter.Column(name=namelist[ai], array=arrlist[ai])#,
-                                    #format=formatlist[ai])
-                    for ai in range(0, len(moldict_list))] #Data columns
+        collist = [fitter.Column(name=namelist[ai], array=arrlist[ai],
+                                    format=formatlist[ai])
+                    for ai in range(0, len(namelist))] #Data columns
         hdu_mol = fitter.BinTableHDU.from_columns(collist) #Data container
 
 
