@@ -60,7 +60,7 @@ else:
 ##
 class RadliteModel():
     @func_timer
-    def __init__(self, infilename, hitranfilename):
+    def __init__(self, infilename, hitranfilename, radmcfilepath):
         """
         Method: __init__
         WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
@@ -112,15 +112,18 @@ class RadliteModel():
         ##Below Section: PRINT a welcome message, if so desired
         if self.get_attr("verbose"):
             print("--------------------------------------------------")
-            print("Welcome to RADLite Version 1.2, wrapped in Python.")
+            print("Welcome to RADLite Version 1.3!")
             print("")
-            print("RADLite Version 1.2 was written by:")
+            print("RADLite Version 1.2 (in IDL) was written by:")
             print("Klaus Pontoppidan (pontoppi@stsci.edu)")
             print("Kees Dullemond")
             print("Alex Lockwood")
             print("Rowin Meijerink")
-            print("--------------------------------------------------")
             print("")
+            print("RADLite Version 1.3 (in Python) was written by:")
+            print("Jamila Pegues (jamila.pegues@cfa.harvard.edu)")
+            print("Klaus Pontoppidan (pontoppi@stsci.edu)")
+            print("--------------------------------------------------")
             print("")
             print("")
             print("-"*10+"\n"+"Now preparing all RADLite input files...")
@@ -133,7 +136,7 @@ class RadliteModel():
 
         ###TEMP. BLOCK START
         ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
-        modradmc = radmc.radmc_model("./")
+        modradmc = radmc.radmc_model(radmcfilepath)
         self._set_attr(attrname="radius", attrval=modradmc.radius,
                         attrunit="cm")
         self._set_attr(attrname="theta", attrval=modradmc.theta, attrunit="rad")
@@ -511,14 +514,16 @@ class RadliteModel():
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print("Starting "+str(ai)+"th core in "+cpudir+"...")
             phere.start()
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Done starting core(s)!")
 
         #Close pool of cores
-        if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Done running core(s)!")
         for ai in range(0, numcores):
             plist[ai].join()
             if self.get_attr("verbose"): #Verbal output, if so desired
                 print(str(ai)+"th core finished and closed!")
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("All core(s) have finished!")
 
         #Delete working directory for cores
         if self.get_attr("verbose"): #Verbal output, if so desired
@@ -618,7 +623,7 @@ class RadliteModel():
 
 
     ##OUTPUT DISPLAY METHODS
-    def plot_attr(self, yattrname, xattrname=None, fig=None, figsize=(10,10), markersize=30, linewidth=3, linestyle="-", markerstyle="o", color="black", markercolor="blue", xlog=False, ylog=False, xscaler=1.0, yscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, cbarunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
+    def plot_attr(self, yattrname, fig=None, figsize=(10,10), markersize=30, linewidth=3, linestyle="-", linecolor="black", markerstyle="o", markercolor="blue", cmap=plt.cm.bone_r, xlog=False, ylog=False, zlog=False, xscaler=1.0, yscaler=1.0, zscaler=1.0, alpha=1.0, xlim=None, ylim=None, xunit=None, yunit=None, zunit=None, xlabel=None, ylabel=None, cbarlabel=None, cbarrotation=270, cbarlabelpad=25, levels=100, axisfontsize=16, titlefontsize=18, legfontsize=16, tickfontsize=14, title="", dolegend=False, leglabel="", legloc="best", dopart=False, dosave=False, savename="testing.png"):
 
         """
         Method: plot_attr
@@ -632,15 +637,6 @@ class RadliteModel():
                   ...the phi component of the velocity) to either plot as a
                   ...gradient (if 2D) or plot as the y-axis of a line+scatter
                   ...plot (if 1D).
-            > xattrname (optional; default=None)
-                - Type: string OR None
-                - Example: "radius"
-                - Description: Name of the attribute (such as "radius" for the
-                  ...radius data points) to plot along the x-axis.  This
-                  ...parameter is used only when yattrname is a 1D attribute.
-                  ...When used, it must have the same dimensions as the
-                  ...attribute given by yattrname.
-            > alpha (optional; default=1.0)
                 - Type: integer OR float; in [0,1]
                 - Example: 0.5
                 - Description: Measure of transparency of the line+scatter plot.
@@ -672,27 +668,12 @@ class RadliteModel():
                 - Description: This parameter is used only when the attribute
                   ...given by yattrname is 2D.
                   ...It is the rotation of the colorbar label in [degrees].
-            > cbarunit (optional; default=None)
-                - Type: string OR None
-                - Example: "kilometers/second"
-                - Description: This parameter is used only when the attribute
-                  ...given by yattrname is 2D.
-                  ...If cbarunit is None, then the code will use the
-                  ...default unit (if it exists) for the requested 2D
-                  ...attribute.  If xunit is a string, then the code will use
-                  ...the given string as part of the label for the colorbar.
-                  ...It will be wrapped in square brackets.
-                - Notes: Useful if, for example, the user scaled the 2D
-                  ...attribute and thus changed the unit of its values.
-            > color (optional; default="black")
-                - Type: string OR <matplotlib.pyplot Colormap instance>
-                - Example: "black" OR plt.cm.afmhot_r
-                - Description: If the plot is 1D, then this should be the name
-                  ...of a color available from matplotlib.pyplot and will be
-                  ...used for the plotted line.  If the plot is 2D, then this
-                  ...should be the name of a colormap available from
-                  ...matplotlib.pyplot and will be the colormap used for the
-                  ...gradient.
+            > cmap (optional; default=plt.cm.bones_r)
+                - Type: <matplotlib.pyplot Colormap instance>
+                - Example: plt.cm.afmhot_r
+                - Description: This should be the name of a colormap available
+                  ...from matplotlib.pyplot and will be the colormap used for
+                  ...the gradient.  2D case only.
             > dolegend (optional; default=False)
                 - Type: boolean
                 - Example: True
@@ -736,6 +717,16 @@ class RadliteModel():
                 - Description: The location for the plot legend.  It should
                   ...should be a location supported by matplotlib.pyplot.legend.
                   ...Will be used only if dolegend=True.
+            > levels (optional; default=50)
+                - Type: int OR list-like
+                - Example: [10, 20, 30, 40, 50]
+                - Description: Contour levels for the gradient.  2D case only.
+            > linecolor (optional; default="black")
+                - Type: string
+                - Example: "orange"
+                - Description: This should be the name of a color available
+                  ...from matplotlib.pyplot and will be used for the plotted
+                  ...line.
             > linestyle (optional; default="-")
                 - Type: string
                 - Example: "-"
@@ -835,11 +826,9 @@ class RadliteModel():
             > yscaler (optional; default=1.0)
                 - Type: integer OR float
                 - Example: 0.01
-                - Description: If the attribute given by yattrname is 1D, then
-                  ...this is a factor by which to multiply the y-axis values, OR
-                  ...if the attribute given by yattrname is 2D, then this is a
-                  ...factor by which to multiply the z-axis values.
-                - Notes: Useful for changing the unit of the y-axis OR z-axis
+                - Description: This is a factor by which to multiply the y-axis
+                  ...values.
+                - Notes: Useful for changing the unit of the y-axis
                   ...(e.g., a value of 0.01 to change from cm to m).
             > yunit (optional; default=None)
                 - Type: string OR None
@@ -850,9 +839,33 @@ class RadliteModel():
                   ...the given string as part of the label for the y-axis.
                   ...It will be wrapped in square brackets.
                   ...If the user does not want a unit shown at all, then the
-                  ...user should set xunit to an empty string ("").
+                  ...user should set yunit to an empty string ("").
                 - Notes: Useful if, for example, the user scaled the y-axis with
                   ...yscaler and thus changed the unit of the y-axis values.
+            > zscaler (optional; default=1.0)
+                - Type: integer OR float
+                - Example: 0.01
+                - Description: This is a factor by which to multiply the z-axis
+                  ...values.  2D case only.
+                - Notes: Useful for changing the unit of the z-axis
+                  ...(e.g., a value of 0.01 to change from cm to m).
+            > zlog (optional; default=False)
+                - Type: boolean
+                - Example: True
+                - Description: If True, will set the z-axis to log-scale.  If
+                  ...False, will leave the z-axis as is.  2D case only.
+            > zunit (optional; default=None)
+                - Type: string OR None
+                - Example: "centimeters/second"
+                - Description: If zunit is None, then the code will use the
+                  ...default unit (if it exists) for the requested z-axis
+                  ...attribute.  If xunit is a string, then the code will use
+                  ...the given string as part of the label for the z-axis.
+                  ...It will be wrapped in square brackets.  2D case only.
+                - Notes: Useful if, for example, the user scaled the z-axis with
+                  ...zscaler and thus changed the unit of the z-axis values.
+                  ...If the user does not want a unit shown at all, then the
+                  ...user should set zunit to an empty string ("").
         Outputs: Nothing OR displays a plot OR saves a plot
         Notes:
             > If a 2D attribute is given for yattrname, then the code will plot
@@ -870,40 +883,36 @@ class RadliteModel():
             fig = plt.figure(figsize=figsize)
 
 
-        ##Below Section: FETCH x and y-axis values
+        ##Below Section: FETCH y-axis values
         #Fetch y-axis values
         yvals = self.get_attr(yattrname)
-        #Generate numerical x-axis if none given
-        if xattrname is None:
-            xattrname = ""
-            xvals = np.arange(0, len(yvals))
-            xunit = ""
-        else:
-            xvals = self.get_attr(xattrname)
 
 
         ##Below Section: PLOT as either 2D gradient or 1D line+scatter
         ndim = len(np.asarray(yvals).shape) #Number of dimensions for plot
-        xshape = np.asarray(xvals).shape #Shape of x-array
         if ndim == 2: #If 2D quantity (assumed axes are radius vs. theta)
             #Set desired 2D quantity to new variable z
             zattrname = yattrname
             zvals = self.get_attr(zattrname) #2D quantity
-            zunit = self.get_unit(zattrname) #Unit for 2D quantity
-            zscaler = yscaler
             #Extract radius and theta for x and y-axes
             yattrname = "theta"
             yvals = self.get_attr(yattrname) #y-axis values
-            yunit = self.get_unit(yattrname) #Unit for y-axis
             xattrname = "radius"
             xvals = self.get_attr(xattrname) #x-axis values
-            xunit = self.get_unit(xattrname) #Unit for x-axis
+            #For cases where z-axis covers only half of thetas, trim thetas
+            if zvals.shape[0] == len(yvals)/2.0:
+                halflen = len(yvals)//2
+                yvals = yvals[0:halflen] #Cut thetas in half (since mirrored)
             #Plot gradient
-            grad = plt.imshow(zvals*zscaler, cmap=color)
-        elif (ndim == 1) and (len(xshape) == 1): #If 1D quantities
+            grad = plt.contourf(xvals*xscaler, yvals*yscaler, zvals*zscaler,
+                                cmap=cmap, levels=levels)
+        elif ndim == 1: #If 1D quantities
+            #Generate numerical x-axis
+            xvals = np.arange(0, len(yvals))
             #Plot line plot
-            plt.plot(xvals*xscaler, yvals*yscaler, color=color,
-                    markercolor=markercolor, markersize=markersize,
+            plt.plot(xvals*xscaler, yvals*yscaler, color=linecolor,
+                    markerfacecolor=markercolor, markeredgecolor=markercolor,
+                    markersize=markersize,
                     linewidth=linewidth, linestyle=linestyle,
                     alpha=alpha, label=leglabel, marker=markerstyle)
         else: #If neither 1D nor 2D
@@ -930,11 +939,11 @@ class RadliteModel():
         if ndim == 2:
             if cbarlabel is None:
                 #Determine the unit, if not given
-                if cbarunit is None:
-                    cbarunit = self.get_unit(zattrname) #Automatic unit
+                if zunit is None:
+                    zunit = self.get_unit(zattrname) #Automatic unit
                 cbarlabel = zattrname.capitalize()
-                if cbarunit != "": #Tack on unit, if exists
-                    cbarlabel = cbarlabel + " ["+cbarunit+"]"
+                if zunit != "": #Tack on unit, if exists
+                    cbarlabel = cbarlabel + " ["+zunit+"]"
             cbar = plt.colorbar(grad)
             cbar.set_label(label=cbarlabel, fontsize=titlefontsize,
                             rotation=cbarrotation, labelpad=cbarlabelpad)
@@ -942,13 +951,23 @@ class RadliteModel():
 
 
         ##Below Section: LABEL plot axes, if so desired
+        #Extract units, if not given
+        if yunit is None:
+            yunit = self.get_unit(yattrname) #Unit for y-axis
+        if xunit is None:
+            if ndim == 1: #For 1D case, no unit needed for x-axis
+                xunit = ""
+            elif ndim == 2: #For 2D case, take automatic unit
+                xunit = self.get_unit(xattrname) #Unit for x-axis
         #x-axis labels (with units), if so desired
         if xlabel is None:
-            #Set the x-axis label
-            xlabel = xattrname.capitalize()
-        #Determine the unit, if not given
-        if xunit is None:
-            xunit = self.get_unit(xattrname) #Automatic unit
+            #Set blank x-axis label for 1D case
+            if ndim == 1:
+                xlabel = ""
+            #Otherwise, set attribute name as label for 2D case
+            elif ndim == 2:
+                xlabel = xattrname.capitalize()
+        #Determine the unit for 2D case, if not given
         if xunit != "": #Tack on unit, if exists
             xlabel = xlabel +" ["+xunit+"]"
         plt.xlabel(xlabel, fontsize=axisfontsize)
@@ -2602,6 +2621,8 @@ class RadliteSpectrum():
 
         ##Below Section: PLOT the desired attributes
         plt.plot(xvals*xscaler, yvals*yscaler, color=color,
+                    markerfacecolor=markercolor, markeredgecolor=markercolor,
+                    markersize=markersize, marker=markerstyle,
                     linewidth=linewidth, linestyle=linestyle,
                     alpha=alpha, label=leglabel)
 
