@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import warnings
 from collections import OrderedDict
 
 import numpy as np
@@ -61,19 +62,26 @@ def read_grid(path, gridroot=None):
                 width = float(words[-1][0:-5])
             except:
                 width = None
-                
-            model   = pf.getdata(resolution,1)
-            moldata = pf.getdata(resolution,2)
+            
+            try:  
+                model   = pf.getdata(resolution,1)
+                moldata = pf.getdata(resolution,2)
         
-            mwave = model['wave'].flatten()
-            mflux = model['spec'].flatten()
-            mcontinuum = fc.find_continuum(mwave,mflux,nan=True)
-            mlines = mflux-mcontinuum
-            mdict = {'path':resolution,'wave':mwave,'flux':mflux,'continuum':mcontinuum,'lines':mlines,
-                     'resolution':width, 'ID':ID, 'moldata':moldata}
-            for key in keys:
-                mdict[key.lower()] = parameter[key]
-            mdata.append(mdict)
+                mwave = model['wave'].flatten()
+                mflux = model['spec'].flatten()
+                mcontinuum = fc.find_continuum(mwave,mflux,nan=True)
+                mlines = mflux-mcontinuum
+                mdict = {'path':resolution,'wave':mwave,'flux':mflux,'continuum':mcontinuum,'lines':mlines,
+                         'resolution':width, 'ID':ID, 'moldata':moldata}
+                for key in keys:
+                    mdict[key.lower()] = parameter[key]
+                mdata.append(mdict)
+            except:
+                # If the model does not exist, ignore it. 
+                warnings.warn('Failed to read model '+ resolution)
+                
+            
+            
         percent = 100*(count/(nsegments-1))
         sys.stdout.write("Progress: %d%%   \r" % percent)
         sys.stdout.flush()

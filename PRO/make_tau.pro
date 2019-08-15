@@ -2,7 +2,7 @@
 ;Calculate the optical depth along the line of sight to the central star
 ;=======================================================================
 
-PRO make_tau, ref_freq, tau=tau, vtau=vtau
+PRO make_tau, ref_freq, tau=tau, vtau=vtau, column=column
 @natconst.pro
 
 a  = read_dustdens()
