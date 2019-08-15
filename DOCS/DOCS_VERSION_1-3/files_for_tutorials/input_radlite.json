@@ -1,6 +1,6 @@
 {
   "inp_path":       {
-                      "value":"../docs/files_for_tutorials/radmc_outputs/",
+                      "value":"files_for_tutorials/radmc_outputs/",
                       "comment":"Path to the folder containing all .inp files produced by RADMC (e.g., radius.inp)."
                     },
   "exe_path":       {
@@ -14,7 +14,7 @@
                       "comment":"Path to the folder containing all HITRAN molecular data files (e.g., 01_hit12.par)."
                     },
   "psumfile":       {
-                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/ParSum.dat",
+                      "value":"../../HITRAN/ParSum.dat",
                       "comment":"Path+filename for the HITRAN partition sum file (i.e., ParSum.dat)."
                     },
   "lambda_path":    {

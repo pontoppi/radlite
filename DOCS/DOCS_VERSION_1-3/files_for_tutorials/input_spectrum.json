@@ -16,7 +16,7 @@
                       "comment":"!!!."
                     },
   "run_paths":      {
-                      "value":["../docs/rundir/outputdir/"],
+                      "value":["rundir/outputdir/"],
                       "comment":"!!!."
                     },
   "numcores":       {
