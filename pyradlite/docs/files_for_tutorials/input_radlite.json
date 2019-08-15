@@ -1,16 +1,16 @@
 {
   "inp_path":       {
-                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/test_pyradlite_forradlite-runradlite/",
+                      "value":"../docs/files_for_tutorials/radmc_outputs/",
                       "comment":"Path to the folder containing all .inp files produced by RADMC (e.g., radius.inp)."
                     },
   "exe_path":       {
-                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/RADLITE/",
-                      "comment":"Path to the folder containing the RADLite executable (i.e., RADlite.exe)."
+                      "value":"/Users/jpegues/Documents/github_radlite/radlite/RADLITE/",
+                      "comment":"Path to the folder containing the RADLite executable (i.e., RADlite.exe).  THIS MUST BE THE FULL COMPUTER PATH (e.g., /User/Documents/radlite/RADLITE/)."
                     },
 
 
   "hit_path":       {
-                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/HITRAN/",
+                      "value":"../../HITRAN/",
                       "comment":"Path to the folder containing all HITRAN molecular data files (e.g., 01_hit12.par)."
                     },
   "psumfile":       {
@@ -18,7 +18,7 @@
                       "comment":"Path+filename for the HITRAN partition sum file (i.e., ParSum.dat)."
                     },
   "lambda_path":    {
-                      "value":"/Users/jpegues/Documents/disk_modeling/radlite-master/LAMDA/",
+                      "value":"../../LAMDA/",
                       "comment":"Path to the folder containing all LAMDA molecular data files (e.g., 12CO_lamda.dat)."
                     },
 
@@ -55,7 +55,7 @@
                       "value":"12CO",
                       "comment":"Name of the desired molecule (case sensitive, with no spaces and no special characters).  Examples: '12CO', 'H218O', 'H2O'."
                     },
-"ovp":          {
+  "whichop":        {
                     "value":"both",
                     "comment":"Only used when 'oandp' is set to True within the companion input HITRAN file.  If 'o', will include ortho-lines only.  If 'p', will include para-lines only.  If 'both', will include both ortho and para lines."
                     },
@@ -88,10 +88,6 @@
   "max_Eup":        {
                       "value":1E4,
                       "comment":"Maximum energy level [in cm^-1] of molecular lines to include."
-                    },
-  "max_vup":        {
-                      "value":1E90,
-                      "comment":"Maximum transition of molecular lines to include."
                     },
 
 

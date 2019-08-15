@@ -4,7 +4,7 @@
 
 ##Below Section: IMPORT necessary packages
 import astropy.constants as const
-from classUtils import func_timer
+from exutils import func_timer
 from datetime import datetime as dater
 import json
 import matplotlib.pyplot as plt
@@ -105,7 +105,7 @@ class RadliteModel():
         """
         ##Below Section: READ IN + STORE input files
         #Read in input RADLite data
-        with open(os.path.join(infilename)) as openfile:
+        with open(infilename, 'r') as openfile:
             inputdict = json.load(openfile)
         #Store in secret dictionary (stripping out comments)
         self._attrdict = {}
@@ -115,7 +115,7 @@ class RadliteModel():
         #NOTE: Unit dictionary for calculated quantities only! NOT inputs
 
         #Read in HITRAN data and then extract desired molecule
-        with open(hitranfilename) as openfile:
+        with open(hitranfilename, 'r') as openfile:
             hitrandict = json.load(openfile)
         #Store molecular data for specified molecule
         moldict = hitrandict[self._attrdict["molname"]] #Extract mol. data
@@ -228,7 +228,7 @@ class RadliteModel():
         maxcores = mp.cpu_count()
         if self.get_attr("numcores") > (maxcores - 1):
             newnumcores = max([(maxcores - 1), 1])
-            print("Whoa, looks like you requested too many cores (you "
+            print("Oh no, looks like you requested too many cores (you "
                     +"requested "+str(self.get_attr("numcores"))+")!")
             print("Looks like you only have "+str(maxcores)+" available in "
                     +"total, so we're reducing the number of cores down to "
@@ -238,12 +238,8 @@ class RadliteModel():
         #!!!!! ###Make sure that desired LTE format is valid
         if not self.get_attr("lte"):
             raise ValueError("Sorry, currently we only support LTE "
-                                +"calculations.  Please set lte to false
+                                +"calculations.  Please set lte to false "
                                 +"in the input file.")
-        if not self.get_attr("ovp"):
-            raise ValueError("Sorry, currently we do not distinguish between "
-                                +"ortho and para lines.  Please set ovp to "
-                                +"false in the input file".)
 
 
         ##Below Section: CHOOSE RADLite exec. based on desired output
@@ -574,6 +570,14 @@ class RadliteModel():
         """
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(pind)+"th core has started working...")
+        ##Below Section: STOP this core if it has no lines to process
+        if self.get_attr("_levelpopdicts")[pind] is None: #If no level pop. info
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print(str(pind)+"th core does not have any lines to process.  "
+                        +"Exiting...")
+            return
+
+
         ##Below Section: COPY OVER radlite physics/structure input files
         copyfiles = ["abundance.inp", "density.inp", "dustdens.inp", "dustopac.inp", "dustopac_1.inp", "dusttemp.info", "dusttemp_final.dat", "frequency.inp", "line.inp", "radius.inp", "radlite.inp", "starspectrum.inp", "scatsource.dat", "theta.inp", "temperature.inp", "turbulence.inp", "velocity.inp"]
         for filehere in copyfiles:
@@ -1102,10 +1106,20 @@ class RadliteModel():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(len(uniqinds))+" unique indices found, "
                         +"meaning "+str(len(Euniqarr))+" unique levels.")
+        #Throw an error if this core does not have any molecular lines
+        #...(otherwise, an obscure multiprocessing error will be thrown later)
+        #if len(uniqinds) == 0:
+        #    raise ValueError("Oh no!  The "+str(pind)+"th core has no unique "
+        #                +"molecular lines.  Please either decrease the total "
+        #                +"number of cores assigned to this instance, or expand "
+        #                +"your molecular line criteria in the input file to "
+        #                +"include more molecular lines.")
 
 
         ##Below Section: CALCULATE level populations
         numlevels = len(Euniqarr)
+        if numlevels == 0: #If no molecular lines partitioned to this core
+            return None #Nothing for this core to do later
         numtrans = len(wavenumarr)
         Euniqarr_K = Euniqarr*h0*c0/1.0/kB0 #[K]; Upper energy levels
         #Fetch interpolated partition sum
@@ -1161,7 +1175,7 @@ class RadliteModel():
         numlines = self.get_attr("numlines") #Number of lines
         numcores = self.get_attr("numcores") #Number of cores
         if self.get_attr("verbose"): #Verbal output, if so desired
-            print("Dividing up the lines for "
+            print("Dividing up a total of "+str(numlines)+" lines for "
                         +str(numcores)+" cores...")
         #Determine indices for splitting up the data
         tempsplits = np.array([numlines // numcores]*numcores) #Split per core
@@ -1185,6 +1199,7 @@ class RadliteModel():
 
 
     ##READ METHODS
+    @func_timer
     def _read_hitran(self):
         """
         Method: _read_hitran
@@ -1205,7 +1220,7 @@ class RadliteModel():
                                             1.0E4/self.get_attr("min_mu")]
         insmin = self.get_attr("min_ins")
         Eupmax = self.get_attr("max_Eup")
-        vupmax = self.get_attr("max_vup")
+        #vupmax = self.get_attr("max_vup")
 
 
         ##Below Section: PROCESS all lines in HITRAN file
@@ -1228,7 +1243,7 @@ class RadliteModel():
                             "qup", "qlow", "err", "ref", "flag", "gup", "glow"]
         hitrandtypes = [int]*1 +[float]*8 +[str]*7 +[float]*2
 
-        #Record *all* molecular line into a convenient dictionary
+        #Record *all* molecular lines into a convenient dictionary
         #NOTE: Any undesired lines will be removed later
         hitrandict = {} #Initialize dictionary to hold line attributes
         ii = 0 #Index to keep track of place within entries
@@ -1243,33 +1258,87 @@ class RadliteModel():
         #Also calculate and record upper energy levels
         hitrandict["Eup"] = hitrandict["Elow"] + hitrandict["wavenum"] #E_up
         #And also convert v levels into ints (removing any whitespaces)
-        vupnum = np.array(
-                            [int(hitrandict["vup"][ai].replace(" ", ""))
-                                for ai in range(0, len(hitrandict["vup"]))])
+        #vupnum = np.array(
+        #                    [int(hitrandict["vup"][ai].replace(" ", ""))
+        #                        for ai in range(0, len(hitrandict["vup"]))])
 
-        #Throw error if any signs of incomplete data
+        #Print a note if any signs of incomplete data
+        gupis0inds = np.array([False]*len(hitrandict["gup"])) #Initialization
         if 0 in hitrandict["gup"]:
-            raise ValueError("Something's wrong!  Incomplete molecular "
-                        +"HITRAN data at wavenum="
-                        +str(hitrandict["wavenum"][
-                                                hitrandict["gup"]==0])+".")
+            gupis0inds = (hitrandict["gup"] == 0)
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Whoa!  Incomplete molecular HITRAN data at "
+                        +"wavenum="+str(hitrandict["wavenum"][gupis0inds])
+                        +".  Skipping these entries...")
 
 
         ##Below Section: REMOVE any lines outside of desired range
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Removing molecular lines outside of specified criteria...")
-        #Extract indices of lines that fall within criteria
-        keepinds = np.where( ~(
+
+        #Extract boolean indices of lines that fall within criteria
+        keepinds = ~np.array(
+                    #If gup is 0
+                    (gupis0inds)
                     #If incorrect isotopologue
-                    (hitrandict["isonum"] != isonum)
+                    | (hitrandict["isonum"] != isonum)
                     #If wavenumber outside of desired wavenumber range
                     | (hitrandict["wavenum"] < wavenumrange[0])
                     | (hitrandict["wavenum"] > wavenumrange[1])
                     #If intensity, level, or upper energy beyond given cutoffs
                     | (hitrandict["ins"] < insmin)
-                    | (hitrandict["Eup"] > Eupmax)
-                    | (vupnum > vupmax)))[0]
-        numlines = len(keepinds) #Number of lines that fall within criteria
+                    | (hitrandict["Eup"] > Eupmax))
+        if self.get_attr("verbose"): #Verbal output, if so desired
+            print("Looks like {0} out of {1} total lines will be kept..."
+                    .format(keepinds.sum(), len(keepinds)))
+
+        #If ortho or para requested, then extract indices of ortho or para lines
+        if (self.get_attr("oandp")) and (self.get_attr("whichop") != "both"):
+            whichop = self.get_attr("whichop")
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("Ortho (o) vs. para (p) lines also requested!  "
+                        +"Now extracting only the "+whichop+" lines...")
+            #Split up the rotational strings
+            qupsplits = [hitrandict["qup"][ai].split()
+                            for ai in range(0, len(hitrandict["qup"]))]
+            qup2s = np.array([qupsplits[ai][1]
+                            for ai in range(0, len(qupsplits))]).astype(float)
+            qup3s = np.array([qupsplits[ai][2]
+                            for ai in range(0, len(qupsplits))]).astype(float)
+            #Split up the vibrational strings
+            vupsplits = [hitrandict["vup"][ai].replace(" ", "")
+                            for ai in range(0, len(hitrandict["vup"]))]
+            #Extract vup part 3 (*should* always be last two characters)
+            vup3s = np.array([vupsplits[ai][-2:len(vupsplits[ai])]
+                            for ai in range(0, len(vupsplits))]).astype(float)
+            #Throw a serious error if any vupsplits more than 6 characters long
+            if np.max([len(vhere) for vhere in vupsplits]) > 6:
+                raise ValueError("SERIOUS DATA READ-IN ERROR ENCOUNTERED!!!  "
+                                +"Please contact your code provider!!!")
+
+            #Add certain components together to form o. vs. p. criterion
+            opnums = qup2s + qup3s + vup3s #Criterion
+
+            #Extract indices of specified form
+            if whichop == "o":
+                opinds = np.array((opnums % 2) == 1) #If odd, then ortho
+            elif whichop == "p":
+                opinds = np.array((opnums % 2) == 0) #If even, then para
+            else:
+                raise ValueError("Oh no!  Please make sure that the user-"
+                            +"specified value of 'whichop' in the input file "
+                            +"(processed during initialization) is either "
+                            +"'o', 'p', or 'both'.")
+
+            #Boolean-combine the o. vs. p. indices with general-criteria indices
+            if self.get_attr("verbose"): #Verbal output, if so desired
+                print("There are "+str(opinds.sum())+" "+whichop+" lines "
+                        +"across the entire database.  So only these will be "
+                        +"considered.")
+            keepinds = keepinds * opinds #Updated boolean array
+
+        #Note the total number of lines that fall within criteria
+        numlines = keepinds.sum()
 
         #Keep only those lines that fall within criteria; delete all other lines
         for key in hitrandict:
@@ -1278,7 +1347,7 @@ class RadliteModel():
         self._set_attr(attrname="numlines", attrval=numlines) #Final count
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("There are "+str(numlines)+" molecular lines "
-                    +"that fall within specified criteria.")
+                    +"that fall within ALL specified criteria.")
 
 
         ##Below Section: EXIT
@@ -2206,7 +2275,7 @@ class RadliteSpectrum():
         """
         ##Below Section: READ IN + STORE input file
         #Read in input spectrum data
-        with open(os.path.join(infilename)) as openfile:
+        with open(infilename, 'r') as openfile:
             inputdict = json.load(openfile)
         #Store in secret dictionary (stripping out comments)
         self._attrdict = {}
@@ -2251,7 +2320,7 @@ class RadliteSpectrum():
         maxcores = mp.cpu_count()
         if self.get_attr("numcores") > (maxcores - 1):
             newnumcores = max([(maxcores - 1), 1])
-            print("Whoa, looks like you requested too many cores (you "
+            print("Oh no, looks like you requested too many cores (you "
                     +"requested "+str(self.get_attr("numcores"))+")!")
             print("Looks like you only have "+str(maxcores)+" available in "
                     +"total, so we're reducing the number of cores down to "
@@ -2757,7 +2826,8 @@ class RadliteSpectrum():
         #For einstein coefficients, central wavenumbers, and upper energies
         A_arr = np.array([lh[3] for lh in sechere]).astype(float)
         wavenum_arr = np.array([lh[4] for lh in sechere]).astype(float)
-        Eup_arr = np.array([lh[5] for lh in sechere]).astype(float)
+        Eup_arr = np.array([lh[5] for lh in sechere]).astype(float) #wavenum.
+        EupK_arr = Eup_arr*h0*c0/1.0/kB0 #Kelvin
         #For vibrational and rotational levels
         lvib_arr = np.array([lh[6] for lh in sechere]).astype(float)
         lrot_arr = np.array([lh[7] for lh in sechere]).astype(float)
@@ -2774,7 +2844,8 @@ class RadliteSpectrum():
         moldict_list = [{} for ai in range(0, numlines)] #To hold all mol. info
         iloc = 6 #Starting index within line files
         for ai in range(0, numlines):
-            freqcen = float(specdata[iloc+3]) #Central frequency
+            freq = float(specdata[iloc+3]) #Central frequency [Hz]
+            wavelength = c0/1.0/freq #Central wavelength [cm]
             numpoints = int(specdata[iloc+5]) #Num of freq.
 
             #Extract section of data for current molecular line
@@ -2786,7 +2857,7 @@ class RadliteSpectrum():
             #Record data for this mol. line
             linedict_list[ai]["vel"] = sechere[:,0] #Velocities
             linedict_list[ai]["flux"] = sechere[:,1] #Fluxes
-            linedict_list[ai]["freqcen"] = freqcen #Central frequency
+            linedict_list[ai]["freq"] = freq #Central frequency
             linedict_list[ai]["maxnumpoints"] = maxnumpoints #Max. # data points
             #Increment place in overall file
             iloc = iloc + 7 + numpoints - 1
@@ -2799,10 +2870,14 @@ class RadliteSpectrum():
             #For upper and lower degeneracies
             moldict_list[ai]["gup"] = gup_arr[ai]
             moldict_list[ai]["glow"] = glow_arr[ai]
-            #For einstein coefficient, central wavenumber, and upper energy
+            #For einstein coeff., central wavenumber, central frequency,
+            #...central wavelength, upper energy
             moldict_list[ai]["A"] = A_arr[ai]
             moldict_list[ai]["wavenum"] = wavenum_arr[ai]
-            moldict_list[ai]["Eup"] = Eup_arr[ai]
+            moldict_list[ai]["wavelength"] = wavelength
+            moldict_list[ai]["freq"] = freq
+            moldict_list[ai]["Eup"] = Eup_arr[ai] #In wavenumber
+            moldict_list[ai]["Eup_K"] = EupK_arr[ai] #In Kelvin
             #For vibrational and rotational levels
             moldict_list[ai]["lvib"] = lvib_arr[ai]
             moldict_list[ai]["lrot"] = lrot_arr[ai]
@@ -2852,8 +2927,8 @@ class RadliteSpectrum():
 
             #Throw an error if not equal number of spectrum and mol. data files
             if len(subspecfiles) != len(submolfiles):
-                raise ValueError("Whoa! "+pathhere+" does not contain an equal "
-                        +"number of spectrum ('linespectrum_moldata_*.dat') "
+                raise ValueError("Oh no! "+pathhere+" does not contain an "
+                        +"equal # of spectrum ('linespectrum_moldata_*.dat') "
                         +"and molecular data ('moldata_*.dat') files. Make "
                         +"you haven't tampered with any of the RADLite output "
                         +"files from running RadliteModel().run_radlite().")
@@ -2915,7 +2990,7 @@ class RadliteSpectrum():
             print("Doing light checks for signs of incompatible sources...")
         #Check that all sources have same inclination
         if len(np.unique([dhere["incl"] for dhere in moldict_list])) > 1:
-            raise ValueError("Whoa! The RADLite runs you specified don't all "
+            raise ValueError("Oh no! The RADLite runs you specified don't all "
                             +"have the same source inclination!")
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("Light checks passed!\n")
@@ -2974,14 +3049,14 @@ class RadliteSpectrum():
 
         ##Below Section: PREPARE arrays to hold full spec. and output spec.
         #Determine min. and max. wavelengths (wavelen.) [mu] for full spectrum
-        freqcen_list = np.array([dhere["freqcen"]
+        freq_list = np.array([dhere["freq"]
                                     for dhere in linedict_list]) #Center freqs.
-        freqcen_list = freqcen_list[freqcen_list != 0] #Cut out any freq=0
+        freq_list = freq_list[freq_list != 0] #Cut out any freq=0
         #For min. mu
-        muminraw = np.min(cinmu0/1.0/freqcen_list) #Unbroadened min. mu value
+        muminraw = np.min(cinmu0/1.0/freq_list) #Unbroadened min. mu value
         mumin = muminraw - (boxwidth*1.0E9*muminraw/cinmu0) #Broad. by box width
         #For max. mu
-        mumaxraw = np.max(cinmu0/1.0/freqcen_list) #Unbroadened max. mu value
+        mumaxraw = np.max(cinmu0/1.0/freq_list) #Unbroadened max. mu value
         mumax = mumaxraw + (boxwidth*1.0E9*mumaxraw/cinmu0) #Broad. by box width
 
         #Prepare wavelen. [mu] array for full spectrum with uniform vel. spacing
@@ -3027,7 +3102,7 @@ class RadliteSpectrum():
             dhere = linedict_list[ai] #Current mol. line
             #Extend old vel. range by boxwidth and convert to [mu]
             muolds = ((np.concatenate([[-1*boxwidth], dhere["vel"], [boxwidth]])
-                    *1.0E9/dhere["freqcen"]) + (cinmu0/1.0/dhere["freqcen"]))
+                    *1.0E9/dhere["freq"]) + (cinmu0/1.0/dhere["freq"]))
             #Extend edges of old em. flux range to reach full boxwidth
             emolds = np.concatenate([[emonly_list[ai][0]], emonly_list[ai],
                                     [emonly_list[ai][-1]]])
@@ -3047,9 +3122,9 @@ class RadliteSpectrum():
 
         ##Below Section: INTERPOLATE continuum for entire full spec.
         #Sort central continuum values (at vel=0) by ascending central mu
-        tempindsort = np.argsort([(cinmu0/1.0/dhere["freqcen"])
+        tempindsort = np.argsort([(cinmu0/1.0/dhere["freq"])
                                 for dhere in linedict_list])
-        tempmusort = np.array([(cinmu0/1.0/dhere["freqcen"])
+        tempmusort = np.array([(cinmu0/1.0/dhere["freq"])
                                 for dhere in linedict_list])[tempindsort]
         tempcontcensort = np.array(contcen_list)[tempindsort] #Corres. cen. cont
         #Linearly stretch continuum to reach the edges of the spectrum
@@ -3155,7 +3230,7 @@ class RadliteSpectrum():
             freq_arr = self.get_attr("frequency") #Frequency [Hz]
             moldict_list = self.get_attr("molinfo") #All mol. info
         except AttributeError: #Throw an error if hasn't been processed yet
-            raise AttributeError("Whoa! Looks like you haven't processed "
+            raise AttributeError("Oh no! Looks like you haven't processed "
                         +"any RADLite output data yet. You can do so by "
                         +"running the gen_spec() method for this class.")
 
