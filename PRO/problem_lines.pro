@@ -53,7 +53,18 @@ IF gas_decoup EQ 1 THEN BEGIN
 ENDIF
 IF gas_decoup EQ 2 THEN BEGIN
     spawn, 'rm temperature.inp'
-	parameterized_decoup,tgas=tgas,mol_destruct=mol_destruct
+	parameterized_decoup_najita,tgas=tgas,mol_destruct=mol_destruct
+ENDIF
+IF gas_decoup EQ 3 THEN BEGIN
+   spawn, 'rm temperature.inp'
+   ; Right now, the only supported atomic species is oxygen. 
+   IF isot EQ 341 THEN BEGIN
+      mol_or_atom='atom'
+   ENDIF ELSE BEGIN
+      mol_or_atom='mol'
+   ENDELSE
+
+	parameterized_decoup_prodimo,tgas=tgas,speciesfrac=speciesfrac,mol_or_atom=mol_or_atom
 ENDIF
 ;
 ;Some times the gas temperature comes
@@ -102,7 +113,7 @@ free_lun, lund
 ;======================================
 ;Make an abundance file
 ;======================================
-make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct
+make_abundance,abun_str,PT_rel=PT_rel,abun=abun, mol_destruc=mol_destruct,speciesfrac=speciesfrac
 
 ;====================================
 ;Test the velocity

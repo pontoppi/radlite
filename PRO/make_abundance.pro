@@ -7,7 +7,7 @@
 ;1) Alpha-viscosity turbulence
 ;
 
-PRO make_abundance,atype, PT_rel=PT_rel,abun=abun,tgas=tgas,mol_destruct=mol_destruct
+PRO make_abundance,atype, PT_rel=PT_rel,abun=abun,tgas=tgas,mol_destruct=mol_destruct,speciesfrac=speciesfrac
 
 @natconst.pro
 @line_params.ini
@@ -128,7 +128,9 @@ IF KEYWORD_SET(mol_destruct) THEN BEGIN
 	abun[dsubs] = 1e-30
 ENDIF
 
-
+IF KEYWORD_SET(speciesfrac) THEN BEGIN
+	abun = abun*speciesfrac
+ENDIF
 
 openw,1,'abundance.inp'
 printf,1,nr,nt/2
