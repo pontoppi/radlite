@@ -22,7 +22,7 @@ except ImportError:
     import pyfits as fitter
 
 #Set helpful constants
-dotest = True
+dotest = False
 if dotest:
     au0 = 1.49597870E13
     c0 = 2.99792458E10
@@ -174,11 +174,8 @@ class RadliteModel():
 
 
         ##Below Section: PREPARE molecular and population data per core
-        numcores = self.get_attr("numcores")
-        #Initialize private structure to hold level population info per core
-        #self._set_attr(attrname="_levelpopdicts", attrval={})
-
-        #Prepare pool of cores
+        numcores = self.get_attr("numcores") #Number of cores
+        #Prepare+run pool of cores
         if self.get_attr("verbose"): #Verbal output, if so desired
             print("-"*10+"\n"+"Preparing molecular line data per core...")
             print("")
@@ -896,7 +893,6 @@ class RadliteModel():
 
 
         ##Below Section: FETCH y-axis values
-        #Fetch y-axis values
         yvals = self.get_attr(yattrname)
 
 
@@ -1246,10 +1242,6 @@ class RadliteModel():
             ii = ii + hitranchars[ai] #Update place within fileline characters
         #Also calculate and record upper energy levels
         hitrandict["Eup"] = hitrandict["Elow"] + hitrandict["wavenum"] #E_up
-        #And also convert v levels into ints (removing any whitespaces)
-        #vupnum = np.array(
-        #                    [int(hitrandict["vup"][ai].replace(" ", ""))
-        #                        for ai in range(0, len(hitrandict["vup"]))])
 
         #Print a note if any signs of incomplete data
         gupis0inds = np.array([False]*len(hitrandict["gup"])) #Initialization
@@ -1527,8 +1519,6 @@ class RadliteModel():
             abundarr[temparr < temp_fr] = abundrange[0]
         self._set_attr(attrname="collpartner", attrval=0.0)
 
-
-        ##NOTE: IN MAKE_ABUNDANCE.PRO, THERE WAS PART HERE ABOUT MOL_DESTRUCT
 
         ##Below Section: RECORD calculated abundance + EXIT
         self._set_attr(attrname="abundance", attrval=abundarr)
@@ -1845,7 +1835,7 @@ class RadliteModel():
             openfile.write(writestr)
 
 
-        ##Below Section: EXIT function
+        ##Below Section: EXIT method
         return
     #
 
@@ -2672,9 +2662,7 @@ class RadliteSpectrum():
 
 
         ##Below Section: FETCH x and y-axis values
-        #Fetch y-axis values
         yvals = self.get_attr(yattrname)
-        #Fetch x-axis values
         xvals = self.get_attr(xattrname)
 
 
@@ -2840,7 +2828,7 @@ class RadliteSpectrum():
         moldict_list = [{} for ai in range(0, numlines)] #To hold all mol. info
         iloc = 6 #Starting index within line files
         for ai in range(0, numlines):
-            freq = c0/(1.0/wavenum_arr[ai]) #float(specdata[iloc+3]) #Central frequency [Hz]
+            freq = c0/(1.0/wavenum_arr[ai]) #Central frequency [Hz]
             wavelength = c0/1.0/freq #Central wavelength [cm]
             numpoints = int(specdata[iloc+5]) #Num of freq.
 
