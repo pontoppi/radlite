@@ -151,6 +151,6 @@
                     },
   "noisrf":         {
                       "value":true,
-                      "comment":"true, but why???"
+                      "comment":"Leave this as true."
                     }
 }

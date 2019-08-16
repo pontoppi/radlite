@@ -1283,7 +1283,8 @@ class RadliteModel():
             qup3s = np.array([qups[ai].split()[2]
                             for ai in range(0, len(qups))]).astype(float)
             #Take last numerical entry in vibrational string
-            vup3s = np.array([hitrandict["vup"][ai].replace(" ","")[-2:6]
+            vup3s = np.array([hitrandict["vup"][ai]
+                            .replace(" ","")[-2:len(hitrandict["vup"][ai])]
                             for ai in range(0, len(hitrandict["vup"]))]
                             ).astype(int)
             #Vib. string *should* have up to 6 characters; throw error if not
