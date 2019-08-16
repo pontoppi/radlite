@@ -1,0 +1,30 @@
+{
+  "dist":           {
+                      "value":140.0,
+                      "comment":"Distance [in pc] between observer and source."
+                    },
+  "obsres":         {
+                      "value":3.0,
+                      "comment":"Resolution of the observation."
+                    },
+  "vsampling":      {
+                      "value":1.5,
+                      "comment":"Velocity sampling of the observation.  Following Nyquist's theorems, the value should be no more than 0.5*(obsres)."
+                    },
+  "verbose":        {
+                      "value":true,
+                      "comment":"If true, will print verbal descriptions of what is happening 'behind-the-scenes' whenever a method is run.  If false, will not print these descriptions out."
+                    },
+  "run_paths":      {
+                      "value":["rundir/outputdir/"],
+                      "comment":"A list of folder(s) containing output from RADLite.  The output can be combined into a single spectrum using the RadliteSpectrum() class."
+                    },
+  "numcores":       {
+                      "value":7,
+                      "comment":"Number of cores that will be used to run RADLite.  If this number is greater than <(available number of cores for your machine) - 1>, then this number will be decreased so that it is <(available number of cores for your machine) - 1>, or <1> if there is only one core available."
+                    },
+  "interpolation":  {
+                      "value":"linear",
+                      "comment":"The interpolation scheme to use for estimating the continuum from the molecular lines within the spectrum.  Values accepted by scipy.interpolate.interp1d are accepted here."
+                    }
+}
