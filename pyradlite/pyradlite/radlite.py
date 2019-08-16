@@ -15,7 +15,7 @@ from os import listdir as listdirer
 from scipy.interpolate import interp1d as interper
 from scipy import ndimage as ndimager
 import subprocess
-import radmc_namechange as radmc #!!!!!!!!!!!!!!!!!!
+import radmc
 try:
     import astropy.io.fits as fitter
 except ImportError:
@@ -136,7 +136,7 @@ class RadliteModel():
         self._check_inputs()
 
 
-        ###TEMP. BLOCK START
+        ###TEMP. BLOCK START - UNTIL UPDATED TO RUN RADMC/RADMC-3D
         ##Below Section: TEMPORARY - USE PYRADMC TO READ IN RADMC MODEL
         modradmc = radmc.radmc_model(radmcfilepath)
         self._set_attr(attrname="radius", attrval=modradmc.radius,
@@ -201,15 +201,17 @@ class RadliteModel():
     #
 
 
-    #!!!!!! finish input checks ##CHECK METHODS
+    ##CHECK METHODS
     def _check_inputs(self):
         """
         Method: _check_inputs
         WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-            > Checks that the user has initialized this class instance with the
-              ...minimum set of inputs necessary to run the run_radlite()
-              ...method.
+            > Checks that the user has initialized this class instance with
+              ...sensible inputs.  Generally we assume that users will use
+              ...sensible inputs, so this method does not actually check all
+              ...inputs at the moment.  Can easily be updated/changed as
+              ...absolutely needed.
         Inputs: N/A
         Outputs: N/A
         Notes:
@@ -235,7 +237,7 @@ class RadliteModel():
                     +str(newnumcores)+".")
             self._set_attr(attrnum="numcores", attrval=newnumcores)
 
-        #!!!!! ###Make sure that desired LTE format is valid
+        #!!! TEMPORARY UNTIL N-LTE SUPPORTED
         if not self.get_attr("lte"):
             raise ValueError("Sorry, currently we only support LTE "
                                 +"calculations.  Please set lte to false "
@@ -1106,14 +1108,6 @@ class RadliteModel():
         if self.get_attr("verbose"): #Verbal output, if so desired
             print(str(len(uniqinds))+" unique indices found, "
                         +"meaning "+str(len(Euniqarr))+" unique levels.")
-        #Throw an error if this core does not have any molecular lines
-        #...(otherwise, an obscure multiprocessing error will be thrown later)
-        #if len(uniqinds) == 0:
-        #    raise ValueError("Oh no!  The "+str(pind)+"th core has no unique "
-        #                +"molecular lines.  Please either decrease the total "
-        #                +"number of cores assigned to this instance, or expand "
-        #                +"your molecular line criteria in the input file to "
-        #                +"include more molecular lines.")
 
 
         ##Below Section: CALCULATE level populations
@@ -1130,11 +1124,6 @@ class RadliteModel():
                             for ai in range(0, numlevels)]) /1.0/psuminterped
         #Trim any ridiculously-low values
         npoparr[npoparr < 1E-99] = 0.0
-        #print(np.sum(npoparr))
-        #print(npoparr.shape)
-        #print(np.sum(tempgasarr))
-        #print(np.sum(Euniqarr_K))
-        #print("!!!")
 
 
         ##Below Section: STORE + RETURN unique level results + EXIT
@@ -1299,23 +1288,15 @@ class RadliteModel():
                 print("Ortho (o) vs. para (p) lines also requested!  "
                         +"Now extracting only the "+whichop+" lines...")
             #Split up the rotational strings
-            qupsplits = [hitrandict["qup"][ai].split()
-                            for ai in range(0, len(hitrandict["qup"]))]
-            qup2s = np.array([qupsplits[ai][1]
-                            for ai in range(0, len(qupsplits))]).astype(float)
-            qup3s = np.array([qupsplits[ai][2]
-                            for ai in range(0, len(qupsplits))]).astype(float)
+            qups = hitrandict["qup"]
+            qup2s = np.array([qups[ai].split()[1]
+                            for ai in range(0, len(qups))]).astype(float)
+            qup3s = np.array([qups[ai].split()[2]
+                            for ai in range(0, len(qups))]).astype(float)
             #Split up the vibrational strings
-            vupsplits = [hitrandict["vup"][ai].replace(" ", "")
+            vup3s = np.array([hitrandict["vup"][ai].split()[2]
                             for ai in range(0, len(hitrandict["vup"]))]
-            #Extract vup part 3 (*should* always be last two characters)
-            vup3s = np.array([vupsplits[ai][-2:len(vupsplits[ai])]
-                            for ai in range(0, len(vupsplits))]).astype(float)
-            #Throw a serious error if any vupsplits more than 6 characters long
-            if np.max([len(vhere) for vhere in vupsplits]) > 6:
-                raise ValueError("SERIOUS DATA READ-IN ERROR ENCOUNTERED!!!  "
-                                +"Please contact your code provider!!!")
-
+                            ).astype(float)
             #Add certain components together to form o. vs. p. criterion
             opnums = qup2s + qup3s + vup3s #Criterion
 
@@ -2301,15 +2282,17 @@ class RadliteSpectrum():
     #
 
 
-    #!!!!!! finish input checks ##CHECK METHODS
+    ##CHECK METHODS
     def _check_inputs(self):
         """
         Method: _check_inputs
         WARNING: THIS METHOD IS NOT INTENDED FOR DIRECT USE BY USER.
         Purpose:
-            > Checks that the user has initialized this class instance with the
-              ...minimum set of inputs necessary to run the gen_spec()
-              ...method.
+            > Checks that the user has initialized this class instance with
+              ...sensible inputs.  Generally we assume that users will use
+              ...sensible inputs, so this method does not actually check all
+              ...inputs at the moment.  Can easily be updated/changed as
+              ...absolutely needed.
         Inputs: N/A
         Outputs: N/A
         Notes:
@@ -2816,21 +2799,34 @@ class RadliteSpectrum():
         numlevels = int(moldata[5]) #Number of energy levels
         numtrans = int(moldata[7+numlevels+1]) #Number of transitions
 
+        #Extract level information
+        levhere = moldata[7:7+numlevels] #Section containing all levels
+        gbank = np.array([lhere[17:(17+7)] for lhere in levhere]
+                            ).astype(float) #All possible degeneracies
+        vbank = np.array([lhere[24:(24+15)]
+                            for lhere in levhere]) #All possible vib. levels
+        qbank = np.array([lhere[39:(39+15)]
+                            for lhere in levhere]) #All possible rot. levels
+
         #Extract transitions
         iloc = 7 + numlevels + 3 #Starting index of transitions
         sechere = moldata[iloc:(iloc+numtrans)] #Section containing all trans.
         sechere = [lhere.split() for lhere in sechere] #Split out spaces
         #For upper and lower degeneracies
-        gup_arr = np.array([lh[0] for lh in sechere]).astype(float)
-        glow_arr = np.array([lh[2] for lh in sechere]).astype(float)
+        gup_arr = np.array([gbank[int(lh[1])-1]
+                            for lh in sechere]).astype(float)
+        glow_arr = np.array([gbank[int(lh[2])-1]
+                            for lh in sechere]).astype(float)
         #For einstein coefficients, central wavenumbers, and upper energies
         A_arr = np.array([lh[3] for lh in sechere]).astype(float)
         wavenum_arr = np.array([lh[4] for lh in sechere]).astype(float)
         Eup_arr = np.array([lh[5] for lh in sechere]).astype(float) #wavenum.
         EupK_arr = Eup_arr*h0*c0/1.0/kB0 #Kelvin
         #For vibrational and rotational levels
-        lvib_arr = np.array([lh[6] for lh in sechere]).astype(float)
-        lrot_arr = np.array([lh[7] for lh in sechere]).astype(float)
+        vup_list = np.array([vbank[int(lh[1])-1] for lh in sechere])
+        vlow_list = np.array([vbank[int(lh[2])-1] for lh in sechere])
+        qup_list = np.array([qbank[int(lh[1])-1] for lh in sechere])
+        qlow_list = np.array([qbank[int(lh[2])-1] for lh in sechere])
 
 
         #FOR SPECTRUM FILE
@@ -2844,7 +2840,7 @@ class RadliteSpectrum():
         moldict_list = [{} for ai in range(0, numlines)] #To hold all mol. info
         iloc = 6 #Starting index within line files
         for ai in range(0, numlines):
-            freq = float(specdata[iloc+3]) #Central frequency [Hz]
+            freq = c0/(1.0/wavenum_arr[ai]) #float(specdata[iloc+3]) #Central frequency [Hz]
             wavelength = c0/1.0/freq #Central wavelength [cm]
             numpoints = int(specdata[iloc+5]) #Num of freq.
 
@@ -2879,8 +2875,10 @@ class RadliteSpectrum():
             moldict_list[ai]["Eup"] = Eup_arr[ai] #In wavenumber
             moldict_list[ai]["Eup_K"] = EupK_arr[ai] #In Kelvin
             #For vibrational and rotational levels
-            moldict_list[ai]["lvib"] = lvib_arr[ai]
-            moldict_list[ai]["lrot"] = lrot_arr[ai]
+            moldict_list[ai]["vup"] = vup_list[ai]
+            moldict_list[ai]["vlow"] = vlow_list[ai]
+            moldict_list[ai]["qup"] = qup_list[ai]
+            moldict_list[ai]["qlow"] = qlow_list[ai]
 
 
         ##Below Section: RETURN mol. line data + EXIT
@@ -2972,7 +2970,8 @@ class RadliteSpectrum():
             print("Removing any duplicate line occurrences...")
         #Keep only unique lines
         uniqnames_list = [(dhere["molname"]
-                            +str(dhere["lvib"])+str(dhere["lrot"])
+                            +dhere["vup"]+dhere["vlow"]
+                            +dhere["qup"]+dhere["qlow"]
                             +str(dhere["gup"])+str(dhere["glow"])
                             +str(dhere["Eup"])) for dhere in moldict_list]
         uniqinds = np.unique(uniqnames_list, return_index=True)[1] #Uniq. inds
