@@ -31,16 +31,12 @@ if dotest:
     lsun0     = 3.8525E33
     pc0     = 3.085678E18
     h0     = 6.6262000E-27
-    kB0     = 1.3807E-16 #1.380658E-16 #From read_molecule_lambda.pro; #1.3807E-16 from natconst.pro
+    kB0     = 1.3807E-16
     mp0     = 1.6726231E-24
     G0     = 6.67259E-8
     tsun0     = 5.78E3
     mu0     = 2.3
     amu0    = 1.6605402E-24
-    #BELOW FROM READ_MOLECULE_LAMBDA
-    #c0     = 2.99792458E10
-    #h0     = 6.62620755E-27
-    #kB0     = 1.380658E-16
     cinmu0 = c0*1.0E4 #mu/s
     cinkm0 = c0/1.0E5 #km/s
 else:
@@ -52,6 +48,7 @@ else:
     msun0 = const.M_sun.cgs.value
     rsun0 = const.R_sun.cgs.value
     h0 = const.h.cgs.value
+    kB0 = const.k_B.cgs.value
     cinmu0 = c0*1.0E4 #mu/s
     cinkm0 = c0/1.0E5 #km/s
 #
@@ -1285,10 +1282,15 @@ class RadliteModel():
                             for ai in range(0, len(qups))]).astype(float)
             qup3s = np.array([qups[ai].split()[2]
                             for ai in range(0, len(qups))]).astype(float)
-            #Split up the vibrational strings
-            vup3s = np.array([hitrandict["vup"][ai].split()[2]
+            #Take last numerical entry in vibrational string
+            vup3s = np.array([hitrandict["vup"][ai].replace(" ","")[-2:6]
                             for ai in range(0, len(hitrandict["vup"]))]
-                            ).astype(float)
+                            ).astype(int)
+            #Vib. string *should* have up to 6 characters; throw error if not
+            if max([len(hitrandict["vup"][ai].replace(" ", ""))
+                        for ai in range(0, len(hitrandict["vup"]))]) > 6:
+                raise ValueError("SERIOUS READ-IN ERROR HAS OCCURRED!!!  "
+                                "PLEASE CONTACT YOUR CODE PROVIDER!!!")
             #Add certain components together to form o. vs. p. criterion
             opnums = qup2s + qup3s + vup3s #Criterion
 
