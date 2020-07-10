@@ -95,7 +95,11 @@ FOR ff=0,nfiles-1 DO BEGIN
    dum_str = read_line(linefiles[ff])
    dum_nl  = dum_str.nlines
    nfreq_file = dum_str.nfreq
-   cfreqs[lcount:lcount+dum_nl-1] = dum_str.cfreqs
+
+   ;RADLite calculates the line frequency as a the difference between energy levels, but this is not very accurate in HITRAN, so can lead to very imprecise line centers!!!
+   ;   cfreqs[lcount:lcount+dum_nl-1] = dum_str.cfreqs   
+   cfreqs[lcount:lcount+dum_nl-1] = c/(1e4/dum_mol.freq)
+
    trans[lcount:lcount+dum_nl-1]  = 'v='+STRCOMPRESS(dum_mol.lin_vib)+$
                                     ' J='+STRCOMPRESS(dum_mol.lin_rot)
    eupper[lcount:lcount+dum_nl-1] = dum_mol.eupper
@@ -109,6 +113,7 @@ FOR ff=0,nfiles-1 DO BEGIN
       species[lcount+i]          = dum_mol.species
    ENDFOR
    lcount = lcount + dum_nl
+   
 ENDFOR
 
 ;
@@ -180,6 +185,7 @@ FOR i=0L,lcount-1 DO BEGIN
 	 line_widths[i] = 2.35482*SQRT(TOTAL(line[gsubs]*vel[gsubs]^2)/TOTAL(line[gsubs]))  ;Moment width -> FWHM
 	
 	 l2cs[i] = MAX(line)/MEAN(cont)
+    
 ENDFOR
 
 ;
