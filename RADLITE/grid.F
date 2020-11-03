@@ -623,6 +623,7 @@ c
       doubleprecision dth,xpr,xprh,rr,thcur,dummy,thmaxerror
       logical yesouter
       external grid_linear_refine
+      doubleprecision grid_linear_refine
 c
 c
 c     First do the radial direction
