@@ -1149,7 +1149,7 @@ class RadliteModel():
         tlen = len(self.get_attr("theta"))//2
         tempgasarr = self.get_attr("gastemperature")[0:tlen,:]
         #Interpolate and store partition sum
-        psumfunc = interper(psumtemp, psum, kind=self.get_attr("interpolation"))
+        psumfunc = interper(psumtemp, psum, kind=self.get_attr("interpolation"),bounds_error=False,fill_value="extrapolate")
         self._set_attr(attrname="_psum_interped", attrval=psumfunc(tempgasarr))
 
 
