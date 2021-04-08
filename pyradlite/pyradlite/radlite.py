@@ -229,7 +229,7 @@ class RadliteModel():
             print("Looks like you only have "+str(maxcores)+" available in "
                     +"total, so we're reducing the number of cores down to "
                     +str(newnumcores)+".")
-            self._set_attr(attrnum="numcores", attrval=newnumcores)
+            self._set_attr(attrname="numcores", attrval=newnumcores)
 
         #!!! TEMPORARY UNTIL N-LTE SUPPORTED
         if not self.get_attr("lte"):
@@ -2301,7 +2301,7 @@ class RadliteSpectrum():
             print("Looks like you only have "+str(maxcores)+" available in "
                     +"total, so we're reducing the number of cores down to "
                     +str(newnumcores)+".")
-            self._set_attr(attrnum="numcores", attrval=newnumcores)
+            self._set_attr(attrname="numcores", attrval=newnumcores)
     #
 
 
